@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CE3B218F-C09B-4ADB-91E4-13875FDA424C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OkrTracker.Domain", "src\OkrTracker.Domain\OkrTracker.Domain.csproj", "{ABD4AA22-483C-4D7F-A5C0-70804571C5F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OkrTracker.Application", "src\OkrTracker.Application\OkrTracker.Application.csproj", "{9C282C41-DEBE-4358-B063-24CA6CC13126}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OkrTracker.Infrastructure", "src\OkrTracker.Infrastructure\OkrTracker.Infrastructure.csproj", "{EFD7139C-EF1B-4941-8A10-DBB5BD721B08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OkrTracker.Api", "src\OkrTracker.Api\OkrTracker.Api.csproj", "{09FAC5E6-6000-4FE3-BCA7-76B9BABD731D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0D48E389-857F-480F-8B79-76C562872252}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OkrTracker.Tests", "tests\OkrTracker.Tests\OkrTracker.Tests.csproj", "{04CC1C6A-AAF5-44AE-8E48-D96E310E12F2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ABD4AA22-483C-4D7F-A5C0-70804571C5F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABD4AA22-483C-4D7F-A5C0-70804571C5F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABD4AA22-483C-4D7F-A5C0-70804571C5F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABD4AA22-483C-4D7F-A5C0-70804571C5F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C282C41-DEBE-4358-B063-24CA6CC13126}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C282C41-DEBE-4358-B063-24CA6CC13126}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C282C41-DEBE-4358-B063-24CA6CC13126}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C282C41-DEBE-4358-B063-24CA6CC13126}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFD7139C-EF1B-4941-8A10-DBB5BD721B08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFD7139C-EF1B-4941-8A10-DBB5BD721B08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFD7139C-EF1B-4941-8A10-DBB5BD721B08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFD7139C-EF1B-4941-8A10-DBB5BD721B08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09FAC5E6-6000-4FE3-BCA7-76B9BABD731D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09FAC5E6-6000-4FE3-BCA7-76B9BABD731D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09FAC5E6-6000-4FE3-BCA7-76B9BABD731D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09FAC5E6-6000-4FE3-BCA7-76B9BABD731D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04CC1C6A-AAF5-44AE-8E48-D96E310E12F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04CC1C6A-AAF5-44AE-8E48-D96E310E12F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04CC1C6A-AAF5-44AE-8E48-D96E310E12F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04CC1C6A-AAF5-44AE-8E48-D96E310E12F2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ABD4AA22-483C-4D7F-A5C0-70804571C5F6} = {CE3B218F-C09B-4ADB-91E4-13875FDA424C}
+		{9C282C41-DEBE-4358-B063-24CA6CC13126} = {CE3B218F-C09B-4ADB-91E4-13875FDA424C}
+		{EFD7139C-EF1B-4941-8A10-DBB5BD721B08} = {CE3B218F-C09B-4ADB-91E4-13875FDA424C}
+		{09FAC5E6-6000-4FE3-BCA7-76B9BABD731D} = {CE3B218F-C09B-4ADB-91E4-13875FDA424C}
+		{04CC1C6A-AAF5-44AE-8E48-D96E310E12F2} = {0D48E389-857F-480F-8B79-76C562872252}
+	EndGlobalSection
+EndGlobal
