@@ -1,4 +1,10 @@
 using System.Text.Json.Serialization;
+using OkrTracker.Application.Interfaces;
+using OkrTracker.Application.Ports;
+using OkrTracker.Application.Services;
+using OkrTracker.Domain.Repositories;
+using OkrTracker.Infrastructure.Persistence;
+using OkrTracker.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +18,43 @@ builder.Services.AddControllers()
 // Configuração do Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// --- Infraestrutura ---
+// DatabasePathProvider como Singleton (mantém o caminho configurado em memória durante a execução)
+builder.Services.AddSingleton<IDatabasePathProvider, DatabasePathProvider>();
+builder.Services.AddSingleton<IDatabaseValidator, LiteDbDatabaseValidator>();
+builder.Services.AddSingleton<LiteDbConnectionFactory>();
+
+// --- Repositórios ---
+builder.Services.AddScoped<ICicloRepository, CicloRepository>();
+builder.Services.AddScoped<ITimeRepository, TimeRepository>();
+builder.Services.AddScoped<IObjetivoRepository, ObjetivoRepository>();
+builder.Services.AddScoped<IKeyResultRepository, KeyResultRepository>();
+builder.Services.AddScoped<IComentarioRepository, ComentarioRepository>();
+builder.Services.AddScoped<IFatoRelevanteRepository, FatoRelevanteRepository>();
+builder.Services.AddScoped<IRiscoRepository, RiscoRepository>();
+
+// --- Serviços de aplicação ---
+builder.Services.AddScoped<IConfigurarBaseDeDadosService, ConfigurarBaseDeDadosService>();
+builder.Services.AddScoped<ICriarCicloService, CriarCicloService>();
+builder.Services.AddScoped<IListarCiclosService, ListarCiclosService>();
+builder.Services.AddScoped<IAtualizarCicloService, AtualizarCicloService>();
+builder.Services.AddScoped<IExcluirCicloService, ExcluirCicloService>();
+builder.Services.AddScoped<ICriarTimeService, CriarTimeService>();
+builder.Services.AddScoped<IListarTimesService, ListarTimesService>();
+builder.Services.AddScoped<IAtualizarTimeService, AtualizarTimeService>();
+builder.Services.AddScoped<IExcluirTimeService, ExcluirTimeService>();
+builder.Services.AddScoped<ICriarObjetivoService, CriarObjetivoService>();
+builder.Services.AddScoped<IAtualizarObjetivoService, AtualizarObjetivoService>();
+builder.Services.AddScoped<IListarOKRsPorTimeECicloService, ListarOKRsPorTimeECicloService>();
+builder.Services.AddScoped<ICriarKRService, CriarKRService>();
+builder.Services.AddScoped<IAtualizarKRService, AtualizarKRService>();
+builder.Services.AddScoped<IAtualizarProgressoKRService, AtualizarProgressoKRService>();
+builder.Services.AddScoped<IExcluirKRService, ExcluirKRService>();
+builder.Services.AddScoped<ICriarComentarioService, CriarComentarioService>();
+builder.Services.AddScoped<ICriarFatoRelevanteService, CriarFatoRelevanteService>();
+builder.Services.AddScoped<ICriarRiscoService, CriarRiscoService>();
+builder.Services.AddScoped<IExportarAdaptiveCardService, ExportarAdaptiveCardService>();
 
 var app = builder.Build();
 
