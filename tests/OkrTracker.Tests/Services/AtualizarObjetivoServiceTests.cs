@@ -1,0 +1,122 @@
+using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Moq;
+using OkrTracker.Application.DTOs;
+using OkrTracker.Application.Services;
+using OkrTracker.Domain.Entities;
+using OkrTracker.Domain.Enums;
+using OkrTracker.Domain.Repositories;
+
+namespace OkrTracker.Tests.Services
+{
+    /// <summary>
+    /// Testes unitários para AtualizarObjetivoService.
+    /// </summary>
+    public class AtualizarObjetivoServiceTests
+    {
+        private readonly Mock<IObjetivoRepository> _objetivoRepoMock;
+        private readonly Mock<ICicloRepository> _cicloRepoMock;
+        private readonly Mock<ITimeRepository> _timeRepoMock;
+        private readonly Mock<ILogger<AtualizarObjetivoService>> _loggerMock;
+        private readonly AtualizarObjetivoService _service;
+
+        public AtualizarObjetivoServiceTests()
+        {
+            _objetivoRepoMock = new Mock<IObjetivoRepository>();
+            _cicloRepoMock = new Mock<ICicloRepository>();
+            _timeRepoMock = new Mock<ITimeRepository>();
+            _loggerMock = new Mock<ILogger<AtualizarObjetivoService>>();
+            _service = new AtualizarObjetivoService(
+                _objetivoRepoMock.Object,
+                _cicloRepoMock.Object,
+                _timeRepoMock.Object,
+                _loggerMock.Object);
+        }
+
+        private AtualizarObjetivoRequest CriarRequestValido()
+        {
+            return new AtualizarObjetivoRequest
+            {
+                Titulo = "Título atualizado",
+                Descricao = "Descrição atualizada",
+                CicloId = "ciclo-1",
+                TimeId = "time-1",
+                Prioridade = "Alta",
+                Farol = "Amarelo"
+            };
+        }
+
+        [Fact]
+        public void Executar_DadosValidos_DeveRetornarSucesso()
+        {
+            // Arrange
+            var objetivo = new Objetivo { Id = "obj-1", Titulo = "Antigo", Descricao = "Antiga", CicloId = "ciclo-1", TimeId = "time-1", DataCriacao = DateTime.UtcNow };
+            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
+            _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1" });
+            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1" });
+
+            // Act
+            var resultado = _service.Executar("obj-1", CriarRequestValido());
+
+            // Assert
+            resultado.Success.Should().BeTrue();
+            resultado.Data!.Titulo.Should().Be("Título atualizado");
+            resultado.Data.Farol.Should().Be("Amarelo");
+            _objetivoRepoMock.Verify(r => r.Atualizar(It.IsAny<Objetivo>()), Times.Once);
+        }
+
+        [Fact]
+        public void Executar_TituloVazio_DeveRetornarErro()
+        {
+            var request = CriarRequestValido();
+            request.Titulo = "";
+            var resultado = _service.Executar("obj-1", request);
+            resultado.Success.Should().BeFalse();
+            resultado.Message.Should().Be("Título do objetivo é obrigatório.");
+        }
+
+        [Fact]
+        public void Executar_DescricaoVazia_DeveRetornarErro()
+        {
+            var request = CriarRequestValido();
+            request.Descricao = "";
+            var resultado = _service.Executar("obj-1", request);
+            resultado.Success.Should().BeFalse();
+            resultado.Message.Should().Be("Descrição do objetivo é obrigatória.");
+        }
+
+        [Fact]
+        public void Executar_ObjetivoNaoEncontrado_DeveRetornarErro()
+        {
+            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-999")).Returns((Objetivo?)null);
+            var resultado = _service.Executar("obj-999", CriarRequestValido());
+            resultado.Success.Should().BeFalse();
+            resultado.Message.Should().Be("Objetivo não encontrado.");
+        }
+
+        [Fact]
+        public void Executar_CicloNaoEncontrado_DeveRetornarErro()
+        {
+            var objetivo = new Objetivo { Id = "obj-1", CicloId = "ciclo-1", TimeId = "time-1" };
+            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
+            _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns((Ciclo?)null);
+
+            var resultado = _service.Executar("obj-1", CriarRequestValido());
+            resultado.Success.Should().BeFalse();
+            resultado.Message.Should().Be("Ciclo não encontrado.");
+        }
+
+        [Fact]
+        public void Executar_TimeNaoEncontrado_DeveRetornarErro()
+        {
+            var objetivo = new Objetivo { Id = "obj-1", CicloId = "ciclo-1", TimeId = "time-1" };
+            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
+            _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1" });
+            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns((Time?)null);
+
+            var resultado = _service.Executar("obj-1", CriarRequestValido());
+            resultado.Success.Should().BeFalse();
+            resultado.Message.Should().Be("Time não encontrado.");
+        }
+    }
+}
