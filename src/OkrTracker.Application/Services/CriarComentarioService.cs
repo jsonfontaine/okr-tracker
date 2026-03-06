@@ -7,7 +7,7 @@ using OkrTracker.Domain.Repositories;
 namespace OkrTracker.Application.Services
 {
     /// <summary>
-    /// Serviço responsável por registrar um comentário (check-in) em um objetivo ou KR.
+    /// Serviço responsável por registrar um comentário em um objetivo ou KR.
     /// Exatamente um entre ObjetivoId e KrId deve ser preenchido.
     /// </summary>
     public class CriarComentarioService : ICriarComentarioService
@@ -34,7 +34,7 @@ namespace OkrTracker.Application.Services
             _logger.LogInformation("Criando comentário.");
 
             if (string.IsNullOrWhiteSpace(request.Texto))
-                return ResultadoOperacao<ComentarioResponse>.Erro("Texto do check-in é obrigatório.");
+                return ResultadoOperacao<ComentarioResponse>.Erro("Texto do comentário é obrigatório.");
 
             // Exatamente um entre ObjetivoId e KrId deve ser preenchido
             var temObjetivo = !string.IsNullOrWhiteSpace(request.ObjetivoId);

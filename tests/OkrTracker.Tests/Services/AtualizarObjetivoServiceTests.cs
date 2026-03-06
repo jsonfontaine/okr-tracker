@@ -42,7 +42,8 @@ namespace OkrTracker.Tests.Services
                 CicloId = "ciclo-1",
                 TimeId = "time-1",
                 Prioridade = "Alta",
-                Farol = "Amarelo"
+                Farol = "Amarelo",
+                Valor = "Maior visibilidade para a liderança"
             };
         }
 

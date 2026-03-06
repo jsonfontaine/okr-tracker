@@ -1,3 +1,18 @@
+/* === Paleta corporativa === */
+:root {
+  --brand-primary: #1a1f71;
+  --brand-navy: #0d1b5e;
+  --brand-accent: #5bb5f5;
+  --brand-dark: #1e1e2f;
+  --brand-white: #ffffff;
+
+  /* Bootstrap overrides */
+  --bs-primary: #1a1f71;
+  --bs-primary-rgb: 26, 31, 113;
+  --bs-link-color: #1a1f71;
+  --bs-link-hover-color: #0d1b5e;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,7 +20,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f8f9fa;
+  background-color: #eef1f6;
 }
 
 code {
@@ -13,6 +28,133 @@ code {
     monospace;
 }
 
+/* === Navbar === */
+.navbar-brand-custom {
+  background-color: var(--brand-primary) !important;
+}
+
+.navbar-brand-custom .navbar-brand,
+.navbar-brand-custom .nav-link,
+.navbar-brand-custom .navbar-text {
+  color: var(--brand-white) !important;
+}
+
+.navbar-brand-custom .nav-link:hover,
+.navbar-brand-custom .nav-link.active {
+  color: var(--brand-accent) !important;
+}
+
+.navbar-brand-custom .nav-link.disabled {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* === Botões primários === */
+.btn-primary {
+  background-color: var(--brand-primary) !important;
+  border-color: var(--brand-primary) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--brand-navy) !important;
+  border-color: var(--brand-navy) !important;
+}
+
+.btn-outline-primary {
+  color: var(--brand-primary) !important;
+  border-color: var(--brand-primary) !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background-color: var(--brand-primary) !important;
+  border-color: var(--brand-primary) !important;
+  color: var(--brand-white) !important;
+}
+
+/* === Botão accent (sucesso / criar) === */
+.btn-success {
+  background-color: var(--brand-accent) !important;
+  border-color: var(--brand-accent) !important;
+  color: var(--brand-dark) !important;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+  background-color: #3da3e8 !important;
+  border-color: #3da3e8 !important;
+  color: var(--brand-white) !important;
+}
+
+/* === Progress bar === */
+.progress-bar {
+  background-color: var(--brand-primary) !important;
+}
+
+.progress-bar.bg-info {
+  background-color: var(--brand-accent) !important;
+}
+
+/* === Cards === */
+.card {
+  border-color: #d5dae3;
+}
+
 .card-header {
-  background-color: #fff;
+  background-color: var(--brand-white);
+  border-bottom-color: #d5dae3;
+}
+
+/* === KR card accent border === */
+.border-primary {
+  border-color: var(--brand-primary) !important;
+}
+
+/* === Badges === */
+.badge.bg-primary {
+  background-color: var(--brand-primary) !important;
+}
+
+.badge.bg-info {
+  background-color: var(--brand-accent) !important;
+  color: var(--brand-dark) !important;
+}
+
+.badge.bg-dark {
+  background-color: var(--brand-dark) !important;
+}
+
+/* === Form focus === */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--brand-accent) !important;
+  box-shadow: 0 0 0 0.2rem rgba(91, 181, 245, 0.25) !important;
+}
+
+/* === Page titles === */
+h2 {
+  color: var(--brand-primary);
+}
+
+/* === Table header === */
+.table thead th {
+  background-color: var(--brand-primary);
+  color: var(--brand-white);
+  border-color: var(--brand-navy);
+}
+
+/* === Modal header === */
+.modal-header {
+  background-color: var(--brand-primary);
+  color: var(--brand-white);
+}
+
+.modal-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+/* === Db status badge in navbar === */
+.db-status-text {
+  color: var(--brand-accent) !important;
+  font-size: 0.8rem;
 }

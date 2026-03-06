@@ -5,12 +5,8 @@ import { Link, useLocation } from 'react-router-dom';
 export default function AppNavbar({ dbConfigurado, dbCaminho }) {
   const location = useLocation();
 
-  const nomeArquivo = dbCaminho
-    ? dbCaminho.split(/[/\\]/).pop()
-    : null;
-
   return (
-    <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
+    <Navbar expand="lg" className="mb-4 navbar-brand-custom" variant="dark">
       <Container>
         <Navbar.Brand as={Link} to="/">🎯 OKR Tracker</Navbar.Brand>
         <Navbar.Toggle aria-controls="main-navbar" />
@@ -48,7 +44,7 @@ export default function AppNavbar({ dbConfigurado, dbCaminho }) {
             {dbConfigurado ? (
               <>
                 <Badge bg="success" className="me-1">●</Badge>
-                <span className="text-light small">{nomeArquivo}</span>
+                <span className="db-status-text" title={dbCaminho}>{dbCaminho}</span>
               </>
             ) : (
               <>

@@ -5,7 +5,7 @@ using OkrTracker.Application.Interfaces;
 namespace OkrTracker.Api.Controllers
 {
     /// <summary>
-    /// Controller para operações de Comentários (check-ins).
+    /// Controller para operações de Comentários.
     /// </summary>
     [ApiController]
     [Route("api/comentarios")]
@@ -19,7 +19,7 @@ namespace OkrTracker.Api.Controllers
         }
 
         /// <summary>
-        /// Registra um comentário (check-in) em um objetivo ou KR.
+        /// Registra um comentário em um objetivo ou KR.
         /// Exatamente um entre objetivoId e krId deve ser preenchido.
         /// </summary>
         [HttpPost]

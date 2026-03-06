@@ -13,6 +13,7 @@ namespace OkrTracker.Application.DTOs
         public string Farol { get; set; } = "Verde";
         public bool Intruder { get; set; }
         public bool DescobertaTardia { get; set; }
+        public string Valor { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -28,6 +29,7 @@ namespace OkrTracker.Application.DTOs
         public string Farol { get; set; } = "Verde";
         public bool Intruder { get; set; }
         public bool DescobertaTardia { get; set; }
+        public string Valor { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -46,6 +48,7 @@ namespace OkrTracker.Application.DTOs
         public string Farol { get; set; } = string.Empty;
         public bool Intruder { get; set; }
         public bool DescobertaTardia { get; set; }
+        public string Valor { get; set; } = string.Empty;
         public DateTime DataCriacao { get; set; }
         public DateTime UltimaAtualizacao { get; set; }
         public List<KeyResultResponse> KeyResults { get; set; } = new();

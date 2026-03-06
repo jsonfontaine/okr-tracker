@@ -90,6 +90,17 @@ namespace OkrTracker.Application.Services
                         wrap = true
                     });
 
+                    if (!string.IsNullOrWhiteSpace(obj.Valor))
+                    {
+                        bodyElements.Add(new
+                        {
+                            type = "TextBlock",
+                            text = $"💎 Valor: {obj.Valor}",
+                            isSubtle = true,
+                            wrap = true
+                        });
+                    }
+
                     // KRs do objetivo
                     var krs = _krRepository.ObterPorObjetivoId(obj.Id);
                     foreach (var kr in krs)

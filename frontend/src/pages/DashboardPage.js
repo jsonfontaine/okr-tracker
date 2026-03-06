@@ -21,7 +21,7 @@ export default function DashboardPage() {
   const [showObjetivoModal, setShowObjetivoModal] = useState(false);
   const [objForm, setObjForm] = useState({
     titulo: '', descricao: '', prioridade: 'Media', farol: 'Verde',
-    intruder: false, descobertaTardia: false,
+    intruder: false, descobertaTardia: false, valor: '',
   });
 
   // Modal criar KR
@@ -72,7 +72,7 @@ export default function DashboardPage() {
     });
     if (result.success) {
       setShowObjetivoModal(false);
-      setObjForm({ titulo: '', descricao: '', prioridade: 'Media', farol: 'Verde', intruder: false, descobertaTardia: false });
+      setObjForm({ titulo: '', descricao: '', prioridade: 'Media', farol: 'Verde', intruder: false, descobertaTardia: false, valor: '' });
       carregarOKRs();
     } else {
       setError(result.message);
@@ -254,6 +254,17 @@ export default function DashboardPage() {
                 />
               </Col>
             </Row>
+            <Form.Group className="mb-3">
+              <Form.Label>💎 Valor para o negócio</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={2}
+                required
+                placeholder="Descreva o valor que esse objetivo entrega para o negócio..."
+                value={objForm.valor}
+                onChange={(e) => setObjForm({ ...objForm, valor: e.target.value })}
+              />
+            </Form.Group>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => setShowObjetivoModal(false)}>Cancelar</Button>

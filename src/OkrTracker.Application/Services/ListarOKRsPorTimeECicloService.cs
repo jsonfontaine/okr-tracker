@@ -62,6 +62,7 @@ namespace OkrTracker.Application.Services
                     Farol = obj.Farol.ToString(),
                     Intruder = obj.Intruder,
                     DescobertaTardia = obj.DescobertaTardia,
+                    Valor = obj.Valor,
                     DataCriacao = obj.DataCriacao,
                     UltimaAtualizacao = obj.UltimaAtualizacao
                 };

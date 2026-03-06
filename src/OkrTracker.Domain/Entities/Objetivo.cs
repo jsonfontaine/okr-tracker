@@ -64,6 +64,11 @@ namespace OkrTracker.Domain.Entities
         public bool DescobertaTardia { get; set; }
 
         /// <summary>
+        /// Descrição do valor que esse objetivo entrega para o negócio (obrigatório).
+        /// </summary>
+        public string Valor { get; set; } = string.Empty;
+
+        /// <summary>
         /// Data de criação do registro.
         /// </summary>
         public DateTime DataCriacao { get; set; }
