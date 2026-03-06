@@ -41,6 +41,9 @@ ScaffoldingReadMe.txt
 *~
 CodeCoverage/
 
+# Visual Studio
+.vs/
+
 # MSBuild Binary and Structured Log
 *.binlog
 
@@ -52,8 +55,6 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
-/.vs/CopilotSnapshots
-*.vsidx
 
 # Frontend
 frontend/node_modules/

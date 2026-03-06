@@ -5,7 +5,7 @@ import DashboardPage from './pages/DashboardPage';
 import CiclosPage from './pages/CiclosPage';
 import TimesPage from './pages/TimesPage';
 import ConfigPage from './pages/ConfigPage';
-import { obterStatusDatabase } from './services/api';
+import { obterStatusDatabase, desconectarDatabase } from './services/api';
 
 function App() {
   const [dbStatus, setDbStatus] = useState({ configurado: false, caminho: null });
@@ -24,6 +24,11 @@ function App() {
     setLoading(false);
   }, []);
 
+  const handleDisconnect = useCallback(async () => {
+    await desconectarDatabase();
+    setDbStatus({ configurado: false, caminho: null });
+  }, []);
+
   useEffect(() => {
     verificarStatus();
   }, [verificarStatus]);
@@ -32,7 +37,7 @@ function App() {
 
   return (
     <Router>
-      <AppNavbar dbConfigurado={dbStatus.configurado} dbCaminho={dbStatus.caminho} />
+      <AppNavbar dbConfigurado={dbStatus.configurado} dbCaminho={dbStatus.caminho} onDisconnect={handleDisconnect} />
       <Routes>
         <Route
           path="/"

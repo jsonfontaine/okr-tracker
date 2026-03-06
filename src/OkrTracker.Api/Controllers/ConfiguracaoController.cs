@@ -49,5 +49,15 @@ namespace OkrTracker.Api.Controllers
 
             return Ok(resultado);
         }
+
+        /// <summary>
+        /// Desconecta a base de dados atual, limpando o caminho configurado.
+        /// </summary>
+        [HttpDelete("database")]
+        public IActionResult DesconectarDatabase()
+        {
+            _pathProvider.LimparCaminho();
+            return Ok(new { success = true });
+        }
     }
 }

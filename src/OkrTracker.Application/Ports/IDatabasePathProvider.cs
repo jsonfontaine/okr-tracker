@@ -20,5 +20,10 @@ namespace OkrTracker.Application.Ports
         /// Verifica se o caminho do banco de dados já foi configurado.
         /// </summary>
         bool EstaConfigurado();
+
+        /// <summary>
+        /// Remove o caminho configurado, desconectando a base de dados.
+        /// </summary>
+        void LimparCaminho();
     }
 }
