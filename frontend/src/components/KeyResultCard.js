@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Button, Form, ListGroup, Collapse } from 'react-bootstrap';
+import { Card, Button, Form, ListGroup, Collapse, Row, Col } from 'react-bootstrap';
 import { FarolBadge, StatusBadge, ProgressoBar, TagBadge } from './Badges';
 import { atualizarProgressoKR, criarComentario, criarFatoRelevante, criarRisco } from '../services/api';
 
@@ -49,6 +49,7 @@ export default function KeyResultCard({ kr, onUpdated }) {
   return (
     <Card className="mb-2 border-start border-3 border-primary">
       <Card.Body className="py-2">
+        {/* Header com título, badges e botão expandir — sem alteração */}
         <div className="d-flex justify-content-between align-items-center">
           <div>
             <strong>📌 {kr.titulo}</strong>{' '}
@@ -67,6 +68,7 @@ export default function KeyResultCard({ kr, onUpdated }) {
           </Button>
         </div>
 
+        {/* Barra de progresso e input — sem alteração */}
         <div className="mt-1 d-flex align-items-center gap-2">
           <ProgressoBar progresso={kr.progresso} />
           <Form.Control
@@ -90,90 +92,102 @@ export default function KeyResultCard({ kr, onUpdated }) {
 
         <Collapse in={showDetails}>
           <div className="mt-3">
-            <p className="text-muted small mb-2">{kr.descricao}</p>
+            <Row>
+              {/* Coluna esquerda (60%) — Descrição, Fatos Relevantes, Riscos */}
+              <Col md={7}>
+                <p className="text-muted small mb-2">{kr.descricao}</p>
 
-            {/* Comentários */}
-            <h6 className="mt-2">💬 Check-ins</h6>
-            {kr.comentarios?.length > 0 ? (
-              <ListGroup variant="flush" className="mb-2">
-                {kr.comentarios.map((c) => (
-                  <ListGroup.Item key={c.id} className="py-1 small">
-                    {c.texto}{' '}
-                    <span className="text-muted">
-                      ({new Date(c.dataCriacao).toLocaleDateString()})
-                    </span>
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            ) : (
-              <p className="text-muted small">Nenhum check-in.</p>
-            )}
-            <Form onSubmit={handleAddComentario} className="d-flex gap-1 mb-3">
-              <Form.Control
-                size="sm"
-                placeholder="Novo check-in..."
-                value={comentario}
-                onChange={(e) => setComentario(e.target.value)}
-              />
-              <Button type="submit" variant="outline-secondary" size="sm">+</Button>
-            </Form>
+                {/* Fatos Relevantes */}
+                <h6>📝 Fatos Relevantes</h6>
+                {kr.fatosRelevantes?.length > 0 ? (
+                  <ListGroup variant="flush" className="mb-2">
+                    {kr.fatosRelevantes.map((f) => (
+                      <ListGroup.Item key={f.id} className="py-1 small">
+                        {f.texto}{' '}
+                        <span className="text-muted">
+                          ({new Date(f.dataCriacao).toLocaleDateString()})
+                        </span>
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+                ) : (
+                  <p className="text-muted small">Nenhum fato.</p>
+                )}
+                <Form onSubmit={handleAddFato} className="d-flex gap-1 mb-3">
+                  <Form.Control
+                    size="sm"
+                    placeholder="Novo fato relevante..."
+                    value={fato}
+                    onChange={(e) => setFato(e.target.value)}
+                  />
+                  <Button type="submit" variant="outline-secondary" size="sm">+</Button>
+                </Form>
 
-            {/* Fatos Relevantes */}
-            <h6>📝 Fatos Relevantes</h6>
-            {kr.fatosRelevantes?.length > 0 ? (
-              <ListGroup variant="flush" className="mb-2">
-                {kr.fatosRelevantes.map((f) => (
-                  <ListGroup.Item key={f.id} className="py-1 small">
-                    {f.texto}{' '}
-                    <span className="text-muted">
-                      ({new Date(f.dataCriacao).toLocaleDateString()})
-                    </span>
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            ) : (
-              <p className="text-muted small">Nenhum fato.</p>
-            )}
-            <Form onSubmit={handleAddFato} className="d-flex gap-1 mb-3">
-              <Form.Control
-                size="sm"
-                placeholder="Novo fato relevante..."
-                value={fato}
-                onChange={(e) => setFato(e.target.value)}
-              />
-              <Button type="submit" variant="outline-secondary" size="sm">+</Button>
-            </Form>
+                {/* Riscos */}
+                <h6>⚠️ Riscos</h6>
+                {kr.riscos?.length > 0 ? (
+                  <ListGroup variant="flush" className="mb-2">
+                    {kr.riscos.map((r) => (
+                      <ListGroup.Item key={r.id} className="py-1 small">
+                        {r.descricao}
+                        {r.impacto && <span className="text-muted"> (Impacto: {r.impacto})</span>}
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+                ) : (
+                  <p className="text-muted small">Nenhum risco.</p>
+                )}
+                <Form onSubmit={handleAddRisco} className="d-flex gap-1">
+                  <Form.Control
+                    size="sm"
+                    placeholder="Descrição do risco..."
+                    value={riscoDesc}
+                    onChange={(e) => setRiscoDesc(e.target.value)}
+                  />
+                  <Form.Control
+                    size="sm"
+                    placeholder="Impacto"
+                    value={riscoImpacto}
+                    onChange={(e) => setRiscoImpacto(e.target.value)}
+                    style={{ width: 120 }}
+                  />
+                  <Button type="submit" variant="outline-secondary" size="sm">+</Button>
+                </Form>
+              </Col>
 
-            {/* Riscos */}
-            <h6>⚠️ Riscos</h6>
-            {kr.riscos?.length > 0 ? (
-              <ListGroup variant="flush" className="mb-2">
-                {kr.riscos.map((r) => (
-                  <ListGroup.Item key={r.id} className="py-1 small">
-                    {r.descricao}
-                    {r.impacto && <span className="text-muted"> (Impacto: {r.impacto})</span>}
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            ) : (
-              <p className="text-muted small">Nenhum risco.</p>
-            )}
-            <Form onSubmit={handleAddRisco} className="d-flex gap-1">
-              <Form.Control
-                size="sm"
-                placeholder="Descrição do risco..."
-                value={riscoDesc}
-                onChange={(e) => setRiscoDesc(e.target.value)}
-              />
-              <Form.Control
-                size="sm"
-                placeholder="Impacto"
-                value={riscoImpacto}
-                onChange={(e) => setRiscoImpacto(e.target.value)}
-                style={{ width: 120 }}
-              />
-              <Button type="submit" variant="outline-secondary" size="sm">+</Button>
-            </Form>
+              {/* Coluna direita (40%) — Comentários estilo chat */}
+              <Col md={5}>
+                <div className="d-flex flex-column h-100 border-start ps-3">
+                  <h6 className="mb-2">💬 Comentários</h6>
+                  <div className="flex-grow-1 overflow-auto mb-2" style={{ maxHeight: 250 }}>
+                    {kr.comentarios?.length > 0 ? (
+                      [...kr.comentarios]
+                        .sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao))
+                        .map((c) => (
+                          <div key={c.id} className="mb-2 p-2 rounded small" style={{ backgroundColor: '#f0f2f5' }}>
+                            <div>{c.texto}</div>
+                            <div className="text-muted" style={{ fontSize: '0.7rem' }}>
+                              {new Date(c.dataCriacao).toLocaleDateString()}{' '}
+                              {new Date(c.dataCriacao).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
+                        ))
+                    ) : (
+                      <p className="text-muted small">Nenhum comentário.</p>
+                    )}
+                  </div>
+                  <Form onSubmit={handleAddComentario} className="d-flex gap-1">
+                    <Form.Control
+                      size="sm"
+                      placeholder="Escrever comentário..."
+                      value={comentario}
+                      onChange={(e) => setComentario(e.target.value)}
+                    />
+                    <Button type="submit" variant="outline-primary" size="sm">Enviar</Button>
+                  </Form>
+                </div>
+              </Col>
+            </Row>
           </div>
         </Collapse>
       </Card.Body>

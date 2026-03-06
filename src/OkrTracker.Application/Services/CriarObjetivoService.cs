@@ -40,6 +40,9 @@ namespace OkrTracker.Application.Services
             if (string.IsNullOrWhiteSpace(request.Descricao))
                 return ResultadoOperacao<ObjetivoResponse>.Erro("Descrição do objetivo é obrigatória.");
 
+            if (string.IsNullOrWhiteSpace(request.Valor))
+                return ResultadoOperacao<ObjetivoResponse>.Erro("O valor do objetivo é obrigatório.");
+
             if (string.IsNullOrWhiteSpace(request.CicloId))
                 return ResultadoOperacao<ObjetivoResponse>.Erro("O ciclo é obrigatório.");
 
@@ -74,6 +77,7 @@ namespace OkrTracker.Application.Services
                 Farol = farol,
                 Intruder = request.Intruder,
                 DescobertaTardia = request.DescobertaTardia,
+                Valor = request.Valor,
                 DataCriacao = agora,
                 UltimaAtualizacao = agora
             };
@@ -99,6 +103,7 @@ namespace OkrTracker.Application.Services
                 Farol = obj.Farol.ToString(),
                 Intruder = obj.Intruder,
                 DescobertaTardia = obj.DescobertaTardia,
+                Valor = obj.Valor,
                 DataCriacao = obj.DataCriacao,
                 UltimaAtualizacao = obj.UltimaAtualizacao
             };

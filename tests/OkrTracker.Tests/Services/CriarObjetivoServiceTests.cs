@@ -41,7 +41,8 @@ namespace OkrTracker.Tests.Services
                 CicloId = "ciclo-1",
                 TimeId = "time-1",
                 Prioridade = "Alta",
-                Farol = "Verde"
+                Farol = "Verde",
+                Valor = "Redução de 30% no retrabalho"
             };
         }
 

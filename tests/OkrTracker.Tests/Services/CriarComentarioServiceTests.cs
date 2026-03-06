@@ -83,7 +83,7 @@ namespace OkrTracker.Tests.Services
             var request = new CriarComentarioRequest { ObjetivoId = "obj-1", Texto = "" };
             var resultado = _service.Executar(request);
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("Texto do check-in é obrigatório.");
+            resultado.Message.Should().Be("Texto do comentário é obrigatório.");
         }
 
         [Fact]
