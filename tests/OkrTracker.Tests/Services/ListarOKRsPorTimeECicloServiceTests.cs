@@ -78,7 +78,7 @@ namespace OkrTracker.Tests.Services
                 TimeId = "time-1",
                 Prioridade = Prioridade.Alta,
                 Progresso = 50,
-                Status = Status.EmAndamentoAvancado,
+                Status = Status.EmAndamento,
                 Farol = Farol.Verde
             };
 
@@ -90,7 +90,7 @@ namespace OkrTracker.Tests.Services
                 Descricao = "Desc KR",
                 Tipo = TipoKR.Quantitativo,
                 Progresso = 50,
-                Status = Status.EmAndamentoAvancado,
+                Status = Status.EmAndamento,
                 Farol = Farol.Verde
             };
 

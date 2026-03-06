@@ -24,6 +24,7 @@ namespace OkrTracker.Application.DTOs
         public string Descricao { get; set; } = string.Empty;
         public string Tipo { get; set; } = string.Empty;
         public string Farol { get; set; } = "Verde";
+        public string Status { get; set; } = "NaoIniciado";
         public bool Intruder { get; set; }
         public bool DescobertaTardia { get; set; }
     }

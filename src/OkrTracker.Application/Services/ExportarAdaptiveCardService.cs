@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.Extensions.Logging;
 using OkrTracker.Application.DTOs;
 using OkrTracker.Application.Interfaces;
@@ -6,168 +7,128 @@ using OkrTracker.Domain.Repositories;
 namespace OkrTracker.Application.Services
 {
     /// <summary>
-    /// Serviço responsável por exportar OKRs no formato Adaptive Card (JSON).
-    /// Gera a estrutura compatível com Adaptive Card schema 1.5 para uso no Outlook.
+    /// Serviço responsável por gerar o resumo executivo dos OKRs em texto formatado,
+    /// pronto para copiar e colar no Outlook.
     /// </summary>
-    public class ExportarAdaptiveCardService : IExportarAdaptiveCardService
+    public class ExportarResumoExecutivoService : IExportarResumoExecutivoService
     {
         private readonly IObjetivoRepository _objetivoRepository;
         private readonly IKeyResultRepository _krRepository;
         private readonly IFatoRelevanteRepository _fatoRelevanteRepository;
         private readonly IRiscoRepository _riscoRepository;
-        private readonly ILogger<ExportarAdaptiveCardService> _logger;
+        private readonly ICicloRepository _cicloRepository;
+        private readonly ITimeRepository _timeRepository;
+        private readonly ILogger<ExportarResumoExecutivoService> _logger;
 
-        public ExportarAdaptiveCardService(
+        public ExportarResumoExecutivoService(
             IObjetivoRepository objetivoRepository,
             IKeyResultRepository krRepository,
             IFatoRelevanteRepository fatoRelevanteRepository,
             IRiscoRepository riscoRepository,
-            ILogger<ExportarAdaptiveCardService> logger)
+            ICicloRepository cicloRepository,
+            ITimeRepository timeRepository,
+            ILogger<ExportarResumoExecutivoService> logger)
         {
             _objetivoRepository = objetivoRepository;
             _krRepository = krRepository;
             _fatoRelevanteRepository = fatoRelevanteRepository;
             _riscoRepository = riscoRepository;
+            _cicloRepository = cicloRepository;
+            _timeRepository = timeRepository;
             _logger = logger;
         }
 
-        public ResultadoOperacao<object> Executar(string cicloId, string timeId)
+        public ResultadoOperacao<string> Executar(string cicloId, string timeId)
         {
-            _logger.LogInformation("Exportando Adaptive Card para ciclo {CicloId} e time {TimeId}.", cicloId, timeId);
+            _logger.LogInformation("Gerando resumo executivo para ciclo {CicloId} e time {TimeId}.", cicloId, timeId);
 
             if (string.IsNullOrWhiteSpace(cicloId))
-                return ResultadoOperacao<object>.Erro("O cicloId é obrigatório.");
+                return ResultadoOperacao<string>.Erro("O cicloId é obrigatório.");
 
             if (string.IsNullOrWhiteSpace(timeId))
-                return ResultadoOperacao<object>.Erro("O timeId é obrigatório.");
+                return ResultadoOperacao<string>.Erro("O timeId é obrigatório.");
+
+            var ciclo = _cicloRepository.ObterPorId(cicloId);
+            var time = _timeRepository.ObterPorId(timeId);
+            var nomeCiclo = ciclo?.Nome ?? cicloId;
+            var nomeTime = time?.Nome ?? timeId;
 
             var objetivos = _objetivoRepository.ObterPorCicloETime(cicloId, timeId).ToList();
 
-            var bodyElements = new List<object>();
+            var sb = new StringBuilder();
 
-            // Título do card
-            bodyElements.Add(new
-            {
-                type = "TextBlock",
-                text = "OKR Tracker — Resumo",
-                weight = "Bolder",
-                size = "Large",
-                wrap = true
-            });
+            sb.AppendLine("═══════════════════════════════════════════");
+            sb.AppendLine($"  📊 RESUMO EXECUTIVO — {nomeTime} | {nomeCiclo}");
+            sb.AppendLine("═══════════════════════════════════════════");
+            sb.AppendLine();
 
             if (objetivos.Count == 0)
             {
-                bodyElements.Add(new
-                {
-                    type = "TextBlock",
-                    text = "Não há OKRs cadastrados para este time/ciclo.",
-                    wrap = true,
-                    isSubtle = true
-                });
+                sb.AppendLine("Não há OKRs cadastrados para este time/ciclo.");
+                return ResultadoOperacao<string>.Sucesso(sb.ToString());
             }
-            else
+
+            for (var i = 0; i < objetivos.Count; i++)
             {
-                foreach (var obj in objetivos)
+                var obj = objetivos[i];
+
+                sb.AppendLine("───────────────────────────────────────────");
+                sb.AppendLine($"🎯 OBJETIVO {i + 1}: {obj.Titulo}");
+                sb.AppendLine($"   Progresso: {obj.Progresso:F0}% | Status: {obj.Status} | Prioridade: {obj.Prioridade} | Farol: {EmojiFarol(obj.Farol.ToString())} {obj.Farol}");
+
+                if (!string.IsNullOrWhiteSpace(obj.Valor))
+                    sb.AppendLine($"   💎 Valor: {obj.Valor}");
+
+                sb.AppendLine();
+
+                // KRs
+                var krs = _krRepository.ObterPorObjetivoId(obj.Id).ToList();
+                if (krs.Count > 0)
                 {
-                    // Separador
-                    bodyElements.Add(new { type = "TextBlock", text = "---", separator = true });
-
-                    // Objetivo
-                    bodyElements.Add(new
-                    {
-                        type = "TextBlock",
-                        text = $"🎯 {obj.Titulo} — {obj.Progresso:F0}% ({obj.Status})",
-                        weight = "Bolder",
-                        size = "Medium",
-                        wrap = true
-                    });
-
-                    bodyElements.Add(new
-                    {
-                        type = "TextBlock",
-                        text = $"Prioridade: {obj.Prioridade} | Farol: {obj.Farol}",
-                        isSubtle = true,
-                        wrap = true
-                    });
-
-                    if (!string.IsNullOrWhiteSpace(obj.Valor))
-                    {
-                        bodyElements.Add(new
-                        {
-                            type = "TextBlock",
-                            text = $"💎 Valor: {obj.Valor}",
-                            isSubtle = true,
-                            wrap = true
-                        });
-                    }
-
-                    // KRs do objetivo
-                    var krs = _krRepository.ObterPorObjetivoId(obj.Id);
+                    sb.AppendLine("   Key Results:");
                     foreach (var kr in krs)
                     {
-                        bodyElements.Add(new
-                        {
-                            type = "TextBlock",
-                            text = $"  📌 {kr.Titulo} [{kr.Tipo}] — {kr.Progresso:F0}% ({kr.Status})",
-                            wrap = true
-                        });
+                        sb.AppendLine($"   📌 {kr.Titulo} [{kr.Tipo}] — {kr.Progresso:F0}% ({kr.Status}) | Farol: {EmojiFarol(kr.Farol.ToString())} {kr.Farol}");
                     }
+                    sb.AppendLine();
+                }
 
-                    // Fatos relevantes do objetivo
-                    var fatos = _fatoRelevanteRepository.ObterPorObjetivoId(obj.Id).ToList();
-                    if (fatos.Count > 0)
-                    {
-                        bodyElements.Add(new
-                        {
-                            type = "TextBlock",
-                            text = "  📝 Fatos Relevantes:",
-                            weight = "Bolder",
-                            wrap = true
-                        });
-                        foreach (var f in fatos)
-                        {
-                            bodyElements.Add(new
-                            {
-                                type = "TextBlock",
-                                text = $"    • {f.Texto}",
-                                wrap = true
-                            });
-                        }
-                    }
+                // Fatos Relevantes
+                var fatos = _fatoRelevanteRepository.ObterPorObjetivoId(obj.Id).ToList();
+                if (fatos.Count > 0)
+                {
+                    sb.AppendLine("   📝 Fatos Relevantes:");
+                    foreach (var f in fatos)
+                        sb.AppendLine($"   • {f.Texto}");
+                    sb.AppendLine();
+                }
 
-                    // Riscos do objetivo
-                    var riscos = _riscoRepository.ObterPorObjetivoId(obj.Id).ToList();
-                    if (riscos.Count > 0)
+                // Riscos
+                var riscos = _riscoRepository.ObterPorObjetivoId(obj.Id).ToList();
+                if (riscos.Count > 0)
+                {
+                    sb.AppendLine("   ⚠️ Riscos:");
+                    foreach (var r in riscos)
                     {
-                        bodyElements.Add(new
-                        {
-                            type = "TextBlock",
-                            text = "  ⚠️ Riscos:",
-                            weight = "Bolder",
-                            wrap = true
-                        });
-                        foreach (var r in riscos)
-                        {
-                            var impactoTexto = string.IsNullOrWhiteSpace(r.Impacto) ? "" : $" (Impacto: {r.Impacto})";
-                            bodyElements.Add(new
-                            {
-                                type = "TextBlock",
-                                text = $"    • {r.Descricao}{impactoTexto}",
-                                wrap = true
-                            });
-                        }
+                        var impacto = string.IsNullOrWhiteSpace(r.Impacto) ? "" : $" (Impacto: {r.Impacto})";
+                        sb.AppendLine($"   • {r.Descricao}{impacto}");
                     }
+                    sb.AppendLine();
                 }
             }
 
-            var adaptiveCard = new
-            {
-                type = "AdaptiveCard",
-                version = "1.5",
-                body = bodyElements
-            };
+            sb.AppendLine("═══════════════════════════════════════════");
+            sb.AppendLine($"Gerado em: {DateTime.UtcNow:dd/MM/yyyy HH:mm} UTC");
 
-            return ResultadoOperacao<object>.Sucesso(adaptiveCard);
+            return ResultadoOperacao<string>.Sucesso(sb.ToString());
         }
+
+        private static string EmojiFarol(string farol) => farol switch
+        {
+            "Verde" => "✅",
+            "Amarelo" => "⚠️",
+            "Vermelho" => "🔴",
+            _ => "⚪"
+        };
     }
 }

@@ -73,5 +73,5 @@ export const criarRisco = (dados) =>
   request('/riscos', { method: 'POST', body: dados });
 
 // --- Export ---
-export const exportarAdaptiveCard = (cicloId, timeId) =>
-  request(`/export/adaptive-card?cicloId=${cicloId}&timeId=${timeId}`);
+export const exportarResumoExecutivo = (cicloId, timeId) =>
+  request(`/export/resumo-executivo?cicloId=${cicloId}&timeId=${timeId}`);

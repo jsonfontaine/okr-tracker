@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using OkrTracker.Application.Services;
 using OkrTracker.Domain.Entities;
-using OkrTracker.Domain.Enums;
 using OkrTracker.Domain.Repositories;
 
 namespace OkrTracker.Tests.Services
@@ -33,11 +32,6 @@ namespace OkrTracker.Tests.Services
             var kr = new KeyResult { Id = "kr-1", ObjetivoId = "obj-1", Progresso = 50 };
             _krRepoMock.Setup(r => r.ObterPorId("kr-1")).Returns(kr);
             _krRepoMock.Setup(r => r.ContarPorObjetivoId("obj-1")).Returns(2);
-            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(new Objetivo { Id = "obj-1" });
-            _krRepoMock.Setup(r => r.ObterPorObjetivoId("obj-1")).Returns(new List<KeyResult>
-            {
-                new() { Id = "kr-2", Progresso = 80 }
-            });
 
             // Act
             var resultado = _service.Executar("kr-1");
@@ -73,28 +67,19 @@ namespace OkrTracker.Tests.Services
         }
 
         [Fact]
-        public void Executar_DeveRecalcularProgressoDoObjetivoAposExclusao()
+        public void Executar_NaoDeveRecalcularProgressoDoObjetivoAposExclusao()
         {
             // Arrange
             var kr = new KeyResult { Id = "kr-1", ObjetivoId = "obj-1", Progresso = 20 };
             _krRepoMock.Setup(r => r.ObterPorId("kr-1")).Returns(kr);
             _krRepoMock.Setup(r => r.ContarPorObjetivoId("obj-1")).Returns(3);
-            var objetivo = new Objetivo { Id = "obj-1" };
-            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
-
-            // Após exclusão do kr-1, restam kr-2(60) e kr-3(100) => média 80
-            _krRepoMock.Setup(r => r.ObterPorObjetivoId("obj-1")).Returns(new List<KeyResult>
-            {
-                new() { Id = "kr-2", Progresso = 60 },
-                new() { Id = "kr-3", Progresso = 100 }
-            });
 
             // Act
             var resultado = _service.Executar("kr-1");
 
             // Assert
             resultado.Success.Should().BeTrue();
-            _objetivoRepoMock.Verify(r => r.Atualizar(It.Is<Objetivo>(o => o.Progresso == 80)), Times.Once);
+            _objetivoRepoMock.Verify(r => r.Atualizar(It.IsAny<Objetivo>()), Times.Never);
         }
     }
 }

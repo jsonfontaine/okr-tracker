@@ -27,6 +27,7 @@ namespace OkrTracker.Application.DTOs
         public string TimeId { get; set; } = string.Empty;
         public string Prioridade { get; set; } = "Media";
         public string Farol { get; set; } = "Verde";
+        public string Status { get; set; } = "NaoIniciado";
         public bool Intruder { get; set; }
         public bool DescobertaTardia { get; set; }
         public string Valor { get; set; } = string.Empty;

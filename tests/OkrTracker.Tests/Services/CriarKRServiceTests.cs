@@ -46,7 +46,6 @@ namespace OkrTracker.Tests.Services
             // Arrange
             var objetivo = new Objetivo { Id = "obj-1", CicloId = "c1", TimeId = "t1" };
             _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
-            _krRepoMock.Setup(r => r.ObterPorObjetivoId("obj-1")).Returns(new List<KeyResult>());
 
             // Act
             var resultado = _service.Executar(CriarRequestValido());
@@ -56,6 +55,7 @@ namespace OkrTracker.Tests.Services
             resultado.Data!.Titulo.Should().Be("Atingir 80% de cumprimento");
             resultado.Data.Tipo.Should().Be("Quantitativo");
             resultado.Data.Progresso.Should().Be(0);
+            resultado.Data.Status.Should().Be("NaoIniciado");
             _krRepoMock.Verify(r => r.Inserir(It.IsAny<KeyResult>()), Times.Once);
         }
 
@@ -150,7 +150,6 @@ namespace OkrTracker.Tests.Services
             request.Progresso = 0;
             var objetivo = new Objetivo { Id = "obj-1" };
             _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
-            _krRepoMock.Setup(r => r.ObterPorObjetivoId("obj-1")).Returns(new List<KeyResult>());
 
             var resultado = _service.Executar(request);
             resultado.Success.Should().BeTrue();
@@ -165,43 +164,21 @@ namespace OkrTracker.Tests.Services
             request.Progresso = 100;
             var objetivo = new Objetivo { Id = "obj-1" };
             _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
-            _krRepoMock.Setup(r => r.ObterPorObjetivoId("obj-1")).Returns(new List<KeyResult>());
 
             var resultado = _service.Executar(request);
             resultado.Success.Should().BeTrue();
         }
 
         [Fact]
-        public void Executar_DeveRecalcularProgressoDoObjetivo()
+        public void Executar_NaoDeveRecalcularProgressoDoObjetivo()
         {
-            // Arrange
             var objetivo = new Objetivo { Id = "obj-1" };
             _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
 
-            // Simula que após inserir haverá 2 KRs: um com 50% e o recém-criado com 0%
-            var krsExistentes = new List<KeyResult>
-            {
-                new() { Id = "kr-1", ObjetivoId = "obj-1", Progresso = 50 }
-            };
-
-            // O setup retorna os KRs APÓS a inserção (incluindo o novo)
-            _krRepoMock.Setup(r => r.ObterPorObjetivoId("obj-1"))
-                .Returns(() =>
-                {
-                    // Simula a lista com o KR existente + o novo (progresso 0)
-                    return new List<KeyResult>
-                    {
-                        new() { Id = "kr-1", ObjetivoId = "obj-1", Progresso = 50 },
-                        new() { Id = "kr-new", ObjetivoId = "obj-1", Progresso = 0 }
-                    };
-                });
-
-            // Act
             var resultado = _service.Executar(CriarRequestValido());
 
-            // Assert
             resultado.Success.Should().BeTrue();
-            _objetivoRepoMock.Verify(r => r.Atualizar(It.Is<Objetivo>(o => o.Progresso == 25)), Times.Once);
+            _objetivoRepoMock.Verify(r => r.Atualizar(It.IsAny<Objetivo>()), Times.Never);
         }
     }
 }

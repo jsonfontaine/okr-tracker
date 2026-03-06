@@ -16,7 +16,6 @@ const prioridadeBadge = {
 const statusLabels = {
   NaoIniciado: 'Não Iniciado',
   EmAndamento: 'Em Andamento',
-  EmAndamentoAvancado: 'Avançado',
   Concluido: 'Concluído',
 };
 
@@ -40,7 +39,6 @@ export function StatusBadge({ status }) {
   const label = statusLabels[status] || status;
   let bg = 'secondary';
   if (status === 'Concluido') bg = 'success';
-  else if (status === 'EmAndamentoAvancado') bg = 'info';
   else if (status === 'EmAndamento') bg = 'primary';
 
   return <Badge bg={bg}>Status: {label}</Badge>;
