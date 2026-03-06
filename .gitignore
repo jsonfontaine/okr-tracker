@@ -54,3 +54,7 @@ TestResult.xml
 nunit-*.xml
 /.vs/CopilotSnapshots
 *.vsidx
+
+# Frontend
+frontend/node_modules/
+frontend/build/

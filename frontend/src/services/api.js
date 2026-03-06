@@ -16,6 +16,7 @@ async function request(url, options = {}) {
 }
 
 // --- Configuração ---
+export const obterStatusDatabase = () => request('/config/database', { method: 'GET' });
 export const configurarDatabase = (databasePath) =>
   request('/config/database', { method: 'POST', body: { databasePath } });
 

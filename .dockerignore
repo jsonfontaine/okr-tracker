@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/build/
+**/.vs/
+**/.git/
+**/database/
+**/tools/
+**/docs/
+**/.github/
+**/tests/
+*.md
+*.sln.DotSettings

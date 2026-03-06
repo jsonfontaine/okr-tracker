@@ -62,6 +62,13 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+// Servir arquivos estáticos do frontend (wwwroot)
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapControllers();
+
+// SPA fallback: qualquer rota que não seja /api/* serve o index.html do React
+app.MapFallbackToFile("index.html");
 
 app.Run();

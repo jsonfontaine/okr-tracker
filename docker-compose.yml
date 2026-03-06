@@ -1,0 +1,11 @@
+services:
+  okr-tracker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: okr-tracker
+    ports:
+      - "8080:80"
+    volumes:
+      - ./database:/data
+    restart: unless-stopped
