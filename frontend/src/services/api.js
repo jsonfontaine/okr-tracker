@@ -19,6 +19,8 @@ async function request(url, options = {}) {
 export const obterStatusDatabase = () => request('/config/database', { method: 'GET' });
 export const configurarDatabase = (databasePath) =>
   request('/config/database', { method: 'POST', body: { databasePath } });
+export const desconectarDatabase = () =>
+  request('/config/database', { method: 'DELETE' });
 
 // --- Ciclos ---
 export const listarCiclos = () => request('/ciclos');

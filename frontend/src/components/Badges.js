@@ -23,7 +23,7 @@ const statusLabels = {
 export function FarolBadge({ farol }) {
   return (
     <Badge bg={farolColors[farol] || 'secondary'} className="me-1">
-      {farol}
+      Farol: {farol}
     </Badge>
   );
 }
@@ -31,7 +31,7 @@ export function FarolBadge({ farol }) {
 export function PrioridadeBadge({ prioridade }) {
   return (
     <Badge bg={prioridadeBadge[prioridade] || 'secondary'} className="me-1">
-      {prioridade}
+      Prioridade: {prioridade}
     </Badge>
   );
 }
@@ -43,7 +43,7 @@ export function StatusBadge({ status }) {
   else if (status === 'EmAndamentoAvancado') bg = 'info';
   else if (status === 'EmAndamento') bg = 'primary';
 
-  return <Badge bg={bg}>{label}</Badge>;
+  return <Badge bg={bg}>Status: {label}</Badge>;
 }
 
 export function ProgressoBar({ progresso }) {

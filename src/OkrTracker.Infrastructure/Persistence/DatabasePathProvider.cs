@@ -15,5 +15,7 @@ namespace OkrTracker.Infrastructure.Persistence
         public void DefinirCaminho(string caminho) => _caminho = caminho;
 
         public bool EstaConfigurado() => !string.IsNullOrWhiteSpace(_caminho);
+
+        public void LimparCaminho() => _caminho = null;
     }
 }

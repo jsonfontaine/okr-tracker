@@ -1,8 +1,8 @@
 import React from 'react';
-import { Navbar, Container, Nav, Badge } from 'react-bootstrap';
+import { Navbar, Container, Nav, Badge, Button } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 
-export default function AppNavbar({ dbConfigurado, dbCaminho }) {
+export default function AppNavbar({ dbConfigurado, dbCaminho, onDisconnect }) {
   const location = useLocation();
 
   return (
@@ -40,11 +40,19 @@ export default function AppNavbar({ dbConfigurado, dbCaminho }) {
               ⚙️ Configuração
             </Nav.Link>
           </Nav>
-          <Navbar.Text>
+          <Navbar.Text className="d-flex align-items-center gap-2">
             {dbConfigurado ? (
               <>
                 <Badge bg="success" className="me-1">●</Badge>
                 <span className="db-status-text" title={dbCaminho}>{dbCaminho}</span>
+                <Button
+                  variant="outline-light"
+                  size="sm"
+                  onClick={onDisconnect}
+                  title="Desconectar base de dados"
+                >
+                  ⏏ Desconectar
+                </Button>
               </>
             ) : (
               <>
