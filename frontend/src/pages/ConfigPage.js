@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import { configurarDatabase } from '../services/api';
 
-export default function ConfigPage() {
+export default function ConfigPage({ onConfigured }) {
   const [path, setPath] = useState('');
   const [message, setMessage] = useState(null);
   const [variant, setVariant] = useState('success');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,6 +21,8 @@ export default function ConfigPage() {
     if (result.success) {
       setVariant('success');
       setMessage('Base de dados configurada com sucesso!');
+      if (onConfigured) await onConfigured();
+      setTimeout(() => navigate('/'), 1000);
     } else {
       setVariant('danger');
       setMessage(result.message || 'Erro ao configurar a base de dados.');

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OkrTracker.Application.DTOs;
 using OkrTracker.Application.Interfaces;
+using OkrTracker.Application.Ports;
 
 namespace OkrTracker.Api.Controllers
 {
@@ -12,10 +13,27 @@ namespace OkrTracker.Api.Controllers
     public class ConfiguracaoController : ControllerBase
     {
         private readonly IConfigurarBaseDeDadosService _configurarService;
+        private readonly IDatabasePathProvider _pathProvider;
 
-        public ConfiguracaoController(IConfigurarBaseDeDadosService configurarService)
+        public ConfiguracaoController(
+            IConfigurarBaseDeDadosService configurarService,
+            IDatabasePathProvider pathProvider)
         {
             _configurarService = configurarService;
+            _pathProvider = pathProvider;
+        }
+
+        /// <summary>
+        /// Retorna o status atual da configuração da base de dados.
+        /// </summary>
+        [HttpGet("database")]
+        public IActionResult ObterStatus()
+        {
+            return Ok(new
+            {
+                configurado = _pathProvider.EstaConfigurado(),
+                caminho = _pathProvider.ObterCaminho()
+            });
         }
 
         /// <summary>
