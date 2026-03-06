@@ -9,29 +9,35 @@ using OkrTracker.Domain.Repositories;
 namespace OkrTracker.Tests.Services
 {
     /// <summary>
-    /// Testes unitários para ExportarAdaptiveCardService.
+    /// Testes unitários para ExportarResumoExecutivoService.
     /// </summary>
-    public class ExportarAdaptiveCardServiceTests
+    public class ExportarResumoExecutivoServiceTests
     {
         private readonly Mock<IObjetivoRepository> _objetivoRepoMock;
         private readonly Mock<IKeyResultRepository> _krRepoMock;
         private readonly Mock<IFatoRelevanteRepository> _fatoRepoMock;
         private readonly Mock<IRiscoRepository> _riscoRepoMock;
-        private readonly Mock<ILogger<ExportarAdaptiveCardService>> _loggerMock;
-        private readonly ExportarAdaptiveCardService _service;
+        private readonly Mock<ICicloRepository> _cicloRepoMock;
+        private readonly Mock<ITimeRepository> _timeRepoMock;
+        private readonly Mock<ILogger<ExportarResumoExecutivoService>> _loggerMock;
+        private readonly ExportarResumoExecutivoService _service;
 
-        public ExportarAdaptiveCardServiceTests()
+        public ExportarResumoExecutivoServiceTests()
         {
             _objetivoRepoMock = new Mock<IObjetivoRepository>();
             _krRepoMock = new Mock<IKeyResultRepository>();
             _fatoRepoMock = new Mock<IFatoRelevanteRepository>();
             _riscoRepoMock = new Mock<IRiscoRepository>();
-            _loggerMock = new Mock<ILogger<ExportarAdaptiveCardService>>();
-            _service = new ExportarAdaptiveCardService(
+            _cicloRepoMock = new Mock<ICicloRepository>();
+            _timeRepoMock = new Mock<ITimeRepository>();
+            _loggerMock = new Mock<ILogger<ExportarResumoExecutivoService>>();
+            _service = new ExportarResumoExecutivoService(
                 _objetivoRepoMock.Object,
                 _krRepoMock.Object,
                 _fatoRepoMock.Object,
                 _riscoRepoMock.Object,
+                _cicloRepoMock.Object,
+                _timeRepoMock.Object,
                 _loggerMock.Object);
         }
 
@@ -52,28 +58,30 @@ namespace OkrTracker.Tests.Services
         }
 
         [Fact]
-        public void Executar_SemOKRs_DeveRetornarCardVazio()
+        public void Executar_SemOKRs_DeveRetornarResumoVazio()
         {
+            _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1", Nome = "2026-Q1" });
+            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1", Nome = "Bridge" });
             _objetivoRepoMock.Setup(r => r.ObterPorCicloETime("ciclo-1", "time-1"))
                 .Returns(new List<Objetivo>());
 
             var resultado = _service.Executar("ciclo-1", "time-1");
 
             resultado.Success.Should().BeTrue();
-            resultado.Data.Should().NotBeNull();
-
-            // Verifica se tem a propriedade type = AdaptiveCard
-            var tipo = resultado.Data!.GetType().GetProperty("type")?.GetValue(resultado.Data)?.ToString();
-            tipo.Should().Be("AdaptiveCard");
-
-            var versao = resultado.Data.GetType().GetProperty("version")?.GetValue(resultado.Data)?.ToString();
-            versao.Should().Be("1.5");
+            resultado.Data.Should().NotBeNullOrEmpty();
+            resultado.Data.Should().Contain("RESUMO EXECUTIVO");
+            resultado.Data.Should().Contain("Bridge");
+            resultado.Data.Should().Contain("2026-Q1");
+            resultado.Data.Should().Contain("Não há OKRs cadastrados");
         }
 
         [Fact]
-        public void Executar_ComOKRs_DeveRetornarCardComDados()
+        public void Executar_ComOKRs_DeveRetornarResumoComDados()
         {
             // Arrange
+            _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1", Nome = "2026-Q1" });
+            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1", Nome = "Bridge" });
+
             var objetivo = new Objetivo
             {
                 Id = "obj-1",
@@ -83,8 +91,9 @@ namespace OkrTracker.Tests.Services
                 TimeId = "time-1",
                 Prioridade = Prioridade.Alta,
                 Progresso = 60,
-                Status = Status.EmAndamentoAvancado,
-                Farol = Farol.Verde
+                Status = Status.EmAndamento,
+                Farol = Farol.Verde,
+                Valor = "Valor para o negócio"
             };
 
             var kr = new KeyResult
@@ -95,7 +104,8 @@ namespace OkrTracker.Tests.Services
                 Descricao = "Desc KR",
                 Tipo = TipoKR.Quantitativo,
                 Progresso = 60,
-                Status = Status.EmAndamentoAvancado
+                Status = Status.EmAndamento,
+                Farol = Farol.Verde
             };
 
             _objetivoRepoMock.Setup(r => r.ObterPorCicloETime("ciclo-1", "time-1"))
@@ -118,12 +128,17 @@ namespace OkrTracker.Tests.Services
 
             // Assert
             resultado.Success.Should().BeTrue();
-            resultado.Data.Should().NotBeNull();
-
-            // Verifica estrutura do AdaptiveCard
-            var body = resultado.Data!.GetType().GetProperty("body")?.GetValue(resultado.Data) as List<object>;
-            body.Should().NotBeNull();
-            body!.Count.Should().BeGreaterThan(2); // Título + separador + objetivo + ...
+            resultado.Data.Should().NotBeNullOrEmpty();
+            resultado.Data.Should().Contain("RESUMO EXECUTIVO");
+            resultado.Data.Should().Contain("Objetivo Export");
+            resultado.Data.Should().Contain("60%");
+            resultado.Data.Should().Contain("KR Export");
+            resultado.Data.Should().Contain("Valor para o negócio");
+            resultado.Data.Should().Contain("Fato export");
+            resultado.Data.Should().Contain("Risco export");
+            resultado.Data.Should().Contain("Impacto: Alto");
+            resultado.Data.Should().Contain("Bridge");
+            resultado.Data.Should().Contain("2026-Q1");
         }
     }
 }

@@ -67,12 +67,16 @@ namespace OkrTracker.Application.Services
             if (!Enum.TryParse<Farol>(request.Farol, true, out var farol))
                 farol = Farol.Verde;
 
+            if (!Enum.TryParse<Status>(request.Status, true, out var status))
+                status = Status.NaoIniciado;
+
             objetivo.Titulo = request.Titulo;
             objetivo.Descricao = request.Descricao;
             objetivo.CicloId = request.CicloId;
             objetivo.TimeId = request.TimeId;
             objetivo.Prioridade = prioridade;
             objetivo.Farol = farol;
+            objetivo.Status = status;
             objetivo.Intruder = request.Intruder;
             objetivo.DescobertaTardia = request.DescobertaTardia;
             objetivo.Valor = request.Valor;

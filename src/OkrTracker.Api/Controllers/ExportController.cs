@@ -4,24 +4,24 @@ using OkrTracker.Application.Interfaces;
 namespace OkrTracker.Api.Controllers
 {
     /// <summary>
-    /// Controller para exportação de OKRs em formato Adaptive Card.
+    /// Controller para exportação do resumo executivo dos OKRs.
     /// </summary>
     [ApiController]
     [Route("api/export")]
     public class ExportController : ControllerBase
     {
-        private readonly IExportarAdaptiveCardService _exportarService;
+        private readonly IExportarResumoExecutivoService _exportarService;
 
-        public ExportController(IExportarAdaptiveCardService exportarService)
+        public ExportController(IExportarResumoExecutivoService exportarService)
         {
             _exportarService = exportarService;
         }
 
         /// <summary>
-        /// Gera o JSON de Adaptive Card para um determinado time e ciclo.
+        /// Gera o resumo executivo em texto para um determinado time e ciclo.
         /// </summary>
-        [HttpGet("adaptive-card")]
-        public IActionResult ExportarAdaptiveCard([FromQuery] string cicloId, [FromQuery] string timeId)
+        [HttpGet("resumo-executivo")]
+        public IActionResult ExportarResumoExecutivo([FromQuery] string cicloId, [FromQuery] string timeId)
         {
             var resultado = _exportarService.Executar(cicloId, timeId);
 

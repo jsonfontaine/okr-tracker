@@ -10,7 +10,6 @@ namespace OkrTracker.Application.Services
     /// <summary>
     /// Serviço responsável por atualizar o progresso de um Key Result.
     /// Valida regras especiais: tipo Requisito só aceita 0 ou 100.
-    /// Após atualizar, recalcula o progresso do objetivo pai.
     /// </summary>
     public class AtualizarProgressoKRService : IAtualizarProgressoKRService
     {
@@ -43,13 +42,9 @@ namespace OkrTracker.Application.Services
                 return ResultadoOperacao<KeyResultResponse>.Erro("Para KR do tipo Requisito, o progresso só pode ser 0 ou 100.");
 
             kr.Progresso = request.Progresso;
-            kr.Status = CalcularStatus(kr.Progresso);
             kr.UltimaAtualizacao = DateTime.UtcNow;
 
             _krRepository.Atualizar(kr);
-
-            // Recalcula progresso do objetivo pai
-            RecalcularProgressoObjetivo(kr.ObjetivoId);
 
             _logger.LogInformation("Progresso do KR {Id} atualizado com sucesso.", id);
 
@@ -68,38 +63,6 @@ namespace OkrTracker.Application.Services
                 DataCriacao = kr.DataCriacao,
                 UltimaAtualizacao = kr.UltimaAtualizacao
             });
-        }
-
-        /// <summary>
-        /// Recalcula o progresso e status do objetivo com base na média dos KRs.
-        /// </summary>
-        private void RecalcularProgressoObjetivo(string objetivoId)
-        {
-            var objetivo = _objetivoRepository.ObterPorId(objetivoId);
-            if (objetivo == null) return;
-
-            var krs = _krRepository.ObterPorObjetivoId(objetivoId).ToList();
-            if (krs.Count == 0)
-            {
-                objetivo.Progresso = 0;
-                objetivo.Status = Status.NaoIniciado;
-            }
-            else
-            {
-                objetivo.Progresso = krs.Average(k => k.Progresso);
-                objetivo.Status = CalcularStatus(objetivo.Progresso);
-            }
-
-            objetivo.UltimaAtualizacao = DateTime.UtcNow;
-            _objetivoRepository.Atualizar(objetivo);
-        }
-
-        internal static Status CalcularStatus(double progresso)
-        {
-            if (progresso <= 0) return Status.NaoIniciado;
-            if (progresso >= 100) return Status.Concluido;
-            if (progresso >= 50) return Status.EmAndamentoAvancado;
-            return Status.EmAndamento;
         }
     }
 }

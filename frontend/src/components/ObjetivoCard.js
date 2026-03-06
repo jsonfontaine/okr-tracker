@@ -39,11 +39,9 @@ export default function ObjetivoCard({ objetivo, onUpdated }) {
   };
 
   return (
-    <Card className="mb-3 shadow-sm">
+    <Card className="mb-3 border-start border-3 border-primary">
       <Card.Header
         className="d-flex justify-content-between align-items-center"
-        style={{ cursor: 'pointer' }}
-        onClick={() => setExpanded(!expanded)}
       >
         <div>
           <strong>🎯 {objetivo.titulo}</strong>{' '}
@@ -55,7 +53,13 @@ export default function ObjetivoCard({ objetivo, onUpdated }) {
         </div>
         <div className="d-flex align-items-center gap-2">
           <ProgressoBar progresso={objetivo.progresso} />
-          <span className="text-muted">{expanded ? '▲' : '▼'}</span>
+          <Button
+            variant="link"
+            size="sm"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? '▲' : '▼'}
+          </Button>
         </div>
       </Card.Header>
 

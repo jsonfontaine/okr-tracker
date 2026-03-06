@@ -3,11 +3,10 @@ using OkrTracker.Application.DTOs;
 namespace OkrTracker.Application.Interfaces
 {
     /// <summary>
-    /// Serviço de aplicação para exportar OKRs no formato Adaptive Card (JSON).
-    /// Gera a estrutura compatível com Adaptive Card schema 1.5 para uso no Outlook.
+    /// Serviço de aplicação para gerar o resumo executivo dos OKRs de um time/ciclo.
     /// </summary>
-    public interface IExportarAdaptiveCardService
+    public interface IExportarResumoExecutivoService
     {
-        ResultadoOperacao<object> Executar(string cicloId, string timeId);
+        ResultadoOperacao<string> Executar(string cicloId, string timeId);
     }
 }

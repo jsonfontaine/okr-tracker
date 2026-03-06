@@ -7,7 +7,6 @@ namespace OkrTracker.Domain.Enums
     {
         NaoIniciado,
         EmAndamento,
-        EmAndamentoAvancado,
         Concluido
     }
 }

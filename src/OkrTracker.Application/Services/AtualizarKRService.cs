@@ -41,10 +41,14 @@ namespace OkrTracker.Application.Services
             if (!Enum.TryParse<Farol>(request.Farol, true, out var farol))
                 farol = Farol.Verde;
 
+            if (!Enum.TryParse<Status>(request.Status, true, out var status))
+                status = Status.NaoIniciado;
+
             kr.Titulo = request.Titulo;
             kr.Descricao = request.Descricao;
             kr.Tipo = tipo;
             kr.Farol = farol;
+            kr.Status = status;
             kr.Intruder = request.Intruder;
             kr.DescobertaTardia = request.DescobertaTardia;
             kr.UltimaAtualizacao = DateTime.UtcNow;

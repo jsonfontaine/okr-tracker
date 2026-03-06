@@ -54,7 +54,7 @@ builder.Services.AddScoped<IExcluirKRService, ExcluirKRService>();
 builder.Services.AddScoped<ICriarComentarioService, CriarComentarioService>();
 builder.Services.AddScoped<ICriarFatoRelevanteService, CriarFatoRelevanteService>();
 builder.Services.AddScoped<ICriarRiscoService, CriarRiscoService>();
-builder.Services.AddScoped<IExportarAdaptiveCardService, ExportarAdaptiveCardService>();
+builder.Services.AddScoped<IExportarResumoExecutivoService, ExportarResumoExecutivoService>();
 
 var app = builder.Build();
 

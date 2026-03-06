@@ -1,5 +1,6 @@
 using LiteDB;
 using OkrTracker.Application.Ports;
+using OkrTracker.Domain.Enums;
 
 namespace OkrTracker.Infrastructure.Persistence
 {
@@ -10,10 +11,36 @@ namespace OkrTracker.Infrastructure.Persistence
     public class LiteDbConnectionFactory
     {
         private readonly IDatabasePathProvider _pathProvider;
+        private static bool _mapperConfigurado;
+        private static readonly object _lock = new();
 
         public LiteDbConnectionFactory(IDatabasePathProvider pathProvider)
         {
             _pathProvider = pathProvider;
+            ConfigurarMapper();
+        }
+
+        /// <summary>
+        /// Configura o BsonMapper global para lidar com valores legados de enums.
+        /// </summary>
+        private static void ConfigurarMapper()
+        {
+            lock (_lock)
+            {
+                if (_mapperConfigurado) return;
+
+                BsonMapper.Global.RegisterType<Status>(
+                    serialize: status => status.ToString(),
+                    deserialize: bson =>
+                    {
+                        var valor = bson.AsString;
+                        if (valor == "EmAndamentoAvancado")
+                            return Status.EmAndamento;
+                        return Enum.Parse<Status>(valor);
+                    });
+
+                _mapperConfigurado = true;
+            }
         }
 
         /// <summary>

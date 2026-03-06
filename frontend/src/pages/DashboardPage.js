@@ -5,7 +5,7 @@ import {
 import ObjetivoCard from '../components/ObjetivoCard';
 import {
   listarCiclos, listarTimes, listarOKRs,
-  criarObjetivo, criarKR, exportarAdaptiveCard,
+  criarObjetivo, criarKR, exportarResumoExecutivo,
 } from '../services/api';
 
 export default function DashboardPage() {
@@ -32,9 +32,10 @@ export default function DashboardPage() {
     farol: 'Verde', intruder: false, descobertaTardia: false,
   });
 
-  // Modal Adaptive Card
+  // Modal Resumo Executivo
   const [showCardModal, setShowCardModal] = useState(false);
-  const [cardJson, setCardJson] = useState('');
+  const [resumoTexto, setResumoTexto] = useState('');
+  const [copiado, setCopiado] = useState(false);
 
   const carregarFiltros = useCallback(async () => {
     const [ciclosRes, timesRes] = await Promise.all([listarCiclos(), listarTimes()]);
@@ -96,9 +97,10 @@ export default function DashboardPage() {
   };
 
   const handleExportarCard = async () => {
-    const result = await exportarAdaptiveCard(cicloId, timeId);
+    const result = await exportarResumoExecutivo(cicloId, timeId);
     if (result.success) {
-      setCardJson(JSON.stringify(result.data, null, 2));
+      setResumoTexto(result.data);
+      setCopiado(false);
       setShowCardModal(true);
     } else {
       setError(result.message);
@@ -153,7 +155,7 @@ export default function DashboardPage() {
                 disabled={!cicloId || !timeId}
                 onClick={handleExportarCard}
               >
-                📋 Adaptive Card
+                📊 Resumo Executivo
               </Button>
             </Col>
           </Row>
@@ -356,30 +358,37 @@ export default function DashboardPage() {
         </Form>
       </Modal>
 
-      {/* Modal: Adaptive Card JSON */}
-      <Modal show={showCardModal} onHide={() => setShowCardModal(false)} size="lg">
+      {/* Modal: Resumo Executivo */}
+      <Modal show={showCardModal} onHide={() => { setShowCardModal(false); setCopiado(false); }} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>📋 Adaptive Card JSON</Modal.Title>
+          <Modal.Title>📊 Resumo Executivo</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Control
             as="textarea"
-            rows={15}
-            value={cardJson}
+            rows={18}
+            value={resumoTexto}
             readOnly
-            style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
+            style={{ fontFamily: 'monospace', fontSize: '0.85rem', whiteSpace: 'pre' }}
           />
+          {copiado && (
+            <Alert variant="success" className="mt-2 mb-0 py-2 text-center">
+              ✅ Resumo copiado para a área de transferência!
+            </Alert>
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button
             variant="primary"
             onClick={() => {
-              navigator.clipboard.writeText(cardJson);
+              navigator.clipboard.writeText(resumoTexto);
+              setCopiado(true);
+              setTimeout(() => setCopiado(false), 3000);
             }}
           >
             📋 Copiar
           </Button>
-          <Button variant="secondary" onClick={() => setShowCardModal(false)}>
+          <Button variant="secondary" onClick={() => { setShowCardModal(false); setCopiado(false); }}>
             Fechar
           </Button>
         </Modal.Footer>

@@ -65,7 +65,7 @@ namespace OkrTracker.Application.Services
                 Descricao = request.Descricao,
                 Tipo = tipo,
                 Progresso = request.Progresso,
-                Status = CalcularStatus(request.Progresso),
+                Status = Status.NaoIniciado,
                 Farol = farol,
                 Intruder = request.Intruder,
                 DescobertaTardia = request.DescobertaTardia,
@@ -75,43 +75,8 @@ namespace OkrTracker.Application.Services
 
             _krRepository.Inserir(kr);
 
-            // Recalcula progresso do objetivo
-            RecalcularProgressoObjetivo(objetivo);
-
             _logger.LogInformation("KR criado com sucesso. Id: {Id}", kr.Id);
             return ResultadoOperacao<KeyResultResponse>.Sucesso(MapearResponse(kr));
-        }
-
-        /// <summary>
-        /// Recalcula o progresso e status do objetivo com base na média dos KRs.
-        /// </summary>
-        private void RecalcularProgressoObjetivo(Objetivo objetivo)
-        {
-            var krs = _krRepository.ObterPorObjetivoId(objetivo.Id).ToList();
-            if (krs.Count == 0)
-            {
-                objetivo.Progresso = 0;
-                objetivo.Status = Status.NaoIniciado;
-            }
-            else
-            {
-                objetivo.Progresso = krs.Average(k => k.Progresso);
-                objetivo.Status = CalcularStatus(objetivo.Progresso);
-            }
-
-            objetivo.UltimaAtualizacao = DateTime.UtcNow;
-            _objetivoRepository.Atualizar(objetivo);
-        }
-
-        /// <summary>
-        /// Calcula o status com base no valor de progresso.
-        /// </summary>
-        internal static Status CalcularStatus(double progresso)
-        {
-            if (progresso <= 0) return Status.NaoIniciado;
-            if (progresso >= 100) return Status.Concluido;
-            if (progresso >= 50) return Status.EmAndamentoAvancado;
-            return Status.EmAndamento;
         }
 
         private static KeyResultResponse MapearResponse(KeyResult kr)
