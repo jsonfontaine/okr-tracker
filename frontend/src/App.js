@@ -5,7 +5,7 @@ import DashboardPage from './pages/DashboardPage';
 import CiclosPage from './pages/CiclosPage';
 import TimesPage from './pages/TimesPage';
 import ConfigPage from './pages/ConfigPage';
-import { obterStatusDatabase, desconectarDatabase } from './services/api';
+import { obterStatusDatabase, desconectarDatabase, configurarDatabase } from './services/api';
 
 function App() {
   const [dbStatus, setDbStatus] = useState({ configurado: false, caminho: null });
@@ -14,10 +14,23 @@ function App() {
   const verificarStatus = useCallback(async () => {
     try {
       const result = await obterStatusDatabase();
-      setDbStatus({
-        configurado: result.configurado || false,
-        caminho: result.caminho || null,
-      });
+      if (result.configurado) {
+        setDbStatus({ configurado: true, caminho: result.caminho });
+        setLoading(false);
+        return;
+      }
+
+      const cachedPath = localStorage.getItem('okr-tracker-db-path');
+      if (cachedPath) {
+        const autoResult = await configurarDatabase(cachedPath);
+        if (autoResult.success) {
+          setDbStatus({ configurado: true, caminho: cachedPath });
+          setLoading(false);
+          return;
+        }
+      }
+
+      setDbStatus({ configurado: false, caminho: null });
     } catch {
       setDbStatus({ configurado: false, caminho: null });
     }

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { configurarDatabase } from '../services/api';
 
 export default function ConfigPage({ onConfigured }) {
-  const [path, setPath] = useState('');
+  const [path, setPath] = useState(() => localStorage.getItem('okr-tracker-db-path') || '');
   const [message, setMessage] = useState(null);
   const [variant, setVariant] = useState('success');
   const [loading, setLoading] = useState(false);
@@ -19,6 +19,7 @@ export default function ConfigPage({ onConfigured }) {
     setLoading(false);
 
     if (result.success) {
+      localStorage.setItem('okr-tracker-db-path', path);
       setVariant('success');
       setMessage('Base de dados configurada com sucesso!');
       if (onConfigured) await onConfigured();
