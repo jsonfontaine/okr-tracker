@@ -5,8 +5,19 @@ using OkrTracker.Application.Services;
 using OkrTracker.Domain.Repositories;
 using OkrTracker.Infrastructure.Persistence;
 using OkrTracker.Infrastructure.Repositories;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configuração do Serilog
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.Seq(context.Configuration["Seq:ServerUrl"] ?? "http://localhost:5341");
+});
 
 // Configuração dos controllers com serialização de enums como string
 builder.Services.AddControllers()
