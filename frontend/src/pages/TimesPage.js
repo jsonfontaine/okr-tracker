@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Row, Col, Form, Button, Card, Table, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Table } from 'react-bootstrap';
+import { Card as DSCard, CardContent, Button as DSButton, InputText, Modal as DSModal, ModalHeader, ModalContent, Snackbar } from '@genial/design-system';
 import { listarTimes, criarTime, atualizarTime, excluirTime } from '../services/api';
 
 export default function TimesPage() {
@@ -69,44 +70,49 @@ export default function TimesPage() {
     <Container>
       <h2>👥 Times</h2>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && (
+        <Snackbar
+          data-testid="ds-snackbar-times-error"
+          type="error"
+          message={error}
+          duration={5000}
+          onClose={() => setError(null)}
+          open={!!error}
+          onOpenChange={(open) => { if (!open) setError(null); }}
+        />
+      )}
 
-      <Card className="shadow-sm mb-4">
-        <Card.Body>
-          <Form onSubmit={handleCriar}>
+      <DSCard data-testid="ds-card-times-form" className="mb-4">
+        <CardContent data-testid="ds-card-times-form-content">
+          <form onSubmit={handleCriar}>
             <Row className="align-items-end">
               <Col md={4}>
-                <Form.Group>
-                  <Form.Label>Nome do time</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Ex: Bridge"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    required
-                  />
-                </Form.Group>
+                <InputText
+                  data-testid="ds-input-time-nome"
+                  label="Nome do time"
+                  placeholder="Ex: Bridge"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                />
               </Col>
               <Col md={5}>
-                <Form.Group>
-                  <Form.Label>Descrição</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Descrição opcional"
-                    value={descricao}
-                    onChange={(e) => setDescricao(e.target.value)}
-                  />
-                </Form.Group>
+                <InputText
+                  data-testid="ds-input-time-descricao"
+                  label="Descrição"
+                  placeholder="Descrição opcional"
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value)}
+                />
               </Col>
               <Col md={3}>
-                <Button type="submit" variant="primary" className="w-100">
+                <DSButton data-testid="ds-button-criar-time" type="submit" variant="primary" fullWidth>
                   Criar Time
-                </Button>
+                </DSButton>
               </Col>
             </Row>
-          </Form>
-        </Card.Body>
-      </Card>
+          </form>
+        </CardContent>
+      </DSCard>
 
       <Table striped hover responsive>
         <thead>
@@ -122,23 +128,16 @@ export default function TimesPage() {
             <tr key={t.id}>
               <td>{t.nome}</td>
               <td>{t.descricao || '-'}</td>
-              <td>{new Date(t.dataCriacao).toLocaleDateString()}</td>
+              <td>{new Date(t.dataCriacao).toLocaleDateString('pt-BR')}</td>
               <td>
-                <Button
-                  variant="outline-primary"
-                  size="sm"
-                  className="me-1"
-                  onClick={() => handleEditar(t)}
-                >
-                  ✏️
-                </Button>
-                <Button
-                  variant="outline-danger"
-                  size="sm"
-                  onClick={() => handleExcluir(t.id)}
-                >
-                  🗑️
-                </Button>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <DSButton data-testid="ds-button-edit-time" variant="outline" size="sm" onClick={() => handleEditar(t)}>
+                    ✏️
+                  </DSButton>
+                  <DSButton data-testid="ds-button-delete-time" variant="destructive" size="sm" onClick={() => handleExcluir(t.id)}>
+                    🗑️
+                  </DSButton>
+                </div>
               </td>
             </tr>
           ))}
@@ -153,37 +152,35 @@ export default function TimesPage() {
       </Table>
 
       {/* Modal de Edição */}
-      <Modal show={showEdit} onHide={() => setShowEdit(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Editar Time</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group className="mb-3">
-            <Form.Label>Nome</Form.Label>
-            <Form.Control
-              type="text"
+      <DSModal data-testid="ds-modal-edit-time" opened={showEdit} onClose={() => setShowEdit(false)} width="500px">
+        <ModalHeader title="Editar Time" onClose={() => setShowEdit(false)} />
+        <ModalContent>
+          <div style={{ marginBottom: '16px' }}>
+            <InputText
+              data-testid="ds-input-edit-time-nome"
+              label="Nome"
               value={editNome}
               onChange={(e) => setEditNome(e.target.value)}
             />
-          </Form.Group>
-          <Form.Group>
-            <Form.Label>Descrição</Form.Label>
-            <Form.Control
-              type="text"
+          </div>
+          <div style={{ marginBottom: '16px' }}>
+            <InputText
+              data-testid="ds-input-edit-time-descricao"
+              label="Descrição"
               value={editDescricao}
               onChange={(e) => setEditDescricao(e.target.value)}
             />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowEdit(false)}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={handleSalvarEdicao}>
-            Salvar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+            <DSButton data-testid="ds-button-cancel-edit-time" variant="secondary" onClick={() => setShowEdit(false)}>
+              Cancelar
+            </DSButton>
+            <DSButton data-testid="ds-button-save-edit-time" variant="primary" onClick={handleSalvarEdicao}>
+              Salvar
+            </DSButton>
+          </div>
+        </ModalContent>
+      </DSModal>
     </Container>
   );
 }

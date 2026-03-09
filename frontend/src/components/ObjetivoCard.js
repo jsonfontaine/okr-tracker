@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Card, Collapse, Button, Form, ListGroup, Row, Col } from 'react-bootstrap';
+import { Form, ListGroup, Row, Col } from 'react-bootstrap';
+import { Card as DSCard, CardHeader, CardContent, Button as DSButton } from '@genial/design-system';
 import { ProgressoBar, TagBadge } from './Badges';
 import KeyResultCard from './KeyResultCard';
 import { criarComentario, criarFatoRelevante, criarRisco, atualizarObjetivo } from '../services/api';
 
-export default function ObjetivoCard({ objetivo, onUpdated }) {
+export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
   const [expanded, setExpanded] = useState(false);
 
   // Formulários para eventos no nível do objetivo
@@ -57,62 +58,78 @@ export default function ObjetivoCard({ objetivo, onUpdated }) {
   };
 
   return (
-    <Card className="mb-3 border-start border-3 border-primary">
-      <Card.Header
-        className="d-flex justify-content-between align-items-center"
-      >
-        <div className="d-flex align-items-center flex-wrap gap-1">
-          <strong>🎯 {objetivo.titulo}</strong>{' '}
-          <Form.Select
-            size="sm"
-            value={objetivo.prioridade}
-            onChange={(e) => handleChangeField('prioridade', e.target.value)}
-            style={{ width: 'auto', display: 'inline-block' }}
-          >
-            <option value="Alta">🔴 Alta</option>
-            <option value="Media">🟡 Média</option>
-            <option value="Baixa">⚪ Baixa</option>
-          </Form.Select>
-          <Form.Select
-            size="sm"
-            value={objetivo.farol}
-            onChange={(e) => handleChangeField('farol', e.target.value)}
-            style={{ width: 'auto', display: 'inline-block' }}
-          >
-            <option value="Verde">✅ Verde</option>
-            <option value="Amarelo">⚠️ Amarelo</option>
-            <option value="Vermelho">🔴 Vermelho</option>
-          </Form.Select>
-          <Form.Select
-            size="sm"
-            value={objetivo.status}
-            onChange={(e) => handleChangeField('status', e.target.value)}
-            style={{ width: 'auto', display: 'inline-block' }}
-          >
-            <option value="NaoIniciado">Não Iniciado</option>
-            <option value="EmAndamento">Em Andamento</option>
-            <option value="Concluido">Concluído</option>
-          </Form.Select>
-          <TagBadge label="Intruder" show={objetivo.intruder} />
-          <TagBadge label="Descoberta Tardia" show={objetivo.descobertaTardia} />
-        </div>
-        <div className="d-flex align-items-center gap-2">
-          <ProgressoBar progresso={objetivo.progresso} />
-          <Button
-            variant="link"
-            size="sm"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? '▲' : '▼'}
-          </Button>
-        </div>
-      </Card.Header>
+    <div style={{ marginBottom: '12px', borderLeft: '3px solid var(--brand-primary)', borderRadius: '4px' }}>
+      <DSCard data-testid="ds-card-objetivo">
+        <CardHeader data-testid="ds-card-objetivo-header">
+          <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex align-items-center flex-wrap gap-1">
+              <strong>🎯 {objetivo.titulo}</strong>{' '}
+              <span className="text-muted small">Prioridade:</span>
+              <Form.Select
+                size="sm"
+                value={objetivo.prioridade}
+                onChange={(e) => handleChangeField('prioridade', e.target.value)}
+                style={{ width: 'auto', display: 'inline-block' }}
+              >
+                <option value="Alta">🔴 Alta</option>
+                <option value="Media">🟡 Média</option>
+                <option value="Baixa">⚪ Baixa</option>
+              </Form.Select>
+              <span className="text-muted small">Farol:</span>
+              <Form.Select
+                size="sm"
+                value={objetivo.farol}
+                onChange={(e) => handleChangeField('farol', e.target.value)}
+                style={{ width: 'auto', display: 'inline-block' }}
+              >
+                <option value="Verde">✅ Verde</option>
+                <option value="Amarelo">⚠️ Amarelo</option>
+                <option value="Vermelho">🔴 Vermelho</option>
+              </Form.Select>
+              <span className="text-muted small">Status:</span>
+              <Form.Select
+                size="sm"
+                value={objetivo.status}
+                onChange={(e) => handleChangeField('status', e.target.value)}
+                style={{ width: 'auto', display: 'inline-block' }}
+              >
+                <option value="NaoIniciado">Não Iniciado</option>
+                <option value="EmAndamento">Em Andamento</option>
+                <option value="Concluido">Concluído</option>
+              </Form.Select>
+              <TagBadge label="Intruder" show={objetivo.intruder} />
+              <TagBadge label="Descoberta Tardia" show={objetivo.descobertaTardia} />
+            </div>
+            <div className="d-flex align-items-center gap-2">
+              <ProgressoBar progresso={objetivo.progresso} />
+              {onAddKr && (
+                <DSButton
+                  data-testid="ds-button-add-kr"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onAddKr(objetivo.id)}
+                >
+                  + Adicionar KR
+                </DSButton>
+              )}
+              <DSButton
+                data-testid="ds-button-expand-objetivo"
+                variant="link-button"
+                size="sm"
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? '▲' : '▼'}
+              </DSButton>
+            </div>
+          </div>
+        </CardHeader>
 
-      <Collapse in={expanded}>
-        <div>
-          <Card.Body>
+        {expanded && (
+          <CardContent data-testid="ds-card-objetivo-content">
             {/* 1. Descrição */}
-            <p className="text-muted">{objetivo.descricao}</p>
+            <p className="text-muted">
+              <strong>Descrição:</strong> {objetivo.descricao}
+            </p>
 
             {/* 2. Valor para o negócio */}
             {objetivo.valor && (
@@ -154,7 +171,7 @@ export default function ObjetivoCard({ objetivo, onUpdated }) {
                     onChange={(e) => setRiscoImpacto(e.target.value)}
                     style={{ width: 120 }}
                   />
-                  <Button type="submit" variant="outline-secondary" size="sm">+</Button>
+                  <DSButton data-testid="ds-button-add-risco" type="submit" variant="outline-secondary" size="sm">+</DSButton>
                 </Form>
 
                 {/* 4. Fatos Relevantes */}
@@ -180,7 +197,7 @@ export default function ObjetivoCard({ objetivo, onUpdated }) {
                     value={fato}
                     onChange={(e) => setFato(e.target.value)}
                   />
-                  <Button type="submit" variant="outline-secondary" size="sm">+</Button>
+                  <DSButton data-testid="ds-button-add-fato" type="submit" variant="outline-secondary" size="sm">+</DSButton>
                 </Form>
               </Col>
 
@@ -212,7 +229,7 @@ export default function ObjetivoCard({ objetivo, onUpdated }) {
                       value={comentario}
                       onChange={(e) => setComentario(e.target.value)}
                     />
-                    <Button type="submit" variant="outline-primary" size="sm">Enviar</Button>
+                    <DSButton data-testid="ds-button-send-comment" type="submit" variant="primary" size="sm">Enviar</DSButton>
                   </Form>
                 </div>
               </Col>
@@ -229,9 +246,9 @@ export default function ObjetivoCard({ objetivo, onUpdated }) {
             ) : (
               <p className="text-muted">Nenhum KR cadastrado.</p>
             )}
-          </Card.Body>
-        </div>
-      </Collapse>
-    </Card>
+          </CardContent>
+        )}
+      </DSCard>
+    </div>
   );
 }

@@ -1,68 +1,99 @@
 import React from 'react';
-import { Navbar, Container, Nav, Badge, Button } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
+import { Header, Button, Tag } from '@genial/design-system';
 
 export default function AppNavbar({ dbConfigurado, dbCaminho, onDisconnect }) {
   const location = useLocation();
 
+  const navLinks = [
+    { to: '/', label: 'Dashboard', requiresDb: true },
+    { to: '/ciclos', label: 'Ciclos', requiresDb: true },
+    { to: '/times', label: 'Times', requiresDb: true },
+    { to: '/config', label: '⚙️ Configuração', requiresDb: false },
+  ];
+
   return (
-    <Navbar expand="lg" className="mb-4 navbar-brand-custom" variant="dark">
-      <Container>
-        <Navbar.Brand as={Link} to="/">🎯 OKR Tracker</Navbar.Brand>
-        <Navbar.Toggle aria-controls="main-navbar" />
-        <Navbar.Collapse id="main-navbar">
-          <Nav className="me-auto">
-            <Nav.Link
-              as={dbConfigurado ? Link : 'span'}
-              to={dbConfigurado ? '/' : undefined}
-              active={location.pathname === '/'}
-              disabled={!dbConfigurado}
-            >
-              Dashboard
-            </Nav.Link>
-            <Nav.Link
-              as={dbConfigurado ? Link : 'span'}
-              to={dbConfigurado ? '/ciclos' : undefined}
-              active={location.pathname === '/ciclos'}
-              disabled={!dbConfigurado}
-            >
-              Ciclos
-            </Nav.Link>
-            <Nav.Link
-              as={dbConfigurado ? Link : 'span'}
-              to={dbConfigurado ? '/times' : undefined}
-              active={location.pathname === '/times'}
-              disabled={!dbConfigurado}
-            >
-              Times
-            </Nav.Link>
-            <Nav.Link as={Link} to="/config" active={location.pathname === '/config'}>
-              ⚙️ Configuração
-            </Nav.Link>
-          </Nav>
-          <Navbar.Text className="d-flex align-items-center gap-2">
-            {dbConfigurado ? (
-              <>
-                <Badge bg="success" className="me-1">●</Badge>
-                <span className="db-status-text" title={dbCaminho}>{dbCaminho}</span>
-                <Button
-                  variant="outline-light"
-                  size="sm"
-                  onClick={onDisconnect}
-                  title="Desconectar base de dados"
+    <Header
+      data-testid="ds-header-main"
+      leading={{
+        logo: (
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>🎯 OKR Tracker</span>
+          </Link>
+        ),
+        content: (
+          <nav style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.to;
+              const isDisabled = link.requiresDb && !dbConfigurado;
+
+              if (isDisabled) {
+                return (
+                  <span
+                    key={link.to}
+                    style={{ opacity: 0.35, cursor: 'not-allowed', fontSize: '0.9rem', padding: '4px 8px' }}
+                  >
+                    {link.label}
+                  </span>
+                );
+              }
+
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  style={{
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    fontSize: '0.9rem',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontWeight: isActive ? 600 : 400,
+                    opacity: isActive ? 1 : 0.75,
+                  }}
                 >
-                  ⏏ Desconectar
-                </Button>
-              </>
-            ) : (
-              <>
-                <Badge bg="danger" className="me-1">●</Badge>
-                <span className="text-warning small">Nenhuma base carregada</span>
-              </>
-            )}
-          </Navbar.Text>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+        ),
+      }}
+      trailing={
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {dbConfigurado ? (
+            <>
+              <Tag
+                data-testid="ds-tag-db-status"
+                label="Conectado"
+                color="success"
+                selected
+              />
+              <span
+                style={{ fontSize: '0.75rem', opacity: 0.7, maxWidth: 250, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                title={dbCaminho}
+              >
+                {dbCaminho}
+              </span>
+              <Button
+                data-testid="ds-button-disconnect"
+                variant="outline-secondary"
+                size="sm"
+                onClick={onDisconnect}
+              >
+                ✕ Desconectar
+              </Button>
+            </>
+          ) : (
+            <Tag
+              data-testid="ds-tag-db-offline"
+              label="Nenhuma base carregada"
+              color="warning"
+              selected
+            />
+          )}
+        </div>
+      }
+    />
   );
 }

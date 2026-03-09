@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Row, Col, Form, Button, Card, Table, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Table } from 'react-bootstrap';
+import { Card as DSCard, CardContent, Button as DSButton, InputText, Modal as DSModal, ModalHeader, ModalContent, Snackbar } from '@genial/design-system';
 import { listarCiclos, criarCiclo, atualizarCiclo, excluirCiclo } from '../services/api';
 
 export default function CiclosPage() {
@@ -65,33 +66,40 @@ export default function CiclosPage() {
     <Container>
       <h2>📅 Ciclos</h2>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && (
+        <Snackbar
+          data-testid="ds-snackbar-ciclos-error"
+          type="error"
+          message={error}
+          duration={5000}
+          onClose={() => setError(null)}
+          open={!!error}
+          onOpenChange={(open) => { if (!open) setError(null); }}
+        />
+      )}
 
-      <Card className="shadow-sm mb-4">
-        <Card.Body>
-          <Form onSubmit={handleCriar}>
+      <DSCard data-testid="ds-card-ciclos-form" className="mb-4">
+        <CardContent data-testid="ds-card-ciclos-form-content">
+          <form onSubmit={handleCriar}>
             <Row className="align-items-end">
               <Col md={8}>
-                <Form.Group>
-                  <Form.Label>Nome do ciclo</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Ex: 2026-Q1"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    required
-                  />
-                </Form.Group>
+                <InputText
+                  data-testid="ds-input-ciclo-nome"
+                  label="Nome do ciclo"
+                  placeholder="Ex: 2026-Q1"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                />
               </Col>
               <Col md={4}>
-                <Button type="submit" variant="primary" className="w-100">
+                <DSButton data-testid="ds-button-criar-ciclo" type="submit" variant="primary" fullWidth>
                   Criar Ciclo
-                </Button>
+                </DSButton>
               </Col>
             </Row>
-          </Form>
-        </Card.Body>
-      </Card>
+          </form>
+        </CardContent>
+      </DSCard>
 
       <Table striped hover responsive>
         <thead>
@@ -106,24 +114,17 @@ export default function CiclosPage() {
           {ciclos.map((c) => (
             <tr key={c.id}>
               <td>{c.nome}</td>
-              <td>{new Date(c.dataCriacao).toLocaleDateString()}</td>
-              <td>{new Date(c.ultimaAtualizacao).toLocaleDateString()}</td>
+              <td>{new Date(c.dataCriacao).toLocaleDateString('pt-BR')}</td>
+              <td>{new Date(c.ultimaAtualizacao).toLocaleDateString('pt-BR')}</td>
               <td>
-                <Button
-                  variant="outline-primary"
-                  size="sm"
-                  className="me-1"
-                  onClick={() => handleEditar(c)}
-                >
-                  ✏️
-                </Button>
-                <Button
-                  variant="outline-danger"
-                  size="sm"
-                  onClick={() => handleExcluir(c.id)}
-                >
-                  🗑️
-                </Button>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <DSButton data-testid="ds-button-edit-ciclo" variant="outline" size="sm" onClick={() => handleEditar(c)}>
+                    ✏️
+                  </DSButton>
+                  <DSButton data-testid="ds-button-delete-ciclo" variant="destructive" size="sm" onClick={() => handleExcluir(c.id)}>
+                    🗑️
+                  </DSButton>
+                </div>
               </td>
             </tr>
           ))}
@@ -138,29 +139,27 @@ export default function CiclosPage() {
       </Table>
 
       {/* Modal de Edição */}
-      <Modal show={showEdit} onHide={() => setShowEdit(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Editar Ciclo</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group>
-            <Form.Label>Nome</Form.Label>
-            <Form.Control
-              type="text"
+      <DSModal data-testid="ds-modal-edit-ciclo" opened={showEdit} onClose={() => setShowEdit(false)} width="500px">
+        <ModalHeader title="Editar Ciclo" onClose={() => setShowEdit(false)} />
+        <ModalContent>
+          <div style={{ marginBottom: '16px' }}>
+            <InputText
+              data-testid="ds-input-edit-ciclo-nome"
+              label="Nome"
               value={editNome}
               onChange={(e) => setEditNome(e.target.value)}
             />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowEdit(false)}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={handleSalvarEdicao}>
-            Salvar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+            <DSButton data-testid="ds-button-cancel-edit-ciclo" variant="secondary" onClick={() => setShowEdit(false)}>
+              Cancelar
+            </DSButton>
+            <DSButton data-testid="ds-button-save-edit-ciclo" variant="primary" onClick={handleSalvarEdicao}>
+              Salvar
+            </DSButton>
+          </div>
+        </ModalContent>
+      </DSModal>
     </Container>
   );
 }
