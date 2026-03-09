@@ -135,7 +135,7 @@ export default function KeyResultCard({ kr, onUpdated }) {
                 {/* Coluna esquerda (60%) — Descrição, Fatos Relevantes, Riscos */}
                 <Col md={7}>
                   <p className="text-muted small mb-2">
-                    <strong>Descrição:</strong> {kr.descricao}
+                    <strong> Descrição:</strong> {kr.descricao}
                   </p>
 
                   {/* Fatos Relevantes */}

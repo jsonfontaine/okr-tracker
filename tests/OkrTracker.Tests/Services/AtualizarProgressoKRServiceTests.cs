@@ -30,33 +30,31 @@ namespace OkrTracker.Tests.Services
         [Fact]
         public void Executar_ProgressoValido_DeveRetornarSucesso()
         {
-            // Arrange
             var kr = new KeyResult { Id = "kr-1", ObjetivoId = "obj-1", Tipo = TipoKR.Quantitativo, Progresso = 0, Status = Status.NaoIniciado };
             _krRepoMock.Setup(r => r.ObterPorId("kr-1")).Returns(kr);
+            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(new Objetivo { Id = "obj-1", Status = Status.NaoIniciado });
+            _krRepoMock.Setup(r => r.ObterPorObjetivoId("obj-1")).Returns(new List<KeyResult> { kr });
 
-            // Act
             var resultado = _service.Executar("kr-1", new AtualizarProgressoRequest { Progresso = 45 });
 
-            // Assert
             resultado.Success.Should().BeTrue();
             resultado.Data!.Progresso.Should().Be(45);
             resultado.Data.Status.Should().Be("NaoIniciado");
+            _objetivoRepoMock.Verify(r => r.Atualizar(It.Is<Objetivo>(o => o.Progresso == 45)), Times.Once);
         }
 
         [Fact]
-        public void Executar_Progresso100_NaoAlteraStatusAutomaticamente()
+        public void Executar_Progresso100_MarcaObjetivoComoConcluido()
         {
-            // Arrange
             var kr = new KeyResult { Id = "kr-1", ObjetivoId = "obj-1", Tipo = TipoKR.Quantitativo, Progresso = 50, Status = Status.EmAndamento };
             _krRepoMock.Setup(r => r.ObterPorId("kr-1")).Returns(kr);
+            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(new Objetivo { Id = "obj-1", Status = Status.EmAndamento });
+            _krRepoMock.Setup(r => r.ObterPorObjetivoId("obj-1")).Returns(new List<KeyResult> { new() { Progresso = 100 } });
 
-            // Act
             var resultado = _service.Executar("kr-1", new AtualizarProgressoRequest { Progresso = 100 });
 
-            // Assert
             resultado.Success.Should().BeTrue();
-            resultado.Data!.Progresso.Should().Be(100);
-            resultado.Data.Status.Should().Be("EmAndamento");
+            _objetivoRepoMock.Verify(r => r.Atualizar(It.Is<Objetivo>(o => o.Progresso == 100 && o.Status == Status.Concluido)), Times.Once);
         }
 
         [Fact]
@@ -113,15 +111,24 @@ namespace OkrTracker.Tests.Services
         }
 
         [Fact]
-        public void Executar_NaoDeveRecalcularProgressoDoObjetivo()
+        public void Executar_DeveRecalcularProgressoDoObjetivo()
         {
-            var kr = new KeyResult { Id = "kr-1", ObjetivoId = "obj-1", Tipo = TipoKR.Quantitativo, Progresso = 0, Status = Status.NaoIniciado };
-            _krRepoMock.Setup(r => r.ObterPorId("kr-1")).Returns(kr);
+            var kr1 = new KeyResult { Id = "kr-1", ObjetivoId = "obj-1", Tipo = TipoKR.Quantitativo, Progresso = 0, Status = Status.NaoIniciado };
+            var objetivo = new Objetivo { Id = "obj-1", Status = Status.NaoIniciado };
+
+            _krRepoMock.Setup(r => r.ObterPorId("kr-1")).Returns(kr1);
+            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
+
+            _krRepoMock.Setup(r => r.ObterPorObjetivoId("obj-1")).Returns(new List<KeyResult>
+            {
+                new() { Id = "kr-1", Progresso = 60 },
+                new() { Id = "kr-2", Progresso = 80 }
+            });
 
             var resultado = _service.Executar("kr-1", new AtualizarProgressoRequest { Progresso = 60 });
 
             resultado.Success.Should().BeTrue();
-            _objetivoRepoMock.Verify(r => r.Atualizar(It.IsAny<Objetivo>()), Times.Never);
+            _objetivoRepoMock.Verify(r => r.Atualizar(It.Is<Objetivo>(o => o.Progresso == 70)), Times.Once);
         }
     }
 }
