@@ -117,6 +117,7 @@ export default function DashboardPage() {
   return (
     <Container>
       <h2>🎯 Dashboard de OKRs</h2>
+        <br />
 
       {/* Filtros */}
       <DSCard data-testid="ds-card-filtros" className="mb-4">

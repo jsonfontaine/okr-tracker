@@ -57,10 +57,18 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
     if (onUpdated) onUpdated();
   };
 
+  const cardBackground = objetivo.farol === 'Vermelho' ? '#fde2e1' : undefined;
+
   return (
-    <div style={{ marginBottom: '12px', borderLeft: '3px solid var(--brand-primary)', borderRadius: '4px' }}>
-      <DSCard data-testid="ds-card-objetivo">
-        <CardHeader data-testid="ds-card-objetivo-header">
+    <div
+      style={{
+        marginBottom: '12px',
+        borderLeft: '3px solid var(--brand-primary)',
+        borderRadius: '4px',
+      }}
+    >
+      <DSCard data-testid="ds-card-objetivo" background={cardBackground}>
+        <CardHeader data-testid="ds-card-objetivo-header" background={cardBackground}>
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex align-items-center flex-wrap gap-1">
               <strong>🎯 {objetivo.titulo}</strong>{' '}
@@ -127,8 +135,8 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
         {expanded && (
           <CardContent data-testid="ds-card-objetivo-content">
             {/* 1. Descrição */}
-            <p className="text-muted">
-              <strong>Descrição:</strong> {objetivo.descricao}
+            <p className="mb-2">
+              <strong>📝 Descrição:</strong> {objetivo.descricao}
             </p>
 
             {/* 2. Valor para o negócio */}
@@ -138,7 +146,9 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
               </p>
             )}
 
+            <br />
             <hr />
+            <br />
 
             <Row>
               {/* Coluna esquerda (60%) — Riscos e Fatos Relevantes */}
@@ -235,10 +245,14 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
               </Col>
             </Row>
 
+            <br />
             <hr />
+            <br />
 
             {/* 6. Key Results */}
             <h5 className="mt-3">Key Results</h5>
+            <br />
+
             {objetivo.keyResults?.length > 0 ? (
               objetivo.keyResults.map((kr) => (
                 <KeyResultCard key={kr.id} kr={kr} onUpdated={onUpdated} />

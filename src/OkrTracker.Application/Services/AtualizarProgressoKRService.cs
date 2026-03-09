@@ -46,6 +46,8 @@ namespace OkrTracker.Application.Services
 
             _krRepository.Atualizar(kr);
 
+            RecalcularProgressoObjetivo(kr.ObjetivoId);
+
             _logger.LogInformation("Progresso do KR {Id} atualizado com sucesso.", id);
 
             return ResultadoOperacao<KeyResultResponse>.Sucesso(new KeyResultResponse
@@ -63,6 +65,32 @@ namespace OkrTracker.Application.Services
                 DataCriacao = kr.DataCriacao,
                 UltimaAtualizacao = kr.UltimaAtualizacao
             });
+        }
+
+        /// <summary>
+        /// Recalcula o progresso do objetivo com base na média dos KRs.
+        /// Define status como Concluido quando a média for 100%.
+        /// </summary>
+        private void RecalcularProgressoObjetivo(string objetivoId)
+        {
+            var objetivo = _objetivoRepository.ObterPorId(objetivoId);
+            if (objetivo == null) return;
+
+            var krs = _krRepository.ObterPorObjetivoId(objetivoId).ToList();
+            if (krs.Count == 0)
+            {
+                objetivo.Progresso = 0;
+            }
+            else
+            {
+                objetivo.Progresso = krs.Average(k => k.Progresso);
+            }
+
+            if (objetivo.Progresso >= 100)
+                objetivo.Status = Status.Concluido;
+
+            objetivo.UltimaAtualizacao = DateTime.UtcNow;
+            _objetivoRepository.Atualizar(objetivo);
         }
     }
 }
