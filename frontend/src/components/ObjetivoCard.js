@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Card, Collapse, Button, Form, ListGroup, Row, Col } from 'react-bootstrap';
-import { FarolBadge, PrioridadeBadge, StatusBadge, ProgressoBar, TagBadge } from './Badges';
+import { ProgressoBar, TagBadge } from './Badges';
 import KeyResultCard from './KeyResultCard';
-import { criarComentario, criarFatoRelevante, criarRisco } from '../services/api';
+import { criarComentario, criarFatoRelevante, criarRisco, atualizarObjetivo } from '../services/api';
 
 export default function ObjetivoCard({ objetivo, onUpdated }) {
   const [expanded, setExpanded] = useState(false);
@@ -12,6 +12,24 @@ export default function ObjetivoCard({ objetivo, onUpdated }) {
   const [fato, setFato] = useState('');
   const [riscoDesc, setRiscoDesc] = useState('');
   const [riscoImpacto, setRiscoImpacto] = useState('');
+
+  const handleChangeField = async (field, value) => {
+    const dados = {
+      titulo: objetivo.titulo,
+      descricao: objetivo.descricao,
+      cicloId: objetivo.cicloId,
+      timeId: objetivo.timeId,
+      prioridade: objetivo.prioridade,
+      farol: objetivo.farol,
+      status: objetivo.status,
+      intruder: objetivo.intruder,
+      descobertaTardia: objetivo.descobertaTardia,
+      valor: objetivo.valor,
+      [field]: value,
+    };
+    await atualizarObjetivo(objetivo.id, dados);
+    if (onUpdated) onUpdated();
+  };
 
   const handleAddComentario = async (e) => {
     e.preventDefault();
@@ -43,11 +61,38 @@ export default function ObjetivoCard({ objetivo, onUpdated }) {
       <Card.Header
         className="d-flex justify-content-between align-items-center"
       >
-        <div>
+        <div className="d-flex align-items-center flex-wrap gap-1">
           <strong>🎯 {objetivo.titulo}</strong>{' '}
-          <PrioridadeBadge prioridade={objetivo.prioridade} />
-          <FarolBadge farol={objetivo.farol} />
-          <StatusBadge status={objetivo.status} />
+          <Form.Select
+            size="sm"
+            value={objetivo.prioridade}
+            onChange={(e) => handleChangeField('prioridade', e.target.value)}
+            style={{ width: 'auto', display: 'inline-block' }}
+          >
+            <option value="Alta">🔴 Alta</option>
+            <option value="Media">🟡 Média</option>
+            <option value="Baixa">⚪ Baixa</option>
+          </Form.Select>
+          <Form.Select
+            size="sm"
+            value={objetivo.farol}
+            onChange={(e) => handleChangeField('farol', e.target.value)}
+            style={{ width: 'auto', display: 'inline-block' }}
+          >
+            <option value="Verde">✅ Verde</option>
+            <option value="Amarelo">⚠️ Amarelo</option>
+            <option value="Vermelho">🔴 Vermelho</option>
+          </Form.Select>
+          <Form.Select
+            size="sm"
+            value={objetivo.status}
+            onChange={(e) => handleChangeField('status', e.target.value)}
+            style={{ width: 'auto', display: 'inline-block' }}
+          >
+            <option value="NaoIniciado">Não Iniciado</option>
+            <option value="EmAndamento">Em Andamento</option>
+            <option value="Concluido">Concluído</option>
+          </Form.Select>
           <TagBadge label="Intruder" show={objetivo.intruder} />
           <TagBadge label="Descoberta Tardia" show={objetivo.descobertaTardia} />
         </div>
@@ -120,7 +165,7 @@ export default function ObjetivoCard({ objetivo, onUpdated }) {
                       <ListGroup.Item key={f.id} className="py-1 small">
                         {f.texto}{' '}
                         <span className="text-muted">
-                          ({new Date(f.dataCriacao).toLocaleDateString()})
+                          ({new Date(f.dataCriacao).toLocaleDateString('pt-BR')})
                         </span>
                       </ListGroup.Item>
                     ))}
@@ -146,13 +191,13 @@ export default function ObjetivoCard({ objetivo, onUpdated }) {
                   <div className="flex-grow-1 overflow-auto mb-2" style={{ maxHeight: 250 }}>
                     {objetivo.comentarios?.length > 0 ? (
                       [...objetivo.comentarios]
-                        .sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao))
+                        .sort((a, b) => new Date(a.dataCriacao) - new Date(b.dataCriacao))
                         .map((c) => (
                           <div key={c.id} className="mb-2 p-2 rounded small" style={{ backgroundColor: '#f0f2f5' }}>
                             <div>{c.texto}</div>
                             <div className="text-muted" style={{ fontSize: '0.7rem' }}>
-                              {new Date(c.dataCriacao).toLocaleDateString()}{' '}
-                              {new Date(c.dataCriacao).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              {new Date(c.dataCriacao).toLocaleDateString('pt-BR')}{' '}
+                              {new Date(c.dataCriacao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false })}
                             </div>
                           </div>
                         ))

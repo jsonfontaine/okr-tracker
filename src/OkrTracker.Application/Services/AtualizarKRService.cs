@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using OkrTracker.Application.DTOs;
 using OkrTracker.Application.Interfaces;
+using OkrTracker.Domain.Entities;
 using OkrTracker.Domain.Enums;
 using OkrTracker.Domain.Repositories;
 
@@ -9,15 +10,21 @@ namespace OkrTracker.Application.Services
     /// <summary>
     /// Serviço responsável por atualizar campos de um Key Result existente.
     /// Não permite alterar o objetivoId.
+    /// Gera comentários automáticos quando Farol ou Status são alterados.
     /// </summary>
     public class AtualizarKRService : IAtualizarKRService
     {
         private readonly IKeyResultRepository _krRepository;
+        private readonly IComentarioRepository _comentarioRepository;
         private readonly ILogger<AtualizarKRService> _logger;
 
-        public AtualizarKRService(IKeyResultRepository krRepository, ILogger<AtualizarKRService> logger)
+        public AtualizarKRService(
+            IKeyResultRepository krRepository,
+            IComentarioRepository comentarioRepository,
+            ILogger<AtualizarKRService> logger)
         {
             _krRepository = krRepository;
+            _comentarioRepository = comentarioRepository;
             _logger = logger;
         }
 
@@ -44,6 +51,14 @@ namespace OkrTracker.Application.Services
             if (!Enum.TryParse<Status>(request.Status, true, out var status))
                 status = Status.NaoIniciado;
 
+            var alteracoes = new List<string>();
+
+            if (kr.Farol != farol)
+                alteracoes.Add($"Farol alterado de {kr.Farol} para {farol}");
+
+            if (kr.Status != status)
+                alteracoes.Add($"Status alterado de {kr.Status} para {status}");
+
             kr.Titulo = request.Titulo;
             kr.Descricao = request.Descricao;
             kr.Tipo = tipo;
@@ -54,6 +69,18 @@ namespace OkrTracker.Application.Services
             kr.UltimaAtualizacao = DateTime.UtcNow;
 
             _krRepository.Atualizar(kr);
+
+            if (alteracoes.Count > 0)
+            {
+                _comentarioRepository.Inserir(new Comentario
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    KrId = kr.Id,
+                    Texto = $"[Alteração automática] {string.Join("; ", alteracoes)}.",
+                    DataCriacao = DateTime.UtcNow
+                });
+            }
+
             _logger.LogInformation("KR {Id} atualizado com sucesso.", id);
 
             return ResultadoOperacao<KeyResultResponse>.Sucesso(new KeyResultResponse

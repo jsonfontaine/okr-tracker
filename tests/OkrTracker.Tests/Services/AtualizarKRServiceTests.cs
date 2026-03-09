@@ -15,14 +15,16 @@ namespace OkrTracker.Tests.Services
     public class AtualizarKRServiceTests
     {
         private readonly Mock<IKeyResultRepository> _krRepoMock;
+        private readonly Mock<IComentarioRepository> _comentarioRepoMock;
         private readonly Mock<ILogger<AtualizarKRService>> _loggerMock;
         private readonly AtualizarKRService _service;
 
         public AtualizarKRServiceTests()
         {
             _krRepoMock = new Mock<IKeyResultRepository>();
+            _comentarioRepoMock = new Mock<IComentarioRepository>();
             _loggerMock = new Mock<ILogger<AtualizarKRService>>();
-            _service = new AtualizarKRService(_krRepoMock.Object, _loggerMock.Object);
+            _service = new AtualizarKRService(_krRepoMock.Object, _comentarioRepoMock.Object, _loggerMock.Object);
         }
 
         [Fact]
@@ -95,6 +97,36 @@ namespace OkrTracker.Tests.Services
             var resultado = _service.Executar("kr-999", request);
             resultado.Success.Should().BeFalse();
             resultado.Message.Should().Be("KR não encontrado.");
+        }
+
+        [Fact]
+        public void Executar_AlteracaoDeFarol_DeveCriarComentarioAutomatico()
+        {
+            var kr = new KeyResult { Id = "kr-1", ObjetivoId = "obj-1", Titulo = "T", Descricao = "D", Tipo = TipoKR.Quantitativo, Farol = Farol.Verde };
+            _krRepoMock.Setup(r => r.ObterPorId("kr-1")).Returns(kr);
+
+            var request = new AtualizarKeyResultRequest { Titulo = "T", Descricao = "D", Tipo = "Quantitativo", Farol = "Vermelho", Status = "NaoIniciado" };
+
+            var resultado = _service.Executar("kr-1", request);
+
+            resultado.Success.Should().BeTrue();
+            _comentarioRepoMock.Verify(r => r.Inserir(It.Is<Comentario>(c =>
+                c.KrId == "kr-1" &&
+                c.Texto.Contains("Farol alterado"))), Times.Once);
+        }
+
+        [Fact]
+        public void Executar_SemAlteracaoDeFarolStatus_NaoDeveCriarComentario()
+        {
+            var kr = new KeyResult { Id = "kr-1", ObjetivoId = "obj-1", Titulo = "T", Descricao = "D", Tipo = TipoKR.Quantitativo, Farol = Farol.Amarelo, Status = Status.EmAndamento };
+            _krRepoMock.Setup(r => r.ObterPorId("kr-1")).Returns(kr);
+
+            var request = new AtualizarKeyResultRequest { Titulo = "Novo", Descricao = "Nova", Tipo = "Quantitativo", Farol = "Amarelo", Status = "EmAndamento" };
+
+            var resultado = _service.Executar("kr-1", request);
+
+            resultado.Success.Should().BeTrue();
+            _comentarioRepoMock.Verify(r => r.Inserir(It.IsAny<Comentario>()), Times.Never);
         }
     }
 }

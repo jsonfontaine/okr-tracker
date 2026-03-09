@@ -17,6 +17,7 @@ namespace OkrTracker.Tests.Services
         private readonly Mock<IObjetivoRepository> _objetivoRepoMock;
         private readonly Mock<ICicloRepository> _cicloRepoMock;
         private readonly Mock<ITimeRepository> _timeRepoMock;
+        private readonly Mock<IComentarioRepository> _comentarioRepoMock;
         private readonly Mock<ILogger<AtualizarObjetivoService>> _loggerMock;
         private readonly AtualizarObjetivoService _service;
 
@@ -25,11 +26,13 @@ namespace OkrTracker.Tests.Services
             _objetivoRepoMock = new Mock<IObjetivoRepository>();
             _cicloRepoMock = new Mock<ICicloRepository>();
             _timeRepoMock = new Mock<ITimeRepository>();
+            _comentarioRepoMock = new Mock<IComentarioRepository>();
             _loggerMock = new Mock<ILogger<AtualizarObjetivoService>>();
             _service = new AtualizarObjetivoService(
                 _objetivoRepoMock.Object,
                 _cicloRepoMock.Object,
                 _timeRepoMock.Object,
+                _comentarioRepoMock.Object,
                 _loggerMock.Object);
         }
 
@@ -118,6 +121,39 @@ namespace OkrTracker.Tests.Services
             var resultado = _service.Executar("obj-1", CriarRequestValido());
             resultado.Success.Should().BeFalse();
             resultado.Message.Should().Be("Time não encontrado.");
+        }
+
+        [Fact]
+        public void Executar_AlteracaoDeFarol_DeveCriarComentarioAutomatico()
+        {
+            var objetivo = new Objetivo { Id = "obj-1", Titulo = "T", Descricao = "D", CicloId = "ciclo-1", TimeId = "time-1", Farol = Farol.Verde, Valor = "V" };
+            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
+            _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1" });
+            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1" });
+
+            var request = CriarRequestValido();
+            request.Farol = "Vermelho";
+
+            var resultado = _service.Executar("obj-1", request);
+
+            resultado.Success.Should().BeTrue();
+            _comentarioRepoMock.Verify(r => r.Inserir(It.Is<Comentario>(c =>
+                c.ObjetivoId == "obj-1" &&
+                c.Texto.Contains("Farol alterado"))), Times.Once);
+        }
+
+        [Fact]
+        public void Executar_SemAlteracaoDeFarolStatusPrioridade_NaoDeveCriarComentario()
+        {
+            var objetivo = new Objetivo { Id = "obj-1", Titulo = "T", Descricao = "D", CicloId = "ciclo-1", TimeId = "time-1", Farol = Farol.Amarelo, Status = Status.NaoIniciado, Prioridade = Prioridade.Alta, Valor = "V" };
+            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
+            _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1" });
+            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1" });
+
+            var resultado = _service.Executar("obj-1", CriarRequestValido());
+
+            resultado.Success.Should().BeTrue();
+            _comentarioRepoMock.Verify(r => r.Inserir(It.IsAny<Comentario>()), Times.Never);
         }
     }
 }
