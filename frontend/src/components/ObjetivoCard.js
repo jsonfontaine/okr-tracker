@@ -172,10 +172,18 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                 )}
                 <Form onSubmit={handleAddRisco} className="d-flex gap-1 mb-3">
                   <Form.Control
+                    as="textarea"
+                    rows={2}
                     size="sm"
                     placeholder="Descrição do risco..."
                     value={riscoDesc}
                     onChange={(e) => setRiscoDesc(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleAddRisco(e);
+                      }
+                    }}
                   />
                   <Form.Control
                     size="sm"
@@ -205,10 +213,18 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                 )}
                 <Form onSubmit={handleAddFato} className="d-flex gap-1 mb-3">
                   <Form.Control
+                    as="textarea"
+                    rows={2}
                     size="sm"
                     placeholder="Novo fato relevante..."
                     value={fato}
                     onChange={(e) => setFato(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleAddFato(e);
+                      }
+                    }}
                   />
                   <DSButton data-testid="ds-button-add-fato" type="submit" variant="outline-secondary" size="sm">+</DSButton>
                 </Form>
@@ -237,10 +253,18 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                   </div>
                   <Form onSubmit={handleAddComentario} className="d-flex gap-1">
                     <Form.Control
+                      as="textarea"
+                      rows={3}
                       size="sm"
                       placeholder="Escrever comentário..."
                       value={comentario}
                       onChange={(e) => setComentario(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleAddComentario(e);
+                        }
+                      }}
                     />
                     <DSButton data-testid="ds-button-send-comment" type="submit" variant="primary" size="sm">Enviar</DSButton>
                   </Form>
