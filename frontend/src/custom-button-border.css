@@ -1,0 +1,6 @@
+.okr-btn-border {
+  border: 2px solid var(--brand-primary) !important;
+  border-radius: 4px !important;
+  border-color: var(--brand-primary) !important;
+}
+

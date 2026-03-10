@@ -3,6 +3,7 @@ import { Form, ListGroup, Row, Col } from 'react-bootstrap';
 import { Card as DSCard, CardContent, Button as DSButton } from '@genial/design-system';
 import { ProgressoBar, TagBadge } from './Badges';
 import { atualizarProgressoKR, atualizarKR, criarComentario, criarFatoRelevante, criarRisco } from '../services/api';
+import '../custom-button-border.css';
 
 export default function KeyResultCard({ kr, onUpdated }) {
   const [showDetails, setShowDetails] = useState(false);
@@ -14,6 +15,8 @@ export default function KeyResultCard({ kr, onUpdated }) {
   const [fato, setFato] = useState('');
   const [riscoDesc, setRiscoDesc] = useState('');
   const [riscoImpacto, setRiscoImpacto] = useState('');
+
+  const krBackground = kr.farol === 'Vermelho' ? '#fde2e1' : (kr.status === 'Concluido' ? '#d4f8e8' : undefined);
 
   const handleChangeField = async (field, value) => {
     const dados = {
@@ -63,8 +66,8 @@ export default function KeyResultCard({ kr, onUpdated }) {
   };
 
   return (
-    <div style={{ marginBottom: '8px', borderLeft: '3px solid var(--brand-primary)', borderRadius: '4px' }}>
-      <DSCard data-testid="ds-card-kr">
+    <div style={{ marginBottom: '8px', border: '2px solid var(--brand-primary)', borderRadius: '12px' }}>
+      <DSCard data-testid="ds-card-kr" background={krBackground}>
         <CardContent data-testid="ds-card-kr-content" padding="12px 16px">
           {/* Header com título, dropdowns e botão expandir */}
           <div className="d-flex justify-content-between align-items-center">
@@ -101,6 +104,7 @@ export default function KeyResultCard({ kr, onUpdated }) {
               variant="link-button"
               size="sm"
               onClick={() => setShowDetails(!showDetails)}
+              className="okr-btn-border"
             >
               {showDetails ? '▲' : '▼'}
             </DSButton>

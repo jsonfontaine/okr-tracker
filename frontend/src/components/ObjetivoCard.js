@@ -4,6 +4,7 @@ import { Card as DSCard, CardHeader, CardContent, Button as DSButton } from '@ge
 import { ProgressoBar, TagBadge } from './Badges';
 import KeyResultCard from './KeyResultCard';
 import { criarComentario, criarFatoRelevante, criarRisco, atualizarObjetivo } from '../services/api';
+import '../custom-button-border.css';
 
 export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
   const [expanded, setExpanded] = useState(false);
@@ -57,14 +58,14 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
     if (onUpdated) onUpdated();
   };
 
-  const cardBackground = objetivo.farol === 'Vermelho' ? '#fde2e1' : undefined;
+  const cardBackground = objetivo.status === 'Concluido' ? '#d4f8e8' : (objetivo.farol === 'Vermelho' ? '#fde2e1' : undefined);
 
   return (
     <div
       style={{
         marginBottom: '12px',
-        borderLeft: '3px solid var(--brand-primary)',
-        borderRadius: '4px',
+        border: '2px solid var(--brand-primary)',
+        borderRadius: '12px',
       }}
     >
       <DSCard data-testid="ds-card-objetivo" background={cardBackground}>
@@ -116,6 +117,7 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                   variant="outline"
                   size="sm"
                   onClick={() => onAddKr(objetivo.id)}
+                  className="okr-btn-border"
                 >
                   + Adicionar KR
                 </DSButton>
@@ -125,6 +127,7 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                 variant="link-button"
                 size="sm"
                 onClick={() => setExpanded(!expanded)}
+                className="okr-btn-border"
               >
                 {expanded ? '▲' : '▼'}
               </DSButton>
