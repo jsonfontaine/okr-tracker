@@ -59,5 +59,3 @@ nunit-*.xml
 # Frontend
 frontend/node_modules/
 frontend/build/
-
-frontend/.npmrc
