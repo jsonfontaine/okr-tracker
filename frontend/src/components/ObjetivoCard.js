@@ -60,6 +60,16 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
 
   const cardBackground = objetivo.status === 'Concluido' ? '#d4f8e8' : (objetivo.farol === 'Vermelho' ? '#fde2e1' : undefined);
 
+  // Utilitário para renderizar texto com quebras de linha
+  function renderWithBreaks(text) {
+    return text.split('\n').map((line, idx) => (
+      <React.Fragment key={idx}>
+        {line}
+        {idx < text.split('\n').length - 1 && <br />}
+      </React.Fragment>
+    ));
+  }
+
   return (
     <div
       style={{
@@ -162,7 +172,7 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                   <ListGroup variant="flush" className="mb-2">
                     {objetivo.riscos.map((r) => (
                       <ListGroup.Item key={r.id} className="py-1 small">
-                        {r.descricao}
+                        {renderWithBreaks(r.descricao)}
                         {r.impacto && <span className="text-muted"> (Impacto: {r.impacto})</span>}
                       </ListGroup.Item>
                     ))}
@@ -192,7 +202,7 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                     onChange={(e) => setRiscoImpacto(e.target.value)}
                     style={{ width: 120 }}
                   />
-                  <DSButton data-testid="ds-button-add-risco" type="submit" variant="outline-secondary" size="sm">+</DSButton>
+                  <DSButton data-testid="ds-button-add-risco" type="submit" variant="outline-secondary" size="sm" className="okr-btn-border">+</DSButton>
                 </Form>
 
                 {/* 4. Fatos Relevantes */}
@@ -201,7 +211,7 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                   <ListGroup variant="flush" className="mb-2">
                     {objetivo.fatosRelevantes.map((f) => (
                       <ListGroup.Item key={f.id} className="py-1 small">
-                        {f.texto}{' '}
+                        {renderWithBreaks(f.texto)}{' '}
                         <span className="text-muted">
                           ({new Date(f.dataCriacao).toLocaleDateString('pt-BR')})
                         </span>
@@ -226,7 +236,7 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                       }
                     }}
                   />
-                  <DSButton data-testid="ds-button-add-fato" type="submit" variant="outline-secondary" size="sm">+</DSButton>
+                  <DSButton data-testid="ds-button-add-fato" type="submit" variant="outline-secondary" size="sm" className="okr-btn-border">+</DSButton>
                 </Form>
               </Col>
 
@@ -240,7 +250,7 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                         .sort((a, b) => new Date(a.dataCriacao) - new Date(b.dataCriacao))
                         .map((c) => (
                           <div key={c.id} className="mb-2 p-2 rounded small" style={{ backgroundColor: '#f0f2f5' }}>
-                            <div>{c.texto}</div>
+                            <div>{renderWithBreaks(c.texto)}</div>
                             <div className="text-muted" style={{ fontSize: '0.7rem' }}>
                               {new Date(c.dataCriacao).toLocaleDateString('pt-BR')}{' '}
                               {new Date(c.dataCriacao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false })}
