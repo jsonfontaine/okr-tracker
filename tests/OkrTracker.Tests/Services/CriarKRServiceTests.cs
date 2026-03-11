@@ -44,7 +44,7 @@ namespace OkrTracker.Tests.Services
         public void Executar_DadosValidos_DeveRetornarSucesso()
         {
             // Arrange
-            var objetivo = new Objetivo { Id = "obj-1", CicloId = "c1", TimeId = "t1" };
+            var objetivo = new Objetivo { Id = "obj-1", CicloId = "c1", ProjetoId = "t1" };
             _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
 
             // Act

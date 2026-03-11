@@ -16,7 +16,7 @@ namespace OkrTracker.Tests.Services
     {
         private readonly Mock<IObjetivoRepository> _objetivoRepoMock;
         private readonly Mock<ICicloRepository> _cicloRepoMock;
-        private readonly Mock<ITimeRepository> _timeRepoMock;
+        private readonly Mock<IProjetoRepository> _projetoRepoMock;
         private readonly Mock<IComentarioRepository> _comentarioRepoMock;
         private readonly Mock<ILogger<AtualizarObjetivoService>> _loggerMock;
         private readonly AtualizarObjetivoService _service;
@@ -25,13 +25,13 @@ namespace OkrTracker.Tests.Services
         {
             _objetivoRepoMock = new Mock<IObjetivoRepository>();
             _cicloRepoMock = new Mock<ICicloRepository>();
-            _timeRepoMock = new Mock<ITimeRepository>();
+            _projetoRepoMock = new Mock<IProjetoRepository>();
             _comentarioRepoMock = new Mock<IComentarioRepository>();
             _loggerMock = new Mock<ILogger<AtualizarObjetivoService>>();
             _service = new AtualizarObjetivoService(
                 _objetivoRepoMock.Object,
                 _cicloRepoMock.Object,
-                _timeRepoMock.Object,
+                _projetoRepoMock.Object,
                 _comentarioRepoMock.Object,
                 _loggerMock.Object);
         }
@@ -43,7 +43,7 @@ namespace OkrTracker.Tests.Services
                 Titulo = "Título atualizado",
                 Descricao = "Descrição atualizada",
                 CicloId = "ciclo-1",
-                TimeId = "time-1",
+                ProjetoId = "projeto-1",
                 Prioridade = "Alta",
                 Farol = "Amarelo",
                 Valor = "Maior visibilidade para a liderança"
@@ -54,10 +54,10 @@ namespace OkrTracker.Tests.Services
         public void Executar_DadosValidos_DeveRetornarSucesso()
         {
             // Arrange
-            var objetivo = new Objetivo { Id = "obj-1", Titulo = "Antigo", Descricao = "Antiga", CicloId = "ciclo-1", TimeId = "time-1", DataCriacao = DateTime.UtcNow };
+            var objetivo = new Objetivo { Id = "obj-1", Titulo = "Antigo", Descricao = "Antiga", CicloId = "ciclo-1", ProjetoId = "projeto-1", DataCriacao = DateTime.UtcNow };
             _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
             _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1" });
-            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1" });
+            _projetoRepoMock.Setup(r => r.ObterPorId("projeto-1")).Returns(new Projeto { Id = "projeto-1" });
 
             // Act
             var resultado = _service.Executar("obj-1", CriarRequestValido());
@@ -101,7 +101,7 @@ namespace OkrTracker.Tests.Services
         [Fact]
         public void Executar_CicloNaoEncontrado_DeveRetornarErro()
         {
-            var objetivo = new Objetivo { Id = "obj-1", CicloId = "ciclo-1", TimeId = "time-1" };
+            var objetivo = new Objetivo { Id = "obj-1", CicloId = "ciclo-1", ProjetoId = "projeto-1" };
             _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
             _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns((Ciclo?)null);
 
@@ -111,25 +111,25 @@ namespace OkrTracker.Tests.Services
         }
 
         [Fact]
-        public void Executar_TimeNaoEncontrado_DeveRetornarErro()
+        public void Executar_ProjetoNaoEncontrado_DeveRetornarErro()
         {
-            var objetivo = new Objetivo { Id = "obj-1", CicloId = "ciclo-1", TimeId = "time-1" };
+            var objetivo = new Objetivo { Id = "obj-1", CicloId = "ciclo-1", ProjetoId = "projeto-1" };
             _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
             _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1" });
-            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns((Time?)null);
+            _projetoRepoMock.Setup(r => r.ObterPorId("projeto-1")).Returns((Projeto?)null);
 
             var resultado = _service.Executar("obj-1", CriarRequestValido());
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("Time não encontrado.");
+            resultado.Message.Should().Be("Projeto não encontrado.");
         }
 
         [Fact]
         public void Executar_AlteracaoDeFarol_DeveCriarComentarioAutomatico()
         {
-            var objetivo = new Objetivo { Id = "obj-1", Titulo = "T", Descricao = "D", CicloId = "ciclo-1", TimeId = "time-1", Farol = Farol.Verde, Valor = "V" };
+            var objetivo = new Objetivo { Id = "obj-1", Titulo = "T", Descricao = "D", CicloId = "ciclo-1", ProjetoId = "projeto-1", Farol = Farol.Verde, Valor = "V" };
             _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
             _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1" });
-            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1" });
+            _projetoRepoMock.Setup(r => r.ObterPorId("projeto-1")).Returns(new Projeto { Id = "projeto-1" });
 
             var request = CriarRequestValido();
             request.Farol = "Vermelho";
@@ -145,10 +145,10 @@ namespace OkrTracker.Tests.Services
         [Fact]
         public void Executar_SemAlteracaoDeFarolStatusPrioridade_NaoDeveCriarComentario()
         {
-            var objetivo = new Objetivo { Id = "obj-1", Titulo = "T", Descricao = "D", CicloId = "ciclo-1", TimeId = "time-1", Farol = Farol.Amarelo, Status = Status.NaoIniciado, Prioridade = Prioridade.Alta, Valor = "V" };
+            var objetivo = new Objetivo { Id = "obj-1", Titulo = "T", Descricao = "D", CicloId = "ciclo-1", ProjetoId = "projeto-1", Farol = Farol.Amarelo, Status = Status.NaoIniciado, Prioridade = Prioridade.Alta, Valor = "V" };
             _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
             _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1" });
-            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1" });
+            _projetoRepoMock.Setup(r => r.ObterPorId("projeto-1")).Returns(new Projeto { Id = "projeto-1" });
 
             var resultado = _service.Executar("obj-1", CriarRequestValido());
 

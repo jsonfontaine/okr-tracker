@@ -51,13 +51,13 @@ namespace OkrTracker.Tests.Services
         {
             var resultado = _service.Executar("ciclo-1", "");
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("O timeId é obrigatório.");
+            resultado.Message.Should().Be("O projetoId é obrigatório.");
         }
 
         [Fact]
         public void Executar_SemObjetivos_DeveRetornarListaVazia()
         {
-            _objetivoRepoMock.Setup(r => r.ObterPorCicloETime("ciclo-1", "time-1"))
+            _objetivoRepoMock.Setup(r => r.ObterPorCicloEProjeto("ciclo-1", "time-1"))
                 .Returns(new List<Objetivo>());
 
             var resultado = _service.Executar("ciclo-1", "time-1");
@@ -75,7 +75,7 @@ namespace OkrTracker.Tests.Services
                 Titulo = "Objetivo 1",
                 Descricao = "Desc",
                 CicloId = "ciclo-1",
-                TimeId = "time-1",
+                ProjetoId = "time-1",
                 Prioridade = Prioridade.Alta,
                 Progresso = 50,
                 Status = Status.EmAndamento,
@@ -94,7 +94,7 @@ namespace OkrTracker.Tests.Services
                 Farol = Farol.Verde
             };
 
-            _objetivoRepoMock.Setup(r => r.ObterPorCicloETime("ciclo-1", "time-1"))
+            _objetivoRepoMock.Setup(r => r.ObterPorCicloEProjeto("ciclo-1", "time-1"))
                 .Returns(new List<Objetivo> { objetivo });
             _krRepoMock.Setup(r => r.ObterPorObjetivoId("obj-1"))
                 .Returns(new List<KeyResult> { kr });

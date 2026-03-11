@@ -38,7 +38,7 @@ builder.Services.AddSingleton<LiteDbConnectionFactory>();
 
 // --- Repositórios ---
 builder.Services.AddScoped<ICicloRepository, CicloRepository>();
-builder.Services.AddScoped<ITimeRepository, TimeRepository>();
+builder.Services.AddScoped<IProjetoRepository, ProjetoRepository>();
 builder.Services.AddScoped<IObjetivoRepository, ObjetivoRepository>();
 builder.Services.AddScoped<IKeyResultRepository, KeyResultRepository>();
 builder.Services.AddScoped<IComentarioRepository, ComentarioRepository>();
@@ -51,10 +51,10 @@ builder.Services.AddScoped<ICriarCicloService, CriarCicloService>();
 builder.Services.AddScoped<IListarCiclosService, ListarCiclosService>();
 builder.Services.AddScoped<IAtualizarCicloService, AtualizarCicloService>();
 builder.Services.AddScoped<IExcluirCicloService, ExcluirCicloService>();
-builder.Services.AddScoped<ICriarTimeService, CriarTimeService>();
-builder.Services.AddScoped<IListarTimesService, ListarTimesService>();
-builder.Services.AddScoped<IAtualizarTimeService, AtualizarTimeService>();
-builder.Services.AddScoped<IExcluirTimeService, ExcluirTimeService>();
+builder.Services.AddScoped<ICriarProjetoService, CriarProjetoService>();
+builder.Services.AddScoped<IListarProjetosService, ListarProjetosService>();
+builder.Services.AddScoped<IAtualizarProjetoService, AtualizarProjetoService>();
+builder.Services.AddScoped<IExcluirProjetoService, ExcluirProjetoService>();
 builder.Services.AddScoped<ICriarObjetivoService, CriarObjetivoService>();
 builder.Services.AddScoped<IAtualizarObjetivoService, AtualizarObjetivoService>();
 builder.Services.AddScoped<IListarOKRsPorTimeECicloService, ListarOKRsPorTimeECicloService>();

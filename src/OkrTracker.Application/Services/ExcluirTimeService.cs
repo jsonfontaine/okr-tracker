@@ -6,38 +6,38 @@ using OkrTracker.Domain.Repositories;
 namespace OkrTracker.Application.Services
 {
     /// <summary>
-    /// Serviço responsável por excluir um time.
-    /// Só permite exclusão se não houver objetivos associados ao time.
+    /// Serviço responsável por excluir um projeto.
+    /// Só permite exclusão se não houver objetivos associados ao projeto.
     /// </summary>
-    public class ExcluirTimeService : IExcluirTimeService
+    public class ExcluirProjetoService : IExcluirProjetoService
     {
-        private readonly ITimeRepository _timeRepository;
+        private readonly IProjetoRepository _projetoRepository;
         private readonly IObjetivoRepository _objetivoRepository;
-        private readonly ILogger<ExcluirTimeService> _logger;
+        private readonly ILogger<ExcluirProjetoService> _logger;
 
-        public ExcluirTimeService(
-            ITimeRepository timeRepository,
+        public ExcluirProjetoService(
+            IProjetoRepository projetoRepository,
             IObjetivoRepository objetivoRepository,
-            ILogger<ExcluirTimeService> logger)
+            ILogger<ExcluirProjetoService> logger)
         {
-            _timeRepository = timeRepository;
+            _projetoRepository = projetoRepository;
             _objetivoRepository = objetivoRepository;
             _logger = logger;
         }
 
         public ResultadoOperacao Executar(string id)
         {
-            _logger.LogInformation("Tentando excluir time {Id}.", id);
+            _logger.LogInformation("Tentando excluir projeto {Id}.", id);
 
-            var time = _timeRepository.ObterPorId(id);
-            if (time == null)
-                return ResultadoOperacao.Erro("Time não encontrado.");
+            var projeto = _projetoRepository.ObterPorId(id);
+            if (projeto == null)
+                return ResultadoOperacao.Erro("Projeto não encontrado.");
 
-            if (_objetivoRepository.ExistemObjetivosParaTime(id))
-                return ResultadoOperacao.Erro("Não é possível excluir o time pois existem objetivos associados.");
+            if (_objetivoRepository.ExistemObjetivosParaProjeto(id))
+                return ResultadoOperacao.Erro("Não é possível excluir o projeto pois existem objetivos associados.");
 
-            _timeRepository.Excluir(id);
-            _logger.LogInformation("Time {Id} excluído com sucesso.", id);
+            _projetoRepository.Excluir(id);
+            _logger.LogInformation("Projeto {Id} excluído com sucesso.", id);
 
             return ResultadoOperacao.Sucesso();
         }

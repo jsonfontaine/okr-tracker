@@ -26,13 +26,13 @@ namespace OkrTracker.Api.Controllers
         }
 
         /// <summary>
-        /// Lista OKRs filtrados por cicloId e timeId (ambos obrigatórios).
+        /// Lista OKRs filtrados por cicloId e projetoId (ambos obrigatórios).
         /// Retorna objetivos com KRs, comentários, fatos relevantes e riscos.
         /// </summary>
         [HttpGet("okr")]
-        public IActionResult ListarOKRs([FromQuery] string cicloId, [FromQuery] string timeId)
+        public IActionResult ListarOKRs([FromQuery] string cicloId, [FromQuery] string projetoId)
         {
-            var resultado = _listarOkrsService.Executar(cicloId, timeId);
+            var resultado = _listarOkrsService.Executar(cicloId, projetoId);
 
             if (!resultado.Success)
                 return BadRequest(resultado);

@@ -8,7 +8,7 @@ export default function AppNavbar({ dbConfigurado, dbCaminho, onDisconnect }) {
   const navLinks = [
     { to: '/', label: 'Dashboard', requiresDb: true },
     { to: '/ciclos', label: 'Ciclos', requiresDb: true },
-    { to: '/times', label: 'Times', requiresDb: true },
+    { to: '/times', label: 'Projetos', requiresDb: true },
     { to: '/config', label: '⚙️ Configuração', requiresDb: false },
   ];
 

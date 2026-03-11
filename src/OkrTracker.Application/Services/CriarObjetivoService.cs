@@ -15,18 +15,18 @@ namespace OkrTracker.Application.Services
     {
         private readonly IObjetivoRepository _objetivoRepository;
         private readonly ICicloRepository _cicloRepository;
-        private readonly ITimeRepository _timeRepository;
+        private readonly IProjetoRepository _projetoRepository;
         private readonly ILogger<CriarObjetivoService> _logger;
 
         public CriarObjetivoService(
             IObjetivoRepository objetivoRepository,
             ICicloRepository cicloRepository,
-            ITimeRepository timeRepository,
+            IProjetoRepository projetoRepository,
             ILogger<CriarObjetivoService> logger)
         {
             _objetivoRepository = objetivoRepository;
             _cicloRepository = cicloRepository;
-            _timeRepository = timeRepository;
+            _projetoRepository = projetoRepository;
             _logger = logger;
         }
 
@@ -46,16 +46,16 @@ namespace OkrTracker.Application.Services
             if (string.IsNullOrWhiteSpace(request.CicloId))
                 return ResultadoOperacao<ObjetivoResponse>.Erro("O ciclo é obrigatório.");
 
-            if (string.IsNullOrWhiteSpace(request.TimeId))
-                return ResultadoOperacao<ObjetivoResponse>.Erro("O time é obrigatório.");
+            if (string.IsNullOrWhiteSpace(request.ProjetoId))
+                return ResultadoOperacao<ObjetivoResponse>.Erro("O projeto é obrigatório.");
 
             var ciclo = _cicloRepository.ObterPorId(request.CicloId);
             if (ciclo == null)
                 return ResultadoOperacao<ObjetivoResponse>.Erro("Ciclo não encontrado.");
 
-            var time = _timeRepository.ObterPorId(request.TimeId);
-            if (time == null)
-                return ResultadoOperacao<ObjetivoResponse>.Erro("Time não encontrado.");
+            var projeto = _projetoRepository.ObterPorId(request.ProjetoId);
+            if (projeto == null)
+                return ResultadoOperacao<ObjetivoResponse>.Erro("Projeto não encontrado.");
 
             if (!Enum.TryParse<Prioridade>(request.Prioridade, true, out var prioridade))
                 prioridade = Prioridade.Media;
@@ -70,7 +70,7 @@ namespace OkrTracker.Application.Services
                 Titulo = request.Titulo,
                 Descricao = request.Descricao,
                 CicloId = request.CicloId,
-                TimeId = request.TimeId,
+                ProjetoId = request.ProjetoId,
                 Prioridade = prioridade,
                 Progresso = 0,
                 Status = Status.NaoIniciado,
@@ -96,7 +96,7 @@ namespace OkrTracker.Application.Services
                 Titulo = obj.Titulo,
                 Descricao = obj.Descricao,
                 CicloId = obj.CicloId,
-                TimeId = obj.TimeId,
+                ProjetoId = obj.ProjetoId,
                 Prioridade = obj.Prioridade.ToString(),
                 Progresso = obj.Progresso,
                 Status = obj.Status.ToString(),

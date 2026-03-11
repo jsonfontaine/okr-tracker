@@ -31,18 +31,18 @@ export const atualizarCiclo = (id, nome) =>
 export const excluirCiclo = (id) =>
   request(`/ciclos/${id}`, { method: 'DELETE' });
 
-// --- Times ---
-export const listarTimes = () => request('/times');
-export const criarTime = (nome, descricao) =>
-  request('/times', { method: 'POST', body: { nome, descricao } });
-export const atualizarTime = (id, nome, descricao) =>
-  request(`/times/${id}`, { method: 'PUT', body: { nome, descricao } });
-export const excluirTime = (id) =>
-  request(`/times/${id}`, { method: 'DELETE' });
+// --- Projetos ---
+export const listarProjetos = () => request('/projetos');
+export const criarProjeto = (nome, descricao) =>
+  request('/projetos', { method: 'POST', body: { nome, descricao } });
+export const atualizarProjeto = (id, nome, descricao) =>
+  request(`/projetos/${id}`, { method: 'PUT', body: { nome, descricao } });
+export const excluirProjeto = (id) =>
+  request(`/projetos/${id}`, { method: 'DELETE' });
 
 // --- OKRs ---
-export const listarOKRs = (cicloId, timeId) =>
-  request(`/okr?cicloId=${cicloId}&timeId=${timeId}`);
+export const listarOKRs = (cicloId, projetoId) =>
+  request(`/okr?cicloId=${cicloId}&projetoId=${projetoId}`);
 
 // --- Objetivos ---
 export const criarObjetivo = (dados) =>
@@ -73,5 +73,5 @@ export const criarRisco = (dados) =>
   request('/riscos', { method: 'POST', body: dados });
 
 // --- Export ---
-export const exportarResumoExecutivo = (cicloId, timeId) =>
-  request(`/export/resumo-executivo?cicloId=${cicloId}&timeId=${timeId}`);
+export const exportarResumoExecutivo = (cicloId, projetoId) =>
+  request(`/export/resumo-executivo?cicloId=${cicloId}&projetoId=${projetoId}`);

@@ -9,56 +9,56 @@ using OkrTracker.Domain.Repositories;
 namespace OkrTracker.Tests.Services
 {
     /// <summary>
-    /// Testes unitários para CriarTimeService.
+    /// Testes unitários para CriarProjetoService.
     /// </summary>
-    public class CriarTimeServiceTests
+    public class CriarProjetoServiceTests
     {
-        private readonly Mock<ITimeRepository> _timeRepoMock;
-        private readonly Mock<ILogger<CriarTimeService>> _loggerMock;
-        private readonly CriarTimeService _service;
+        private readonly Mock<IProjetoRepository> _projetoRepoMock;
+        private readonly Mock<ILogger<CriarProjetoService>> _loggerMock;
+        private readonly CriarProjetoService _service;
 
-        public CriarTimeServiceTests()
+        public CriarProjetoServiceTests()
         {
-            _timeRepoMock = new Mock<ITimeRepository>();
-            _loggerMock = new Mock<ILogger<CriarTimeService>>();
-            _service = new CriarTimeService(_timeRepoMock.Object, _loggerMock.Object);
+            _projetoRepoMock = new Mock<IProjetoRepository>();
+            _loggerMock = new Mock<ILogger<CriarProjetoService>>();
+            _service = new CriarProjetoService(_projetoRepoMock.Object, _loggerMock.Object);
         }
 
         [Fact]
         public void Executar_NomeValido_DeveRetornarSucesso()
         {
             // Arrange
-            _timeRepoMock.Setup(r => r.ObterPorNome("Bridge")).Returns((Time?)null);
+            _projetoRepoMock.Setup(r => r.ObterPorNome("Bridge")).Returns((Projeto?)null);
 
             // Act
-            var resultado = _service.Executar(new CriarTimeRequest { Nome = "Bridge", Descricao = "Time Bridge" });
+            var resultado = _service.Executar(new CriarProjetoRequest { Nome = "Bridge", Descricao = "Time Bridge" });
 
             // Assert
             resultado.Success.Should().BeTrue();
             resultado.Data!.Nome.Should().Be("Bridge");
             resultado.Data.Descricao.Should().Be("Time Bridge");
-            _timeRepoMock.Verify(r => r.Inserir(It.IsAny<Time>()), Times.Once);
+            _projetoRepoMock.Verify(r => r.Inserir(It.IsAny<Projeto>()), Times.Once);
         }
 
         [Fact]
         public void Executar_NomeVazio_DeveRetornarErro()
         {
             // Act
-            var resultado = _service.Executar(new CriarTimeRequest { Nome = "" });
+            var resultado = _service.Executar(new CriarProjetoRequest { Nome = "" });
 
             // Assert
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("O nome do time é obrigatório.");
+            resultado.Message.Should().Be("O nome do projeto é obrigatório.");
         }
 
         [Fact]
         public void Executar_NomeDuplicado_DeveRetornarErro()
         {
             // Arrange
-            _timeRepoMock.Setup(r => r.ObterPorNome("Bridge")).Returns(new Time { Id = "1", Nome = "Bridge" });
+            _projetoRepoMock.Setup(r => r.ObterPorNome("Bridge")).Returns(new Projeto { Id = "1", Nome = "Bridge" });
 
             // Act
-            var resultado = _service.Executar(new CriarTimeRequest { Nome = "Bridge" });
+            var resultado = _service.Executar(new CriarProjetoRequest { Nome = "Bridge" });
 
             // Assert
             resultado.Success.Should().BeFalse();

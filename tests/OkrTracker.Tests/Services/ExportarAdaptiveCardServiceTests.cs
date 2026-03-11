@@ -18,7 +18,7 @@ namespace OkrTracker.Tests.Services
         private readonly Mock<IFatoRelevanteRepository> _fatoRepoMock;
         private readonly Mock<IRiscoRepository> _riscoRepoMock;
         private readonly Mock<ICicloRepository> _cicloRepoMock;
-        private readonly Mock<ITimeRepository> _timeRepoMock;
+        private readonly Mock<IProjetoRepository> _projetoRepoMock;
         private readonly Mock<ILogger<ExportarResumoExecutivoService>> _loggerMock;
         private readonly ExportarResumoExecutivoService _service;
 
@@ -29,7 +29,7 @@ namespace OkrTracker.Tests.Services
             _fatoRepoMock = new Mock<IFatoRelevanteRepository>();
             _riscoRepoMock = new Mock<IRiscoRepository>();
             _cicloRepoMock = new Mock<ICicloRepository>();
-            _timeRepoMock = new Mock<ITimeRepository>();
+            _projetoRepoMock = new Mock<IProjetoRepository>();
             _loggerMock = new Mock<ILogger<ExportarResumoExecutivoService>>();
             _service = new ExportarResumoExecutivoService(
                 _objetivoRepoMock.Object,
@@ -37,7 +37,7 @@ namespace OkrTracker.Tests.Services
                 _fatoRepoMock.Object,
                 _riscoRepoMock.Object,
                 _cicloRepoMock.Object,
-                _timeRepoMock.Object,
+                _projetoRepoMock.Object,
                 _loggerMock.Object);
         }
 
@@ -54,15 +54,15 @@ namespace OkrTracker.Tests.Services
         {
             var resultado = _service.Executar("ciclo-1", "");
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("O timeId é obrigatório.");
+            resultado.Message.Should().Be("O projetoId é obrigatório.");
         }
 
         [Fact]
         public void Executar_SemOKRs_DeveRetornarResumoVazio()
         {
             _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1", Nome = "2026-Q1" });
-            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1", Nome = "Bridge" });
-            _objetivoRepoMock.Setup(r => r.ObterPorCicloETime("ciclo-1", "time-1"))
+            _projetoRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Projeto { Id = "time-1", Nome = "Bridge" });
+            _objetivoRepoMock.Setup(r => r.ObterPorCicloEProjeto("ciclo-1", "time-1"))
                 .Returns(new List<Objetivo>());
 
             var resultado = _service.Executar("ciclo-1", "time-1");
@@ -80,7 +80,7 @@ namespace OkrTracker.Tests.Services
         {
             // Arrange
             _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1", Nome = "2026-Q1" });
-            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1", Nome = "Bridge" });
+            _projetoRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Projeto { Id = "time-1", Nome = "Bridge" });
 
             var objetivo = new Objetivo
             {
@@ -88,7 +88,7 @@ namespace OkrTracker.Tests.Services
                 Titulo = "Objetivo Export",
                 Descricao = "Desc",
                 CicloId = "ciclo-1",
-                TimeId = "time-1",
+                ProjetoId = "time-1",
                 Prioridade = Prioridade.Alta,
                 Progresso = 60,
                 Status = Status.EmAndamento,
@@ -108,7 +108,7 @@ namespace OkrTracker.Tests.Services
                 Farol = Farol.Verde
             };
 
-            _objetivoRepoMock.Setup(r => r.ObterPorCicloETime("ciclo-1", "time-1"))
+            _objetivoRepoMock.Setup(r => r.ObterPorCicloEProjeto("ciclo-1", "time-1"))
                 .Returns(new List<Objetivo> { objetivo });
             _krRepoMock.Setup(r => r.ObterPorObjetivoId("obj-1"))
                 .Returns(new List<KeyResult> { kr });

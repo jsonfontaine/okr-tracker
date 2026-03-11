@@ -8,9 +8,9 @@ namespace OkrTracker.Domain.Repositories
     public interface IObjetivoRepository
     {
         /// <summary>
-        /// Retorna objetivos filtrados por ciclo e time.
+        /// Retorna objetivos filtrados por ciclo e projeto.
         /// </summary>
-        IEnumerable<Objetivo> ObterPorCicloETime(string cicloId, string timeId);
+        IEnumerable<Objetivo> ObterPorCicloEProjeto(string cicloId, string projetoId);
 
         /// <summary>
         /// Retorna um objetivo pelo seu identificador.
@@ -23,9 +23,9 @@ namespace OkrTracker.Domain.Repositories
         bool ExistemObjetivosParaCiclo(string cicloId);
 
         /// <summary>
-        /// Verifica se existem objetivos associados a um time.
+        /// Verifica se existem objetivos associados a um projeto.
         /// </summary>
-        bool ExistemObjetivosParaTime(string timeId);
+        bool ExistemObjetivosParaProjeto(string projetoId);
 
         /// <summary>
         /// Insere um novo objetivo.

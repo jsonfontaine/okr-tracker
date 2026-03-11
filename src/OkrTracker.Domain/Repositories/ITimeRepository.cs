@@ -3,37 +3,37 @@ using OkrTracker.Domain.Entities;
 namespace OkrTracker.Domain.Repositories
 {
     /// <summary>
-    /// Porta de saída para operações de persistência de Times.
+    /// Porta de saída para operações de persistência de Projetos.
     /// </summary>
-    public interface ITimeRepository
+    public interface IProjetoRepository
     {
         /// <summary>
-        /// Retorna todos os times cadastrados.
+        /// Retorna todos os projetos cadastrados.
         /// </summary>
-        IEnumerable<Time> ObterTodos();
+        IEnumerable<Projeto> ObterTodos();
 
         /// <summary>
-        /// Retorna um time pelo seu identificador.
+        /// Retorna um projeto pelo seu identificador.
         /// </summary>
-        Time? ObterPorId(string id);
+        Projeto? ObterPorId(string id);
 
         /// <summary>
-        /// Retorna um time pelo nome.
+        /// Retorna um projeto pelo nome.
         /// </summary>
-        Time? ObterPorNome(string nome);
+        Projeto? ObterPorNome(string nome);
 
         /// <summary>
-        /// Insere um novo time.
+        /// Insere um novo projeto.
         /// </summary>
-        void Inserir(Time time);
+        void Inserir(Projeto projeto);
 
         /// <summary>
-        /// Atualiza um time existente.
+        /// Atualiza um projeto existente.
         /// </summary>
-        void Atualizar(Time time);
+        void Atualizar(Projeto projeto);
 
         /// <summary>
-        /// Remove um time pelo seu identificador.
+        /// Remove um projeto pelo seu identificador.
         /// </summary>
         void Excluir(string id);
     }

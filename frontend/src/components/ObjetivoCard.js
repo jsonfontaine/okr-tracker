@@ -19,8 +19,9 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
     const dados = {
       titulo: objetivo.titulo,
       descricao: objetivo.descricao,
+      // Substituir timeId por projetoId
       cicloId: objetivo.cicloId,
-      timeId: objetivo.timeId,
+      projetoId: objetivo.projetoId,
       prioridade: objetivo.prioridade,
       farol: objetivo.farol,
       status: objetivo.status,

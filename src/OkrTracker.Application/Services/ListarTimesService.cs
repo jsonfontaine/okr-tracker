@@ -6,34 +6,34 @@ using OkrTracker.Domain.Repositories;
 namespace OkrTracker.Application.Services
 {
     /// <summary>
-    /// Serviço responsável por listar todos os times cadastrados.
+    /// Serviço responsável por listar todos os projetos cadastrados.
     /// </summary>
-    public class ListarTimesService : IListarTimesService
+    public class ListarProjetosService : IListarProjetosService
     {
-        private readonly ITimeRepository _timeRepository;
-        private readonly ILogger<ListarTimesService> _logger;
+        private readonly IProjetoRepository _projetoRepository;
+        private readonly ILogger<ListarProjetosService> _logger;
 
-        public ListarTimesService(ITimeRepository timeRepository, ILogger<ListarTimesService> logger)
+        public ListarProjetosService(IProjetoRepository projetoRepository, ILogger<ListarProjetosService> logger)
         {
-            _timeRepository = timeRepository;
+            _projetoRepository = projetoRepository;
             _logger = logger;
         }
 
-        public ResultadoOperacao<IEnumerable<TimeResponse>> Executar()
+        public ResultadoOperacao<IEnumerable<ProjetoResponse>> Executar()
         {
-            _logger.LogInformation("Listando todos os times.");
+            _logger.LogInformation("Listando todos os projetos.");
 
-            var times = _timeRepository.ObterTodos();
-            var response = times.Select(t => new TimeResponse
+            var projetos = _projetoRepository.ObterTodos();
+            var response = projetos.Select(p => new ProjetoResponse
             {
-                Id = t.Id,
-                Nome = t.Nome,
-                Descricao = t.Descricao,
-                DataCriacao = t.DataCriacao,
-                UltimaAtualizacao = t.UltimaAtualizacao
+                Id = p.Id,
+                Nome = p.Nome,
+                Descricao = p.Descricao,
+                DataCriacao = p.DataCriacao,
+                UltimaAtualizacao = p.UltimaAtualizacao
             });
 
-            return ResultadoOperacao<IEnumerable<TimeResponse>>.Sucesso(response);
+            return ResultadoOperacao<IEnumerable<ProjetoResponse>>.Sucesso(response);
         }
     }
 }

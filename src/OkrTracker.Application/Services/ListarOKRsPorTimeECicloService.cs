@@ -6,7 +6,7 @@ using OkrTracker.Domain.Repositories;
 namespace OkrTracker.Application.Services
 {
     /// <summary>
-    /// Serviço responsável por listar OKRs filtrados por ciclo e time.
+    /// Serviço responsável por listar OKRs filtrados por ciclo e projeto.
     /// Retorna objetivos com seus KRs, comentários, fatos relevantes e riscos.
     /// </summary>
     public class ListarOKRsPorTimeECicloService : IListarOKRsPorTimeECicloService
@@ -34,17 +34,17 @@ namespace OkrTracker.Application.Services
             _logger = logger;
         }
 
-        public ResultadoOperacao<IEnumerable<ObjetivoResponse>> Executar(string cicloId, string timeId)
+        public ResultadoOperacao<IEnumerable<ObjetivoResponse>> Executar(string cicloId, string projetoId)
         {
-            _logger.LogInformation("Listando OKRs para ciclo {CicloId} e time {TimeId}.", cicloId, timeId);
+            _logger.LogInformation("Listando OKRs para ciclo {CicloId} e projeto {ProjetoId}.", cicloId, projetoId);
 
             if (string.IsNullOrWhiteSpace(cicloId))
                 return ResultadoOperacao<IEnumerable<ObjetivoResponse>>.Erro("O cicloId é obrigatório.");
 
-            if (string.IsNullOrWhiteSpace(timeId))
-                return ResultadoOperacao<IEnumerable<ObjetivoResponse>>.Erro("O timeId é obrigatório.");
+            if (string.IsNullOrWhiteSpace(projetoId))
+                return ResultadoOperacao<IEnumerable<ObjetivoResponse>>.Erro("O projetoId é obrigatório.");
 
-            var objetivos = _objetivoRepository.ObterPorCicloETime(cicloId, timeId);
+            var objetivos = _objetivoRepository.ObterPorCicloEProjeto(cicloId, projetoId);
             var response = new List<ObjetivoResponse>();
 
             foreach (var obj in objetivos)
@@ -55,7 +55,7 @@ namespace OkrTracker.Application.Services
                     Titulo = obj.Titulo,
                     Descricao = obj.Descricao,
                     CicloId = obj.CicloId,
-                    TimeId = obj.TimeId,
+                    ProjetoId = obj.ProjetoId,
                     Prioridade = obj.Prioridade.ToString(),
                     Progresso = obj.Progresso,
                     Status = obj.Status.ToString(),

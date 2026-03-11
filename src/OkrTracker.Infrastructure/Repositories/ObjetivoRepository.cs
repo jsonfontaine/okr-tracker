@@ -1,4 +1,3 @@
-using LiteDB;
 using OkrTracker.Domain.Entities;
 using OkrTracker.Domain.Repositories;
 using OkrTracker.Infrastructure.Persistence;
@@ -18,13 +17,13 @@ namespace OkrTracker.Infrastructure.Repositories
             _connectionFactory = connectionFactory;
         }
 
-        public IEnumerable<Objetivo> ObterPorCicloETime(string cicloId, string timeId)
+        public IEnumerable<Objetivo> ObterPorCicloEProjeto(string cicloId, string projetoId)
         {
             using var db = _connectionFactory.CriarConexao();
             var col = db.GetCollection<Objetivo>(CollectionName);
             col.EnsureIndex(o => o.CicloId);
-            col.EnsureIndex(o => o.TimeId);
-            return col.Find(o => o.CicloId == cicloId && o.TimeId == timeId).ToList();
+            col.EnsureIndex(o => o.ProjetoId);
+            return col.Find(o => o.CicloId == cicloId && o.ProjetoId == projetoId).ToList();
         }
 
         public Objetivo? ObterPorId(string id)
@@ -41,12 +40,12 @@ namespace OkrTracker.Infrastructure.Repositories
             return col.Exists(o => o.CicloId == cicloId);
         }
 
-        public bool ExistemObjetivosParaTime(string timeId)
+        public bool ExistemObjetivosParaProjeto(string projetoId)
         {
             using var db = _connectionFactory.CriarConexao();
             var col = db.GetCollection<Objetivo>(CollectionName);
-            col.EnsureIndex(o => o.TimeId);
-            return col.Exists(o => o.TimeId == timeId);
+            col.EnsureIndex(o => o.ProjetoId);
+            return col.Exists(o => o.ProjetoId == projetoId);
         }
 
         public void Inserir(Objetivo objetivo)
@@ -54,7 +53,7 @@ namespace OkrTracker.Infrastructure.Repositories
             using var db = _connectionFactory.CriarConexao();
             var col = db.GetCollection<Objetivo>(CollectionName);
             col.EnsureIndex(o => o.CicloId);
-            col.EnsureIndex(o => o.TimeId);
+            col.EnsureIndex(o => o.ProjetoId);
             col.Insert(objetivo);
         }
 

@@ -5,22 +5,22 @@ using OkrTracker.Application.Interfaces;
 namespace OkrTracker.Api.Controllers
 {
     /// <summary>
-    /// Controller para operações de Times.
+    /// Controller para operações de Projetos.
     /// </summary>
     [ApiController]
-    [Route("api/times")]
-    public class TimesController : ControllerBase
+    [Route("api/projetos")]
+    public class ProjetosController : ControllerBase
     {
-        private readonly ICriarTimeService _criarService;
-        private readonly IListarTimesService _listarService;
-        private readonly IAtualizarTimeService _atualizarService;
-        private readonly IExcluirTimeService _excluirService;
+        private readonly ICriarProjetoService _criarService;
+        private readonly IListarProjetosService _listarService;
+        private readonly IAtualizarProjetoService _atualizarService;
+        private readonly IExcluirProjetoService _excluirService;
 
-        public TimesController(
-            ICriarTimeService criarService,
-            IListarTimesService listarService,
-            IAtualizarTimeService atualizarService,
-            IExcluirTimeService excluirService)
+        public ProjetosController(
+            ICriarProjetoService criarService,
+            IListarProjetosService listarService,
+            IAtualizarProjetoService atualizarService,
+            IExcluirProjetoService excluirService)
         {
             _criarService = criarService;
             _listarService = listarService;
@@ -29,7 +29,7 @@ namespace OkrTracker.Api.Controllers
         }
 
         /// <summary>
-        /// Retorna lista de todos os times.
+        /// Retorna lista de todos os projetos.
         /// </summary>
         [HttpGet]
         public IActionResult Listar()
@@ -39,24 +39,24 @@ namespace OkrTracker.Api.Controllers
         }
 
         /// <summary>
-        /// Cria um novo time.
+        /// Cria um novo projeto.
         /// </summary>
         [HttpPost]
-        public IActionResult Criar([FromBody] CriarTimeRequest request)
+        public IActionResult Criar([FromBody] CriarProjetoRequest request)
         {
             var resultado = _criarService.Executar(request);
 
             if (!resultado.Success)
                 return BadRequest(resultado);
 
-            return Created($"/api/times/{resultado.Data?.Id}", resultado);
+            return Created($"/api/projetos/{resultado.Data?.Id}", resultado);
         }
 
         /// <summary>
-        /// Atualiza nome/descrição de um time existente.
+        /// Atualiza nome/descrição de um projeto existente.
         /// </summary>
         [HttpPut("{id}")]
-        public IActionResult Atualizar(string id, [FromBody] AtualizarTimeRequest request)
+        public IActionResult Atualizar(string id, [FromBody] AtualizarProjetoRequest request)
         {
             var resultado = _atualizarService.Executar(id, request);
 
@@ -67,7 +67,7 @@ namespace OkrTracker.Api.Controllers
         }
 
         /// <summary>
-        /// Exclui um time (somente se não houver objetivos associados).
+        /// Exclui um projeto (somente se não houver objetivos associados).
         /// </summary>
         [HttpDelete("{id}")]
         public IActionResult Excluir(string id)

@@ -9,31 +9,31 @@ using OkrTracker.Domain.Repositories;
 namespace OkrTracker.Tests.Services
 {
     /// <summary>
-    /// Testes unitários para AtualizarTimeService.
+    /// Testes unitários para AtualizarProjetoService.
     /// </summary>
     public class AtualizarTimeServiceTests
     {
-        private readonly Mock<ITimeRepository> _timeRepoMock;
-        private readonly Mock<ILogger<AtualizarTimeService>> _loggerMock;
-        private readonly AtualizarTimeService _service;
+        private readonly Mock<IProjetoRepository> _projetoRepoMock;
+        private readonly Mock<ILogger<AtualizarProjetoService>> _loggerMock;
+        private readonly AtualizarProjetoService _service;
 
         public AtualizarTimeServiceTests()
         {
-            _timeRepoMock = new Mock<ITimeRepository>();
-            _loggerMock = new Mock<ILogger<AtualizarTimeService>>();
-            _service = new AtualizarTimeService(_timeRepoMock.Object, _loggerMock.Object);
+            _projetoRepoMock = new Mock<IProjetoRepository>();
+            _loggerMock = new Mock<ILogger<AtualizarProjetoService>>();
+            _service = new AtualizarProjetoService(_projetoRepoMock.Object, _loggerMock.Object);
         }
 
         [Fact]
         public void Executar_DadosValidos_DeveRetornarSucesso()
         {
             // Arrange
-            var time = new Time { Id = "1", Nome = "Bridge", DataCriacao = DateTime.UtcNow };
-            _timeRepoMock.Setup(r => r.ObterPorId("1")).Returns(time);
-            _timeRepoMock.Setup(r => r.ObterPorNome("Platform")).Returns((Time?)null);
+            var projeto = new Projeto { Id = "1", Nome = "Bridge", DataCriacao = DateTime.UtcNow };
+            _projetoRepoMock.Setup(r => r.ObterPorId("1")).Returns(projeto);
+            _projetoRepoMock.Setup(r => r.ObterPorNome("Platform")).Returns((Projeto?)null);
 
             // Act
-            var resultado = _service.Executar("1", new AtualizarTimeRequest { Nome = "Platform", Descricao = "Nova desc" });
+            var resultado = _service.Executar("1", new AtualizarProjetoRequest { Nome = "Platform", Descricao = "Nova desc" });
 
             // Assert
             resultado.Success.Should().BeTrue();
@@ -45,42 +45,42 @@ namespace OkrTracker.Tests.Services
         public void Executar_NomeVazio_DeveRetornarErro()
         {
             // Act
-            var resultado = _service.Executar("1", new AtualizarTimeRequest { Nome = "" });
+            var resultado = _service.Executar("1", new AtualizarProjetoRequest { Nome = "" });
 
             // Assert
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("O nome do time é obrigatório.");
+            resultado.Message.Should().Be("O nome do projeto é obrigatório.");
         }
 
         [Fact]
         public void Executar_TimeNaoEncontrado_DeveRetornarErro()
         {
             // Arrange
-            _timeRepoMock.Setup(r => r.ObterPorId("999")).Returns((Time?)null);
+            _projetoRepoMock.Setup(r => r.ObterPorId("999")).Returns((Projeto?)null);
 
             // Act
-            var resultado = _service.Executar("999", new AtualizarTimeRequest { Nome = "Platform" });
+            var resultado = _service.Executar("999", new AtualizarProjetoRequest { Nome = "Platform" });
 
             // Assert
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("Time não encontrado.");
+            resultado.Message.Should().Be("Projeto não encontrado.");
         }
 
         [Fact]
         public void Executar_NomeDuplicadoOutroId_DeveRetornarErro()
         {
             // Arrange
-            var time = new Time { Id = "1", Nome = "Bridge" };
-            var outroTime = new Time { Id = "2", Nome = "Platform" };
-            _timeRepoMock.Setup(r => r.ObterPorId("1")).Returns(time);
-            _timeRepoMock.Setup(r => r.ObterPorNome("Platform")).Returns(outroTime);
+            var projeto = new Projeto { Id = "1", Nome = "Bridge" };
+            var outroProjeto = new Projeto { Id = "2", Nome = "Platform" };
+            _projetoRepoMock.Setup(r => r.ObterPorId("1")).Returns(projeto);
+            _projetoRepoMock.Setup(r => r.ObterPorNome("Platform")).Returns(outroProjeto);
 
             // Act
-            var resultado = _service.Executar("1", new AtualizarTimeRequest { Nome = "Platform" });
+            var resultado = _service.Executar("1", new AtualizarProjetoRequest { Nome = "Platform" });
 
             // Assert
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("Já existe um time com este nome.");
+            resultado.Message.Should().Be("Já existe um projeto com este nome.");
         }
     }
 }

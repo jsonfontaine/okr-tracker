@@ -6,15 +6,15 @@ import {
 } from '@genial/design-system';
 import ObjetivoCard from '../components/ObjetivoCard';
 import {
-  listarCiclos, listarTimes, listarOKRs,
+  listarCiclos, listarProjetos, listarOKRs,
   criarObjetivo, criarKR, exportarResumoExecutivo,
 } from '../services/api';
 
 export default function DashboardPage() {
   const [ciclos, setCiclos] = useState([]);
-  const [times, setTimes] = useState([]);
+  const [projetos, setProjetos] = useState([]);
   const [cicloId, setCicloId] = useState('');
-  const [timeId, setTimeId] = useState('');
+  const [projetoId, setProjetoId] = useState('');
   const [objetivos, setObjetivos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -40,9 +40,9 @@ export default function DashboardPage() {
   const [copiado, setCopiado] = useState(false);
 
   const carregarFiltros = useCallback(async () => {
-    const [ciclosRes, timesRes] = await Promise.all([listarCiclos(), listarTimes()]);
+    const [ciclosRes, projetosRes] = await Promise.all([listarCiclos(), listarProjetos()]);
     if (ciclosRes.success) setCiclos(ciclosRes.data || []);
-    if (timesRes.success) setTimes(timesRes.data || []);
+    if (projetosRes.success) setProjetos(projetosRes.data || []);
   }, []);
 
   useEffect(() => {
@@ -50,17 +50,17 @@ export default function DashboardPage() {
   }, [carregarFiltros]);
 
   const carregarOKRs = useCallback(async () => {
-    if (!cicloId || !timeId) return;
+    if (!cicloId || !projetoId) return;
     setLoading(true);
     setError(null);
-    const result = await listarOKRs(cicloId, timeId);
+    const result = await listarOKRs(cicloId, projetoId);
     setLoading(false);
     if (result.success) {
       setObjetivos(result.data || []);
     } else {
       setError(result.message);
     }
-  }, [cicloId, timeId]);
+  }, [cicloId, projetoId]);
 
   useEffect(() => {
     carregarOKRs();
@@ -71,7 +71,7 @@ export default function DashboardPage() {
     e.preventDefault();
     setError(null);
     const result = await criarObjetivo({
-      ...objForm, cicloId, timeId,
+      ...objForm, cicloId, projetoId,
     });
     if (result.success) {
       setShowObjetivoModal(false);
@@ -99,7 +99,7 @@ export default function DashboardPage() {
   };
 
   const handleExportarCard = async () => {
-    const result = await exportarResumoExecutivo(cicloId, timeId);
+    const result = await exportarResumoExecutivo(cicloId, projetoId);
     if (result.success) {
       setResumoTexto(result.data);
       setCopiado(false);
@@ -137,21 +137,21 @@ export default function DashboardPage() {
             </Col>
             <Col md={4}>
               <InputSelect
-                data-testid="ds-select-time"
-                label="Time"
-                value={timeId}
+                data-testid="ds-select-projeto"
+                label="Projeto"
+                value={projetoId}
                 options={[
-                  { label: 'Selecione um time', value: '' },
-                  ...times.map((t) => ({ label: t.nome, value: t.id })),
+                  { label: 'Selecione um projeto', value: '' },
+                  ...projetos.map((t) => ({ label: t.nome, value: t.id })),
                 ]}
-                onChange={(e) => setTimeId(e.target.value)}
+                onChange={(e) => setProjetoId(e.target.value)}
               />
             </Col>
             <Col md={4} className="d-flex gap-2">
               <DSButton
                 data-testid="ds-button-novo-objetivo"
                 variant="success"
-                disabled={!cicloId || !timeId}
+                disabled={!cicloId || !projetoId}
                 onClick={() => setShowObjetivoModal(true)}
               >
                 + Objetivo
@@ -159,7 +159,7 @@ export default function DashboardPage() {
               <DSButton
                 data-testid="ds-button-resumo"
                 variant="outline-secondary"
-                disabled={!cicloId || !timeId}
+                disabled={!cicloId || !projetoId}
                 onClick={handleExportarCard}
               >
                 📊 Resumo Executivo
@@ -187,8 +187,8 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {!loading && cicloId && timeId && objetivos.length === 0 && (
-        <p className="text-muted text-center py-3">Nenhum objetivo cadastrado para este ciclo/time.</p>
+      {!loading && cicloId && projetoId && objetivos.length === 0 && (
+        <p className="text-muted text-center py-3">Nenhum objetivo cadastrado para este ciclo/projeto.</p>
       )}
 
       {/* Lista de Objetivos */}

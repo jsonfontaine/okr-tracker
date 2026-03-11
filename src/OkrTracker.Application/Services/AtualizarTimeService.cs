@@ -6,49 +6,49 @@ using OkrTracker.Domain.Repositories;
 namespace OkrTracker.Application.Services
 {
     /// <summary>
-    /// Serviço responsável por atualizar nome/descrição de um time existente.
+    /// Serviço responsável por atualizar nome/descrição de um projeto existente.
     /// Valida existência, nome obrigatório e unicidade.
     /// </summary>
-    public class AtualizarTimeService : IAtualizarTimeService
+    public class AtualizarProjetoService : IAtualizarProjetoService
     {
-        private readonly ITimeRepository _timeRepository;
-        private readonly ILogger<AtualizarTimeService> _logger;
+        private readonly IProjetoRepository _projetoRepository;
+        private readonly ILogger<AtualizarProjetoService> _logger;
 
-        public AtualizarTimeService(ITimeRepository timeRepository, ILogger<AtualizarTimeService> logger)
+        public AtualizarProjetoService(IProjetoRepository projetoRepository, ILogger<AtualizarProjetoService> logger)
         {
-            _timeRepository = timeRepository;
+            _projetoRepository = projetoRepository;
             _logger = logger;
         }
 
-        public ResultadoOperacao<TimeResponse> Executar(string id, AtualizarTimeRequest request)
+        public ResultadoOperacao<ProjetoResponse> Executar(string id, AtualizarProjetoRequest request)
         {
-            _logger.LogInformation("Atualizando time {Id} para nome: {Nome}", id, request.Nome);
+            _logger.LogInformation("Atualizando projeto {Id} para nome: {Nome}", id, request.Nome);
 
             if (string.IsNullOrWhiteSpace(request.Nome))
-                return ResultadoOperacao<TimeResponse>.Erro("O nome do time é obrigatório.");
+                return ResultadoOperacao<ProjetoResponse>.Erro("O nome do projeto é obrigatório.");
 
-            var time = _timeRepository.ObterPorId(id);
-            if (time == null)
-                return ResultadoOperacao<TimeResponse>.Erro("Time não encontrado.");
+            var projeto = _projetoRepository.ObterPorId(id);
+            if (projeto == null)
+                return ResultadoOperacao<ProjetoResponse>.Erro("Projeto não encontrado.");
 
-            var existente = _timeRepository.ObterPorNome(request.Nome);
+            var existente = _projetoRepository.ObterPorNome(request.Nome);
             if (existente != null && existente.Id != id)
-                return ResultadoOperacao<TimeResponse>.Erro("Já existe um time com este nome.");
+                return ResultadoOperacao<ProjetoResponse>.Erro("Já existe um projeto com este nome.");
 
-            time.Nome = request.Nome;
-            time.Descricao = request.Descricao;
-            time.UltimaAtualizacao = DateTime.UtcNow;
+            projeto.Nome = request.Nome;
+            projeto.Descricao = request.Descricao;
+            projeto.UltimaAtualizacao = DateTime.UtcNow;
 
-            _timeRepository.Atualizar(time);
-            _logger.LogInformation("Time {Id} atualizado com sucesso.", id);
+            _projetoRepository.Atualizar(projeto);
+            _logger.LogInformation("Projeto {Id} atualizado com sucesso.", id);
 
-            return ResultadoOperacao<TimeResponse>.Sucesso(new TimeResponse
+            return ResultadoOperacao<ProjetoResponse>.Sucesso(new ProjetoResponse
             {
-                Id = time.Id,
-                Nome = time.Nome,
-                Descricao = time.Descricao,
-                DataCriacao = time.DataCriacao,
-                UltimaAtualizacao = time.UltimaAtualizacao
+                Id = projeto.Id,
+                Nome = projeto.Nome,
+                Descricao = projeto.Descricao,
+                DataCriacao = projeto.DataCriacao,
+                UltimaAtualizacao = projeto.UltimaAtualizacao
             });
         }
     }

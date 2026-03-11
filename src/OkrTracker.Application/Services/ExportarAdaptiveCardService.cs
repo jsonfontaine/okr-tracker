@@ -17,7 +17,7 @@ namespace OkrTracker.Application.Services
         private readonly IFatoRelevanteRepository _fatoRelevanteRepository;
         private readonly IRiscoRepository _riscoRepository;
         private readonly ICicloRepository _cicloRepository;
-        private readonly ITimeRepository _timeRepository;
+        private readonly IProjetoRepository _projetoRepository;
         private readonly ILogger<ExportarResumoExecutivoService> _logger;
 
         public ExportarResumoExecutivoService(
@@ -26,7 +26,7 @@ namespace OkrTracker.Application.Services
             IFatoRelevanteRepository fatoRelevanteRepository,
             IRiscoRepository riscoRepository,
             ICicloRepository cicloRepository,
-            ITimeRepository timeRepository,
+            IProjetoRepository projetoRepository,
             ILogger<ExportarResumoExecutivoService> logger)
         {
             _objetivoRepository = objetivoRepository;
@@ -34,37 +34,37 @@ namespace OkrTracker.Application.Services
             _fatoRelevanteRepository = fatoRelevanteRepository;
             _riscoRepository = riscoRepository;
             _cicloRepository = cicloRepository;
-            _timeRepository = timeRepository;
+            _projetoRepository = projetoRepository;
             _logger = logger;
         }
 
-        public ResultadoOperacao<string> Executar(string cicloId, string timeId)
+        public ResultadoOperacao<string> Executar(string cicloId, string projetoId)
         {
-            _logger.LogInformation("Gerando resumo executivo para ciclo {CicloId} e time {TimeId}.", cicloId, timeId);
+            _logger.LogInformation("Gerando resumo executivo para ciclo {CicloId} e projeto {ProjetoId}.", cicloId, projetoId);
 
             if (string.IsNullOrWhiteSpace(cicloId))
                 return ResultadoOperacao<string>.Erro("O cicloId é obrigatório.");
 
-            if (string.IsNullOrWhiteSpace(timeId))
-                return ResultadoOperacao<string>.Erro("O timeId é obrigatório.");
+            if (string.IsNullOrWhiteSpace(projetoId))
+                return ResultadoOperacao<string>.Erro("O projetoId é obrigatório.");
 
             var ciclo = _cicloRepository.ObterPorId(cicloId);
-            var time = _timeRepository.ObterPorId(timeId);
+            var projeto = _projetoRepository.ObterPorId(projetoId);
             var nomeCiclo = ciclo?.Nome ?? cicloId;
-            var nomeTime = time?.Nome ?? timeId;
+            var nomeProjeto = projeto?.Nome ?? projetoId;
 
-            var objetivos = _objetivoRepository.ObterPorCicloETime(cicloId, timeId).ToList();
+            var objetivos = _objetivoRepository.ObterPorCicloEProjeto(cicloId, projetoId).ToList();
 
             var sb = new StringBuilder();
 
             sb.AppendLine("═══════════════════════════════════════════");
-            sb.AppendLine($"  📊 RESUMO EXECUTIVO — {nomeTime} | {nomeCiclo}");
+            sb.AppendLine($"  📊 RESUMO EXECUTIVO — {nomeProjeto} | {nomeCiclo}");
             sb.AppendLine("═══════════════════════════════════════════");
             sb.AppendLine();
 
             if (objetivos.Count == 0)
             {
-                sb.AppendLine("Não há OKRs cadastrados para este time/ciclo.");
+                sb.AppendLine("Não há OKRs cadastrados para este projeto/ciclo.");
                 return ResultadoOperacao<string>.Sucesso(sb.ToString());
             }
 

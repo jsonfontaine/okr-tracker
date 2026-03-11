@@ -8,65 +8,65 @@ using OkrTracker.Domain.Repositories;
 namespace OkrTracker.Tests.Services
 {
     /// <summary>
-    /// Testes unitários para ExcluirTimeService.
+    /// Testes unitários para ExcluirProjetoService.
     /// </summary>
-    public class ExcluirTimeServiceTests
+    public class ExcluirProjetoServiceTests
     {
-        private readonly Mock<ITimeRepository> _timeRepoMock;
+        private readonly Mock<IProjetoRepository> _projetoRepoMock;
         private readonly Mock<IObjetivoRepository> _objetivoRepoMock;
-        private readonly Mock<ILogger<ExcluirTimeService>> _loggerMock;
-        private readonly ExcluirTimeService _service;
+        private readonly Mock<ILogger<ExcluirProjetoService>> _loggerMock;
+        private readonly ExcluirProjetoService _service;
 
-        public ExcluirTimeServiceTests()
+        public ExcluirProjetoServiceTests()
         {
-            _timeRepoMock = new Mock<ITimeRepository>();
+            _projetoRepoMock = new Mock<IProjetoRepository>();
             _objetivoRepoMock = new Mock<IObjetivoRepository>();
-            _loggerMock = new Mock<ILogger<ExcluirTimeService>>();
-            _service = new ExcluirTimeService(_timeRepoMock.Object, _objetivoRepoMock.Object, _loggerMock.Object);
+            _loggerMock = new Mock<ILogger<ExcluirProjetoService>>();
+            _service = new ExcluirProjetoService(_projetoRepoMock.Object, _objetivoRepoMock.Object, _loggerMock.Object);
         }
 
         [Fact]
         public void Executar_TimeSemObjetivos_DeveRetornarSucesso()
         {
             // Arrange
-            _timeRepoMock.Setup(r => r.ObterPorId("1")).Returns(new Time { Id = "1", Nome = "Bridge" });
-            _objetivoRepoMock.Setup(r => r.ExistemObjetivosParaTime("1")).Returns(false);
+            _projetoRepoMock.Setup(r => r.ObterPorId("1")).Returns(new Projeto { Id = "1", Nome = "Bridge" });
+            _objetivoRepoMock.Setup(r => r.ExistemObjetivosParaProjeto("1")).Returns(false);
 
             // Act
             var resultado = _service.Executar("1");
 
             // Assert
             resultado.Success.Should().BeTrue();
-            _timeRepoMock.Verify(r => r.Excluir("1"), Times.Once);
+            _projetoRepoMock.Verify(r => r.Excluir("1"), Times.Once);
         }
 
         [Fact]
         public void Executar_TimeComObjetivos_DeveRetornarErro()
         {
             // Arrange
-            _timeRepoMock.Setup(r => r.ObterPorId("1")).Returns(new Time { Id = "1", Nome = "Bridge" });
-            _objetivoRepoMock.Setup(r => r.ExistemObjetivosParaTime("1")).Returns(true);
+            _projetoRepoMock.Setup(r => r.ObterPorId("1")).Returns(new Projeto { Id = "1", Nome = "Bridge" });
+            _objetivoRepoMock.Setup(r => r.ExistemObjetivosParaProjeto("1")).Returns(true);
 
             // Act
             var resultado = _service.Executar("1");
 
             // Assert
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("Não é possível excluir o time pois existem objetivos associados.");
+            resultado.Message.Should().Be("Não é possível excluir o projeto pois existem objetivos associados.");
         }
 
         [Fact]
         public void Executar_TimeNaoEncontrado_DeveRetornarErro()
         {
             // Arrange
-            _timeRepoMock.Setup(r => r.ObterPorId("999")).Returns((Time?)null);
+            _projetoRepoMock.Setup(r => r.ObterPorId("999")).Returns((Projeto?)null);
 
             // Act
             var resultado = _service.Executar("999");
 
             // Assert
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("Time não encontrado.");
+            resultado.Message.Should().Be("Projeto não encontrado.");
         }
     }
 }

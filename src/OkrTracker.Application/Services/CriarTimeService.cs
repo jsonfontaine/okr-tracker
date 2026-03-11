@@ -7,33 +7,33 @@ using OkrTracker.Domain.Repositories;
 namespace OkrTracker.Application.Services
 {
     /// <summary>
-    /// Serviço responsável por criar um novo time.
+        /// Serviço responsável por criar um novo projeto.
     /// Valida nome obrigatório e unicidade.
     /// </summary>
-    public class CriarTimeService : ICriarTimeService
+    public class CriarProjetoService : ICriarProjetoService
     {
-        private readonly ITimeRepository _timeRepository;
-        private readonly ILogger<CriarTimeService> _logger;
+        private readonly IProjetoRepository _projetoRepository;
+        private readonly ILogger<CriarProjetoService> _logger;
 
-        public CriarTimeService(ITimeRepository timeRepository, ILogger<CriarTimeService> logger)
+        public CriarProjetoService(IProjetoRepository projetoRepository, ILogger<CriarProjetoService> logger)
         {
-            _timeRepository = timeRepository;
+            _projetoRepository = projetoRepository;
             _logger = logger;
         }
 
-        public ResultadoOperacao<TimeResponse> Executar(CriarTimeRequest request)
+        public ResultadoOperacao<ProjetoResponse> Executar(CriarProjetoRequest request)
         {
-            _logger.LogInformation("Criando time com nome: {Nome}", request.Nome);
+            _logger.LogInformation("Criando projeto com nome: {Nome}", request.Nome);
 
             if (string.IsNullOrWhiteSpace(request.Nome))
-                return ResultadoOperacao<TimeResponse>.Erro("O nome do time é obrigatório.");
+                return ResultadoOperacao<ProjetoResponse>.Erro("O nome do projeto é obrigatório.");
 
-            var existente = _timeRepository.ObterPorNome(request.Nome);
+            var existente = _projetoRepository.ObterPorNome(request.Nome);
             if (existente != null)
-                return ResultadoOperacao<TimeResponse>.Erro("Já existe um time com este nome.");
+                return ResultadoOperacao<ProjetoResponse>.Erro("Já existe um projeto com este nome.");
 
             var agora = DateTime.UtcNow;
-            var time = new Time
+            var projeto = new Projeto
             {
                 Id = Guid.NewGuid().ToString(),
                 Nome = request.Nome,
@@ -42,16 +42,16 @@ namespace OkrTracker.Application.Services
                 UltimaAtualizacao = agora
             };
 
-            _timeRepository.Inserir(time);
-            _logger.LogInformation("Time criado com sucesso. Id: {Id}", time.Id);
+            _projetoRepository.Inserir(projeto);
+            _logger.LogInformation("Projeto criado com sucesso. Id: {Id}", projeto.Id);
 
-            return ResultadoOperacao<TimeResponse>.Sucesso(new TimeResponse
+            return ResultadoOperacao<ProjetoResponse>.Sucesso(new ProjetoResponse
             {
-                Id = time.Id,
-                Nome = time.Nome,
-                Descricao = time.Descricao,
-                DataCriacao = time.DataCriacao,
-                UltimaAtualizacao = time.UltimaAtualizacao
+                Id = projeto.Id,
+                Nome = projeto.Nome,
+                Descricao = projeto.Descricao,
+                DataCriacao = projeto.DataCriacao,
+                UltimaAtualizacao = projeto.UltimaAtualizacao
             });
         }
     }

@@ -18,12 +18,12 @@ namespace OkrTracker.Api.Controllers
         }
 
         /// <summary>
-        /// Gera o resumo executivo em texto para um determinado time e ciclo.
+        /// Gera o resumo executivo em texto para um determinado projeto e ciclo.
         /// </summary>
         [HttpGet("resumo-executivo")]
-        public IActionResult ExportarResumoExecutivo([FromQuery] string cicloId, [FromQuery] string timeId)
+        public IActionResult ExportarResumoExecutivo([FromQuery] string cicloId, [FromQuery] string projetoId)
         {
-            var resultado = _exportarService.Executar(cicloId, timeId);
+            var resultado = _exportarService.Executar(cicloId, projetoId);
 
             if (!resultado.Success)
                 return BadRequest(resultado);

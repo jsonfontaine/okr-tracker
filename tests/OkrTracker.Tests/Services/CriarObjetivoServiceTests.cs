@@ -15,7 +15,7 @@ namespace OkrTracker.Tests.Services
     {
         private readonly Mock<IObjetivoRepository> _objetivoRepoMock;
         private readonly Mock<ICicloRepository> _cicloRepoMock;
-        private readonly Mock<ITimeRepository> _timeRepoMock;
+        private readonly Mock<IProjetoRepository> _projetoRepoMock;
         private readonly Mock<ILogger<CriarObjetivoService>> _loggerMock;
         private readonly CriarObjetivoService _service;
 
@@ -23,12 +23,12 @@ namespace OkrTracker.Tests.Services
         {
             _objetivoRepoMock = new Mock<IObjetivoRepository>();
             _cicloRepoMock = new Mock<ICicloRepository>();
-            _timeRepoMock = new Mock<ITimeRepository>();
+            _projetoRepoMock = new Mock<IProjetoRepository>();
             _loggerMock = new Mock<ILogger<CriarObjetivoService>>();
             _service = new CriarObjetivoService(
                 _objetivoRepoMock.Object,
                 _cicloRepoMock.Object,
-                _timeRepoMock.Object,
+                _projetoRepoMock.Object,
                 _loggerMock.Object);
         }
 
@@ -39,7 +39,7 @@ namespace OkrTracker.Tests.Services
                 Titulo = "Melhorar previsibilidade",
                 Descricao = "Criar processos e métricas",
                 CicloId = "ciclo-1",
-                TimeId = "time-1",
+                ProjetoId = "projeto-1",
                 Prioridade = "Alta",
                 Farol = "Verde",
                 Valor = "Redução de 30% no retrabalho"
@@ -51,7 +51,7 @@ namespace OkrTracker.Tests.Services
         {
             // Arrange
             _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1", Nome = "2026-Q1" });
-            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1", Nome = "Bridge" });
+            _projetoRepoMock.Setup(r => r.ObterPorId("projeto-1")).Returns(new Projeto { Id = "projeto-1", Nome = "Bridge" });
 
             // Act
             var resultado = _service.Executar(CriarRequestValido());
@@ -111,18 +111,18 @@ namespace OkrTracker.Tests.Services
         }
 
         [Fact]
-        public void Executar_TimeIdVazio_DeveRetornarErro()
+        public void Executar_ProjetoIdVazio_DeveRetornarErro()
         {
             // Arrange
             var request = CriarRequestValido();
-            request.TimeId = "";
+            request.ProjetoId = "";
 
             // Act
             var resultado = _service.Executar(request);
 
             // Assert
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("O time é obrigatório.");
+            resultado.Message.Should().Be("O projeto é obrigatório.");
         }
 
         [Fact]
@@ -140,18 +140,18 @@ namespace OkrTracker.Tests.Services
         }
 
         [Fact]
-        public void Executar_TimeNaoEncontrado_DeveRetornarErro()
+        public void Executar_ProjetoNaoEncontrado_DeveRetornarErro()
         {
             // Arrange
             _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1" });
-            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns((Time?)null);
+            _projetoRepoMock.Setup(r => r.ObterPorId("projeto-1")).Returns((Projeto?)null);
 
             // Act
             var resultado = _service.Executar(CriarRequestValido());
 
             // Assert
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("Time não encontrado.");
+            resultado.Message.Should().Be("Projeto não encontrado.");
         }
 
         [Fact]
@@ -161,7 +161,7 @@ namespace OkrTracker.Tests.Services
             var request = CriarRequestValido();
             request.Prioridade = "Invalida";
             _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-1")).Returns(new Ciclo { Id = "ciclo-1" });
-            _timeRepoMock.Setup(r => r.ObterPorId("time-1")).Returns(new Time { Id = "time-1" });
+            _projetoRepoMock.Setup(r => r.ObterPorId("projeto-1")).Returns(new Projeto { Id = "projeto-1" });
 
             // Act
             var resultado = _service.Executar(request);

@@ -16,20 +16,20 @@ namespace OkrTracker.Application.Services
     {
         private readonly IObjetivoRepository _objetivoRepository;
         private readonly ICicloRepository _cicloRepository;
-        private readonly ITimeRepository _timeRepository;
+        private readonly IProjetoRepository _projetoRepository;
         private readonly IComentarioRepository _comentarioRepository;
         private readonly ILogger<AtualizarObjetivoService> _logger;
 
         public AtualizarObjetivoService(
             IObjetivoRepository objetivoRepository,
             ICicloRepository cicloRepository,
-            ITimeRepository timeRepository,
+            IProjetoRepository projetoRepository,
             IComentarioRepository comentarioRepository,
             ILogger<AtualizarObjetivoService> logger)
         {
             _objetivoRepository = objetivoRepository;
             _cicloRepository = cicloRepository;
-            _timeRepository = timeRepository;
+            _projetoRepository = projetoRepository;
             _comentarioRepository = comentarioRepository;
             _logger = logger;
         }
@@ -50,8 +50,8 @@ namespace OkrTracker.Application.Services
             if (string.IsNullOrWhiteSpace(request.CicloId))
                 return ResultadoOperacao<ObjetivoResponse>.Erro("O ciclo é obrigatório.");
 
-            if (string.IsNullOrWhiteSpace(request.TimeId))
-                return ResultadoOperacao<ObjetivoResponse>.Erro("O time é obrigatório.");
+            if (string.IsNullOrWhiteSpace(request.ProjetoId))
+                return ResultadoOperacao<ObjetivoResponse>.Erro("O projeto é obrigatório.");
 
             var objetivo = _objetivoRepository.ObterPorId(id);
             if (objetivo == null)
@@ -61,9 +61,9 @@ namespace OkrTracker.Application.Services
             if (ciclo == null)
                 return ResultadoOperacao<ObjetivoResponse>.Erro("Ciclo não encontrado.");
 
-            var time = _timeRepository.ObterPorId(request.TimeId);
-            if (time == null)
-                return ResultadoOperacao<ObjetivoResponse>.Erro("Time não encontrado.");
+            var projeto = _projetoRepository.ObterPorId(request.ProjetoId);
+            if (projeto == null)
+                return ResultadoOperacao<ObjetivoResponse>.Erro("Projeto não encontrado.");
 
             if (!Enum.TryParse<Prioridade>(request.Prioridade, true, out var prioridade))
                 prioridade = Prioridade.Media;
@@ -88,7 +88,7 @@ namespace OkrTracker.Application.Services
             objetivo.Titulo = request.Titulo;
             objetivo.Descricao = request.Descricao;
             objetivo.CicloId = request.CicloId;
-            objetivo.TimeId = request.TimeId;
+            objetivo.ProjetoId = request.ProjetoId;
             objetivo.Prioridade = prioridade;
             objetivo.Farol = farol;
             objetivo.Status = status;
@@ -118,7 +118,7 @@ namespace OkrTracker.Application.Services
                 Titulo = objetivo.Titulo,
                 Descricao = objetivo.Descricao,
                 CicloId = objetivo.CicloId,
-                TimeId = objetivo.TimeId,
+                ProjetoId = objetivo.ProjetoId,
                 Prioridade = objetivo.Prioridade.ToString(),
                 Progresso = objetivo.Progresso,
                 Status = objetivo.Status.ToString(),

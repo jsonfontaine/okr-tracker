@@ -12,27 +12,27 @@ namespace OkrTracker.Tests.Services
     /// </summary>
     public class ListarTimesServiceTests
     {
-        private readonly Mock<ITimeRepository> _timeRepoMock;
-        private readonly Mock<ILogger<ListarTimesService>> _loggerMock;
-        private readonly ListarTimesService _service;
+        private readonly Mock<IProjetoRepository> _projetoRepoMock;
+        private readonly Mock<ILogger<ListarProjetosService>> _loggerMock;
+        private readonly ListarProjetosService _service;
 
         public ListarTimesServiceTests()
         {
-            _timeRepoMock = new Mock<ITimeRepository>();
-            _loggerMock = new Mock<ILogger<ListarTimesService>>();
-            _service = new ListarTimesService(_timeRepoMock.Object, _loggerMock.Object);
+            _projetoRepoMock = new Mock<IProjetoRepository>();
+            _loggerMock = new Mock<ILogger<ListarProjetosService>>();
+            _service = new ListarProjetosService(_projetoRepoMock.Object, _loggerMock.Object);
         }
 
         [Fact]
-        public void Executar_ComTimes_DeveRetornarLista()
+        public void Executar_ComProjetos_DeveRetornarLista()
         {
             // Arrange
-            var times = new List<Time>
+            var projetos = new List<Projeto>
             {
                 new() { Id = "1", Nome = "Bridge" },
                 new() { Id = "2", Nome = "Platform" }
             };
-            _timeRepoMock.Setup(r => r.ObterTodos()).Returns(times);
+            _projetoRepoMock.Setup(r => r.ObterTodos()).Returns(projetos);
 
             // Act
             var resultado = _service.Executar();
@@ -43,10 +43,10 @@ namespace OkrTracker.Tests.Services
         }
 
         [Fact]
-        public void Executar_SemTimes_DeveRetornarListaVazia()
+        public void Executar_SemProjetos_DeveRetornarListaVazia()
         {
             // Arrange
-            _timeRepoMock.Setup(r => r.ObterTodos()).Returns(new List<Time>());
+            _projetoRepoMock.Setup(r => r.ObterTodos()).Returns(new List<Projeto>());
 
             // Act
             var resultado = _service.Executar();

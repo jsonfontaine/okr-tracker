@@ -5,56 +5,56 @@ using OkrTracker.Infrastructure.Persistence;
 namespace OkrTracker.Infrastructure.Repositories
 {
     /// <summary>
-    /// Implementação LiteDB do repositório de Times.
+    /// Implementação LiteDB do repositório de Projetos.
     /// </summary>
-    public class TimeRepository : ITimeRepository
+    public class ProjetoRepository : IProjetoRepository
     {
         private readonly LiteDbConnectionFactory _connectionFactory;
-        private const string CollectionName = "times";
+        private const string CollectionName = "projetos";
 
-        public TimeRepository(LiteDbConnectionFactory connectionFactory)
+        public ProjetoRepository(LiteDbConnectionFactory connectionFactory)
         {
             _connectionFactory = connectionFactory;
         }
 
-        public IEnumerable<Time> ObterTodos()
+        public IEnumerable<Projeto> ObterTodos()
         {
             using var db = _connectionFactory.CriarConexao();
-            return db.GetCollection<Time>(CollectionName).FindAll().ToList();
+            return db.GetCollection<Projeto>(CollectionName).FindAll().ToList();
         }
 
-        public Time? ObterPorId(string id)
+        public Projeto? ObterPorId(string id)
         {
             using var db = _connectionFactory.CriarConexao();
-            return db.GetCollection<Time>(CollectionName).FindById(id);
+            return db.GetCollection<Projeto>(CollectionName).FindById(id);
         }
 
-        public Time? ObterPorNome(string nome)
+        public Projeto? ObterPorNome(string nome)
         {
             using var db = _connectionFactory.CriarConexao();
-            var col = db.GetCollection<Time>(CollectionName);
+            var col = db.GetCollection<Projeto>(CollectionName);
             col.EnsureIndex(t => t.Nome);
             return col.FindOne(t => t.Nome == nome);
         }
 
-        public void Inserir(Time time)
+        public void Inserir(Projeto projeto)
         {
             using var db = _connectionFactory.CriarConexao();
-            var col = db.GetCollection<Time>(CollectionName);
+            var col = db.GetCollection<Projeto>(CollectionName);
             col.EnsureIndex(t => t.Nome, true);
-            col.Insert(time);
+            col.Insert(projeto);
         }
 
-        public void Atualizar(Time time)
+        public void Atualizar(Projeto projeto)
         {
             using var db = _connectionFactory.CriarConexao();
-            db.GetCollection<Time>(CollectionName).Update(time);
+            db.GetCollection<Projeto>(CollectionName).Update(projeto);
         }
 
         public void Excluir(string id)
         {
             using var db = _connectionFactory.CriarConexao();
-            db.GetCollection<Time>(CollectionName).Delete(id);
+            db.GetCollection<Projeto>(CollectionName).Delete(id);
         }
     }
 }

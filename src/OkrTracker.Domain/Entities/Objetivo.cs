@@ -29,9 +29,10 @@ namespace OkrTracker.Domain.Entities
         public string CicloId { get; set; } = string.Empty;
 
         /// <summary>
-        /// Referência ao time responsável pelo objetivo.
+        /// Referência ao projeto responsável pelo objetivo.
         /// </summary>
-        public string TimeId { get; set; } = string.Empty;
+        // Corrigir propriedade para ProjetoId
+        public string ProjetoId { get; set; } = string.Empty;
 
         /// <summary>
         /// Prioridade do objetivo (Alta, Média, Baixa).

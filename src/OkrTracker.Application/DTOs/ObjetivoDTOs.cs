@@ -8,7 +8,7 @@ namespace OkrTracker.Application.DTOs
         public string Titulo { get; set; } = string.Empty;
         public string Descricao { get; set; } = string.Empty;
         public string CicloId { get; set; } = string.Empty;
-        public string TimeId { get; set; } = string.Empty;
+        public string ProjetoId { get; set; } = string.Empty;
         public string Prioridade { get; set; } = "Media";
         public string Farol { get; set; } = "Verde";
         public bool Intruder { get; set; }
@@ -24,7 +24,7 @@ namespace OkrTracker.Application.DTOs
         public string Titulo { get; set; } = string.Empty;
         public string Descricao { get; set; } = string.Empty;
         public string CicloId { get; set; } = string.Empty;
-        public string TimeId { get; set; } = string.Empty;
+        public string ProjetoId { get; set; } = string.Empty;
         public string Prioridade { get; set; } = "Media";
         public string Farol { get; set; } = "Verde";
         public string Status { get; set; } = "NaoIniciado";
@@ -42,7 +42,7 @@ namespace OkrTracker.Application.DTOs
         public string Titulo { get; set; } = string.Empty;
         public string Descricao { get; set; } = string.Empty;
         public string CicloId { get; set; } = string.Empty;
-        public string TimeId { get; set; } = string.Empty;
+        public string ProjetoId { get; set; } = string.Empty;
         public string Prioridade { get; set; } = string.Empty;
         public double Progresso { get; set; }
         public string Status { get; set; } = string.Empty;
