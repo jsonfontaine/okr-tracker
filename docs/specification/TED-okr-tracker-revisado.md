@@ -90,3 +90,4 @@ Sistema pessoal para gestão de OKRs, focado em projetos (antigo "Time"), com in
 ---
 
 _Fim do TED — OKR Tracker (Versão Revisada)._
+  

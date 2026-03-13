@@ -59,7 +59,13 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
     if (onUpdated) onUpdated();
   };
 
-  const cardBackground = objetivo.status === 'Concluido' ? '#d4f8e8' : (objetivo.farol === 'Vermelho' ? '#fde2e1' : undefined);
+   const cardBackground = objetivo.status === 'Concluido'
+     ? '#d4f8e8'
+     : objetivo.farol === 'Vermelho'
+     ? '#fde2e1'
+     : objetivo.farol === 'Amarelo'
+     ? '#fff7d6'
+     : undefined;
 
   // Utilitário para renderizar texto com quebras de linha
   function renderWithBreaks(text) {

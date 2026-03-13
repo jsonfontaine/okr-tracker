@@ -16,7 +16,14 @@ export default function KeyResultCard({ kr, onUpdated }) {
   const [riscoDesc, setRiscoDesc] = useState('');
   const [riscoImpacto, setRiscoImpacto] = useState('');
 
-  const krBackground = kr.farol === 'Vermelho' ? '#fde2e1' : (kr.status === 'Concluido' ? '#d4f8e8' : undefined);
+   const krBackground =
+     kr.farol === 'Vermelho'
+       ? '#fde2e1'
+       : kr.farol === 'Amarelo'
+       ? '#fff7d6'
+       : kr.status === 'Concluido'
+       ? '#d4f8e8'
+       : undefined;
 
   const handleChangeField = async (field, value) => {
     const dados = {

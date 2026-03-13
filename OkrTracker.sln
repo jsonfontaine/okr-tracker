@@ -17,8 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0D48E389
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OkrTracker.Tests", "tests\OkrTracker.Tests\OkrTracker.Tests.csproj", "{04CC1C6A-AAF5-44AE-8E48-D96E310E12F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OkrTracker.Tools.DatabaseInit", "tools\DatabaseInit\OkrTracker.Tools.DatabaseInit.csproj", "{326DBD5D-AA4F-4EB5-942F-4CC67AFB7084}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,10 +46,6 @@ Global
 		{04CC1C6A-AAF5-44AE-8E48-D96E310E12F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04CC1C6A-AAF5-44AE-8E48-D96E310E12F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04CC1C6A-AAF5-44AE-8E48-D96E310E12F2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{326DBD5D-AA4F-4EB5-942F-4CC67AFB7084}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{326DBD5D-AA4F-4EB5-942F-4CC67AFB7084}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{326DBD5D-AA4F-4EB5-942F-4CC67AFB7084}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{326DBD5D-AA4F-4EB5-942F-4CC67AFB7084}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{ABD4AA22-483C-4D7F-A5C0-70804571C5F6} = {CE3B218F-C09B-4ADB-91E4-13875FDA424C}
