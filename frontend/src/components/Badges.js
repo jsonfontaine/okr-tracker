@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tag, ProgressLine } from '@genial/design-system';
+import { Tag } from '@genial/design-system';
 
 const farolTagColor = {
   Verde: 'success',
@@ -60,19 +60,36 @@ export function StatusBadge({ status }) {
 }
 
 export function ProgressoBar({ progresso }) {
-  let color = undefined;
-  if (progresso >= 100) color = 'var(--brand-accent)';
-  else if (progresso >= 50) color = 'var(--brand-primary)';
-  else if (progresso > 0) color = '#f0ad4e';
+  // Cores baseadas no progresso, usando tokens do DS/Tailwind
+  let bgColor = '#e5e7eb'; // neutro (gray-200)
+  let fillColor = '#22c55e'; // verde padrão
+  if (progresso >= 100) fillColor = 'var(--brand-accent, #22c55e)';
+  else if (progresso >= 50) fillColor = 'var(--brand-primary, #0ea5e9)';
+  else if (progresso > 0) fillColor = '#fbbf24'; // amarelo
+  else fillColor = '#e5e7eb';
 
   return (
     <div style={{ minWidth: 100, display: 'flex', alignItems: 'center', gap: 6 }}>
-      <ProgressLine
+      <div
         data-testid="ds-progress"
-        progress={progresso}
-        color={color}
-        height="8px"
-      />
+        style={{
+          width: 80,
+          height: 8,
+          background: bgColor,
+          borderRadius: 4,
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            width: `${Math.max(0, Math.min(100, progresso))}%`,
+            height: '100%',
+            background: fillColor,
+            transition: 'width 0.3s',
+          }}
+        />
+      </div>
       <span style={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}>{Math.round(progresso)}%</span>
     </div>
   );

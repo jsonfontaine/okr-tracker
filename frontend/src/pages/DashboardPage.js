@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap';
 import {
-  Card as DSCard, CardContent, Button as DSButton, InputText, InputSelect, InputCheckbox,
-  Modal as DSModal, ModalHeader, ModalContent, Snackbar, Loading,
+  Card as DSCard, CardContent, Button as DSButton, Input,
+  Modal as DSModal, ModalHeader, ModalBody, Snackbar, Loading,
 } from '@genial/design-system';
 import ObjetivoCard from '../components/ObjetivoCard';
 import {
@@ -124,28 +124,38 @@ export default function DashboardPage() {
         <CardContent data-testid="ds-card-filtros-content">
           <Row className="align-items-end">
             <Col md={4}>
-              <InputSelect
-                data-testid="ds-select-ciclo"
-                label="Ciclo"
-                value={cicloId}
-                options={[
-                  { label: 'Selecione um ciclo', value: '' },
-                  ...ciclos.map((c) => ({ label: c.nome, value: c.id })),
-                ]}
-                onChange={(e) => setCicloId(e.target.value)}
-              />
+              <div className="form-group">
+                <label htmlFor="ds-select-ciclo">Ciclo</label>
+                <select
+                  id="ds-select-ciclo"
+                  data-testid="ds-select-ciclo"
+                  className="form-control"
+                  value={cicloId}
+                  onChange={e => setCicloId(e.target.value)}
+                >
+                  <option value="">Selecione um ciclo</option>
+                  {ciclos.map((c) => (
+                    <option key={c.id} value={c.id}>{c.nome}</option>
+                  ))}
+                </select>
+              </div>
             </Col>
             <Col md={4}>
-              <InputSelect
-                data-testid="ds-select-projeto"
-                label="Projeto"
-                value={projetoId}
-                options={[
-                  { label: 'Selecione um projeto', value: '' },
-                  ...projetos.map((t) => ({ label: t.nome, value: t.id })),
-                ]}
-                onChange={(e) => setProjetoId(e.target.value)}
-              />
+              <div className="form-group">
+                <label htmlFor="ds-select-projeto">Projeto</label>
+                <select
+                  id="ds-select-projeto"
+                  data-testid="ds-select-projeto"
+                  className="form-control"
+                  value={projetoId}
+                  onChange={e => setProjetoId(e.target.value)}
+                >
+                  <option value="">Selecione um projeto</option>
+                  {projetos.map((t) => (
+                    <option key={t.id} value={t.id}>{t.nome}</option>
+                  ))}
+                </select>
+              </div>
             </Col>
             <Col md={4} className="d-flex gap-2">
               <DSButton
@@ -206,10 +216,10 @@ export default function DashboardPage() {
       {/* Modal: Criar Objetivo */}
       <DSModal data-testid="ds-modal-criar-objetivo" opened={showObjetivoModal} onClose={() => setShowObjetivoModal(false)} width="700px">
         <ModalHeader title="Novo Objetivo" onClose={() => setShowObjetivoModal(false)} />
-        <ModalContent>
+        <ModalBody>
           <form onSubmit={handleCriarObjetivo}>
             <div style={{ marginBottom: '16px' }}>
-              <InputText
+              <Input
                 data-testid="ds-input-obj-titulo"
                 label="Título"
                 value={objForm.titulo}
@@ -217,7 +227,7 @@ export default function DashboardPage() {
               />
             </div>
             <div style={{ marginBottom: '16px' }}>
-              <InputText
+              <Input
                 data-testid="ds-input-obj-descricao"
                 label="Descrição"
                 value={objForm.descricao}
@@ -227,55 +237,69 @@ export default function DashboardPage() {
             <Row>
               <Col md={4}>
                 <div style={{ marginBottom: '16px' }}>
-                  <InputSelect
-                    data-testid="ds-select-obj-prioridade"
-                    label="Prioridade"
-                    value={objForm.prioridade}
-                    options={[
-                      { label: 'Baixa', value: 'Baixa' },
-                      { label: 'Média', value: 'Media' },
-                      { label: 'Alta', value: 'Alta' },
-                    ]}
-                    onChange={(e) => setObjForm({ ...objForm, prioridade: e.target.value })}
-                    hideEmptyOption
-                  />
+                  <div className="form-group">
+                    <label htmlFor="ds-select-obj-prioridade">Prioridade</label>
+                    <select
+                      id="ds-select-obj-prioridade"
+                      data-testid="ds-select-obj-prioridade"
+                      className="form-control"
+                      value={objForm.prioridade}
+                      onChange={e => setObjForm({ ...objForm, prioridade: e.target.value })}
+                    >
+                      <option value="Baixa">Baixa</option>
+                      <option value="Media">Média</option>
+                      <option value="Alta">Alta</option>
+                    </select>
+                  </div>
                 </div>
               </Col>
               <Col md={4}>
                 <div style={{ marginBottom: '16px' }}>
-                  <InputSelect
-                    data-testid="ds-select-obj-farol"
-                    label="Farol"
-                    value={objForm.farol}
-                    options={[
-                      { label: '🟢 Verde', value: 'Verde' },
-                      { label: '🟡 Amarelo', value: 'Amarelo' },
-                      { label: '🔴 Vermelho', value: 'Vermelho' },
-                    ]}
-                    onChange={(e) => setObjForm({ ...objForm, farol: e.target.value })}
-                    hideEmptyOption
-                  />
+                  <div className="form-group">
+                    <label htmlFor="ds-select-obj-farol">Farol</label>
+                    <select
+                      id="ds-select-obj-farol"
+                      data-testid="ds-select-obj-farol"
+                      className="form-control"
+                      value={objForm.farol}
+                      onChange={e => setObjForm({ ...objForm, farol: e.target.value })}
+                    >
+                      <option value="Verde">🟢 Verde</option>
+                      <option value="Amarelo">🟡 Amarelo</option>
+                      <option value="Vermelho">🔴 Vermelho</option>
+                    </select>
+                  </div>
                 </div>
               </Col>
               <Col md={4}>
                 <div style={{ marginTop: '8px' }}>
-                  <InputCheckbox
-                    data-testid="ds-checkbox-obj-intruder"
-                    label="Intruder"
-                    checked={objForm.intruder}
-                    onChange={(e) => setObjForm({ ...objForm, intruder: e.target.checked })}
-                  />
-                  <InputCheckbox
-                    data-testid="ds-checkbox-obj-descoberta"
-                    label="Descoberta Tardia"
-                    checked={objForm.descobertaTardia}
-                    onChange={(e) => setObjForm({ ...objForm, descobertaTardia: e.target.checked })}
-                  />
+                   <div className="form-check">
+                     <input
+                       type="checkbox"
+                       id="ds-checkbox-obj-intruder"
+                       data-testid="ds-checkbox-obj-intruder"
+                       className="form-check-input"
+                       checked={objForm.intruder}
+                       onChange={e => setObjForm({ ...objForm, intruder: e.target.checked })}
+                     />
+                     <label className="form-check-label" htmlFor="ds-checkbox-obj-intruder">Intruder</label>
+                   </div>
+                   <div className="form-check">
+                     <input
+                       type="checkbox"
+                       id="ds-checkbox-obj-descoberta"
+                       data-testid="ds-checkbox-obj-descoberta"
+                       className="form-check-input"
+                       checked={objForm.descobertaTardia}
+                       onChange={e => setObjForm({ ...objForm, descobertaTardia: e.target.checked })}
+                     />
+                     <label className="form-check-label" htmlFor="ds-checkbox-obj-descoberta">Descoberta Tardia</label>
+                   </div>
                 </div>
               </Col>
             </Row>
             <div style={{ marginBottom: '16px' }}>
-              <InputText
+              <Input
                 data-testid="ds-input-obj-valor"
                 label="💎 Valor para o negócio"
                 placeholder="Descreva o valor que esse objetivo entrega para o negócio..."
@@ -292,16 +316,16 @@ export default function DashboardPage() {
               </DSButton>
             </div>
           </form>
-        </ModalContent>
+        </ModalBody>
       </DSModal>
 
       {/* Modal: Criar KR */}
       <DSModal data-testid="ds-modal-criar-kr" opened={showKRModal} onClose={() => setShowKRModal(false)} width="700px">
         <ModalHeader title="Novo Key Result" onClose={() => setShowKRModal(false)} />
-        <ModalContent>
+        <ModalBody>
           <form onSubmit={handleCriarKR}>
             <div style={{ marginBottom: '16px' }}>
-              <InputText
+              <Input
                 data-testid="ds-input-kr-titulo"
                 label="Título"
                 value={krForm.titulo}
@@ -309,7 +333,7 @@ export default function DashboardPage() {
               />
             </div>
             <div style={{ marginBottom: '16px' }}>
-              <InputText
+              <Input
                 data-testid="ds-input-kr-descricao"
                 label="Descrição"
                 value={krForm.descricao}
@@ -319,23 +343,25 @@ export default function DashboardPage() {
             <Row>
               <Col md={4}>
                 <div style={{ marginBottom: '16px' }}>
-                  <InputSelect
-                    data-testid="ds-select-kr-tipo"
-                    label="Tipo"
-                    value={krForm.tipo}
-                    options={[
-                      { label: 'Quantitativo', value: 'Quantitativo' },
-                      { label: 'Qualitativo', value: 'Qualitativo' },
-                      { label: 'Requisito', value: 'Requisito' },
-                    ]}
-                    onChange={(e) => setKrForm({ ...krForm, tipo: e.target.value })}
-                    hideEmptyOption
-                  />
+                  <div className="form-group">
+                    <label htmlFor="ds-select-kr-tipo">Tipo</label>
+                    <select
+                      id="ds-select-kr-tipo"
+                      data-testid="ds-select-kr-tipo"
+                      className="form-control"
+                      value={krForm.tipo}
+                      onChange={e => setKrForm({ ...krForm, tipo: e.target.value })}
+                    >
+                      <option value="Quantitativo">Quantitativo</option>
+                      <option value="Qualitativo">Qualitativo</option>
+                      <option value="Requisito">Requisito</option>
+                    </select>
+                  </div>
                 </div>
               </Col>
               <Col md={4}>
                 <div style={{ marginBottom: '16px' }}>
-                  <InputText
+                  <Input
                     data-testid="ds-input-kr-progresso"
                     label="Progresso Inicial (%)"
                     type="number"
@@ -346,33 +372,45 @@ export default function DashboardPage() {
               </Col>
               <Col md={4}>
                 <div style={{ marginBottom: '16px' }}>
-                  <InputSelect
-                    data-testid="ds-select-kr-farol"
-                    label="Farol"
-                    value={krForm.farol}
-                    options={[
-                      { label: '🟢 Verde', value: 'Verde' },
-                      { label: '🟡 Amarelo', value: 'Amarelo' },
-                      { label: '🔴 Vermelho', value: 'Vermelho' },
-                    ]}
-                    onChange={(e) => setKrForm({ ...krForm, farol: e.target.value })}
-                    hideEmptyOption
-                  />
+                  <div className="form-group">
+                    <label htmlFor="ds-select-kr-farol">Farol</label>
+                    <select
+                      id="ds-select-kr-farol"
+                      data-testid="ds-select-kr-farol"
+                      className="form-control"
+                      value={krForm.farol}
+                      onChange={e => setKrForm({ ...krForm, farol: e.target.value })}
+                    >
+                      <option value="Verde">🟢 Verde</option>
+                      <option value="Amarelo">🟡 Amarelo</option>
+                      <option value="Vermelho">🔴 Vermelho</option>
+                    </select>
+                  </div>
                 </div>
               </Col>
             </Row>
-            <InputCheckbox
-              data-testid="ds-checkbox-kr-intruder"
-              label="Intruder"
-              checked={krForm.intruder}
-              onChange={(e) => setKrForm({ ...krForm, intruder: e.target.checked })}
-            />
-            <InputCheckbox
-              data-testid="ds-checkbox-kr-descoberta"
-              label="Descoberta Tardia"
-              checked={krForm.descobertaTardia}
-              onChange={(e) => setKrForm({ ...krForm, descobertaTardia: e.target.checked })}
-            />
+             <div className="form-check">
+               <input
+                 type="checkbox"
+                 id="ds-checkbox-kr-intruder"
+                 data-testid="ds-checkbox-kr-intruder"
+                 className="form-check-input"
+                 checked={krForm.intruder}
+                 onChange={e => setKrForm({ ...krForm, intruder: e.target.checked })}
+               />
+               <label className="form-check-label" htmlFor="ds-checkbox-kr-intruder">Intruder</label>
+             </div>
+             <div className="form-check">
+               <input
+                 type="checkbox"
+                 id="ds-checkbox-kr-descoberta"
+                 data-testid="ds-checkbox-kr-descoberta"
+                 className="form-check-input"
+                 checked={krForm.descobertaTardia}
+                 onChange={e => setKrForm({ ...krForm, descobertaTardia: e.target.checked })}
+               />
+               <label className="form-check-label" htmlFor="ds-checkbox-kr-descoberta">Descoberta Tardia</label>
+             </div>
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
               <DSButton data-testid="ds-button-cancel-kr" variant="secondary" onClick={() => setShowKRModal(false)}>
                 Cancelar
@@ -382,13 +420,13 @@ export default function DashboardPage() {
               </DSButton>
             </div>
           </form>
-        </ModalContent>
+        </ModalBody>
       </DSModal>
 
       {/* Modal: Resumo Executivo */}
       <DSModal data-testid="ds-modal-resumo" opened={showCardModal} onClose={() => { setShowCardModal(false); setCopiado(false); }} width="800px">
         <ModalHeader title="📊 Resumo Executivo" onClose={() => { setShowCardModal(false); setCopiado(false); }} />
-        <ModalContent>
+        <ModalBody>
           <Form.Control
             as="textarea"
             rows={18}
@@ -412,7 +450,7 @@ export default function DashboardPage() {
               Fechar
             </DSButton>
           </div>
-        </ModalContent>
+        </ModalBody>
       </DSModal>
 
       {copiado && (

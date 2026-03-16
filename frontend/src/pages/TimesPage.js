@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Table } from 'react-bootstrap';
-import { Card as DSCard, CardContent, Button as DSButton, InputText, Modal as DSModal, ModalHeader, ModalContent, Snackbar } from '@genial/design-system';
+import { Card as DSCard, CardContent, Button as DSButton, Input, Modal as DSModal, ModalHeader, ModalBody, Snackbar } from '@genial/design-system';
 import { listarProjetos, criarProjeto, atualizarProjeto, excluirProjeto } from '../services/api';
 
 export default function TimesPage() {
@@ -87,7 +87,7 @@ export default function TimesPage() {
           <form onSubmit={handleCriar}>
             <Row className="align-items-end">
               <Col md={4}>
-                <InputText
+                <Input
                   data-testid="ds-input-projeto-nome"
                   label="Nome do projeto"
                   placeholder="Ex: Bridge"
@@ -96,7 +96,7 @@ export default function TimesPage() {
                 />
               </Col>
               <Col md={5}>
-                <InputText
+                <Input
                   data-testid="ds-input-projeto-descricao"
                   label="Descrição"
                   placeholder="Descrição opcional"
@@ -154,9 +154,9 @@ export default function TimesPage() {
       {/* Modal de Edição */}
       <DSModal data-testid="ds-modal-edit-projeto" opened={showEdit} onClose={() => setShowEdit(false)} width="500px">
         <ModalHeader title="Editar Projeto" onClose={() => setShowEdit(false)} />
-        <ModalContent>
+        <ModalBody>
           <div style={{ marginBottom: '16px' }}>
-            <InputText
+            <Input
               data-testid="ds-input-edit-projeto-nome"
               label="Nome"
               value={editNome}
@@ -164,7 +164,7 @@ export default function TimesPage() {
             />
           </div>
           <div style={{ marginBottom: '16px' }}>
-            <InputText
+            <Input
               data-testid="ds-input-edit-projeto-descricao"
               label="Descrição"
               value={editDescricao}
@@ -179,7 +179,7 @@ export default function TimesPage() {
               Salvar
             </DSButton>
           </div>
-        </ModalContent>
+        </ModalBody>
       </DSModal>
     </Container>
   );

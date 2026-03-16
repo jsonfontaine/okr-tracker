@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Table } from 'react-bootstrap';
-import { Card as DSCard, CardContent, Button as DSButton, InputText, Modal as DSModal, ModalHeader, ModalContent, Snackbar } from '@genial/design-system';
+import { Card as DSCard, CardContent, Button as DSButton, Input, Modal as DSModal, ModalHeader, ModalBody, Snackbar } from '@genial/design-system';
 import { listarCiclos, criarCiclo, atualizarCiclo, excluirCiclo } from '../services/api';
 
 export default function CiclosPage() {
@@ -83,7 +83,7 @@ export default function CiclosPage() {
           <form onSubmit={handleCriar}>
             <Row className="align-items-end">
               <Col md={8}>
-                <InputText
+                <Input
                   data-testid="ds-input-ciclo-nome"
                   label="Nome do ciclo"
                   placeholder="Ex: 2026-Q1"
@@ -141,9 +141,9 @@ export default function CiclosPage() {
       {/* Modal de Edição */}
       <DSModal data-testid="ds-modal-edit-ciclo" opened={showEdit} onClose={() => setShowEdit(false)} width="500px">
         <ModalHeader title="Editar Ciclo" onClose={() => setShowEdit(false)} />
-        <ModalContent>
+        <ModalBody>
           <div style={{ marginBottom: '16px' }}>
-            <InputText
+            <Input
               data-testid="ds-input-edit-ciclo-nome"
               label="Nome"
               value={editNome}
@@ -158,7 +158,7 @@ export default function CiclosPage() {
               Salvar
             </DSButton>
           </div>
-        </ModalContent>
+        </ModalBody>
       </DSModal>
     </Container>
   );

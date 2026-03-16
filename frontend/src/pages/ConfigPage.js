@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Container } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { Card as DSCard, CardContent, Button as DSButton, InputText, Snackbar } from '@genial/design-system';
+import { Card as DSCard, CardContent, Button as DSButton, Input, Snackbar } from '@genial/design-system';
 import { configurarDatabase } from '../services/api';
 
 export default function ConfigPage({ onConfigured }) {
@@ -42,10 +42,10 @@ export default function ConfigPage({ onConfigured }) {
         <CardContent data-testid="ds-card-config-content">
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '16px' }}>
-              <InputText
+              <Input
                 data-testid="ds-input-db-path"
                 label="Caminho do arquivo .db"
-                placeholder="Ex: C:\Users\...\database\jason-okr-tracker.db"
+                placeholder="Ex: C:\\Users\\...\\database\\jason-okr-tracker.db"
                 value={path}
                 onChange={(e) => setPath(e.target.value)}
                 helperText="Informe o caminho absoluto do arquivo LiteDB."
