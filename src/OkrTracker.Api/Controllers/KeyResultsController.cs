@@ -58,7 +58,6 @@ namespace OkrTracker.Api.Controllers
 
         /// <summary>
         /// Atualiza o progresso de um Key Result.
-        /// Para tipo Requisito, só aceita 0 ou 100.
         /// </summary>
         [HttpPut("{id}/progresso")]
         public IActionResult AtualizarProgresso(string id, [FromBody] AtualizarProgressoRequest request)

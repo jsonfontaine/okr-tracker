@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Form, ListGroup, Row, Col } from 'react-bootstrap';
 import { Card as DSCard, CardContent, Button as DSButton } from '@genial/design-system';
 import { ProgressoBar, TagBadge } from './Badges';
@@ -7,6 +7,7 @@ import '../custom-button-border.css';
 
 export default function KeyResultCard({ kr, onUpdated }) {
   const [showDetails, setShowDetails] = useState(false);
+  const comentariosContainerRef = useRef(null);
   const [progresso, setProgresso] = useState(kr.progresso);
   const [saving, setSaving] = useState(false);
 
@@ -72,6 +73,17 @@ export default function KeyResultCard({ kr, onUpdated }) {
     setRiscoImpacto('');
     if (onUpdated) onUpdated();
   };
+
+  useEffect(() => {
+    if (!showDetails) return;
+    const container = comentariosContainerRef.current;
+    if (!container) return;
+
+    // Garante que o scroll seja aplicado após o conteúdo do painel ser montado/renderizado.
+    requestAnimationFrame(() => {
+      container.scrollTop = container.scrollHeight;
+    });
+  }, [showDetails, kr.comentarios?.length]);
 
   // Utilitário para renderizar texto com quebras de linha
   function renderWithBreaks(text) {
@@ -246,7 +258,7 @@ export default function KeyResultCard({ kr, onUpdated }) {
                 <Col md={5}>
                   <div className="d-flex flex-column h-100 border-start ps-3">
                     <h6 className="mb-2">💬 Comentários</h6>
-                    <div className="flex-grow-1 overflow-auto mb-2" style={{ maxHeight: 250 }}>
+                    <div ref={comentariosContainerRef} className="flex-grow-1 overflow-auto mb-2" style={{ maxHeight: 250 }}>
                       {kr.comentarios?.length > 0 ? (
                         [...kr.comentarios]
                           .sort((a, b) => new Date(a.dataCriacao) - new Date(b.dataCriacao))

@@ -89,14 +89,14 @@ namespace OkrTracker.Tests.Services
         }
 
         [Fact]
-        public void Executar_TipoRequisito_Progresso50_DeveRetornarErro()
+        public void Executar_TipoRequisito_Progresso50_DeveRetornarSucesso()
         {
             var kr = new KeyResult { Id = "kr-1", ObjetivoId = "obj-1", Tipo = TipoKR.Requisito };
             _krRepoMock.Setup(r => r.ObterPorId("kr-1")).Returns(kr);
 
             var resultado = _service.Executar("kr-1", new AtualizarProgressoRequest { Progresso = 50 });
-            resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("Para KR do tipo Requisito, o progresso só pode ser 0 ou 100.");
+            resultado.Success.Should().BeTrue();
+            resultado.Data!.Progresso.Should().Be(50);
         }
 
         [Fact]

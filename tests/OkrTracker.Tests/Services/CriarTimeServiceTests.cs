@@ -62,7 +62,7 @@ namespace OkrTracker.Tests.Services
 
             // Assert
             resultado.Success.Should().BeFalse();
-            resultado.Message.Should().Be("Já existe um time com este nome.");
+            resultado.Message.Should().Be("Já existe um projeto com este nome.");
         }
     }
 }

@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Row, Col, Form } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import {
   Card as DSCard, CardContent, Button as DSButton, Input,
   Modal as DSModal, ModalHeader, ModalBody, Snackbar, Loading,
 } from '@genial/design-system';
 import ObjetivoCard from '../components/ObjetivoCard';
+import ResumoExecutivoModal from '../components/ResumoExecutivoModal';
 import {
   listarCiclos, listarProjetos, listarOKRs,
-  criarObjetivo, criarKR, exportarResumoExecutivo,
+  criarObjetivo, criarKR,
 } from '../services/api';
 
 export default function DashboardPage() {
@@ -36,7 +37,6 @@ export default function DashboardPage() {
 
   // Modal Resumo Executivo
   const [showCardModal, setShowCardModal] = useState(false);
-  const [resumoTexto, setResumoTexto] = useState('');
   const [copiado, setCopiado] = useState(false);
 
   const carregarFiltros = useCallback(async () => {
@@ -98,20 +98,153 @@ export default function DashboardPage() {
     }
   };
 
-  const handleExportarCard = async () => {
-    const result = await exportarResumoExecutivo(cicloId, projetoId);
-    if (result.success) {
-      setResumoTexto(result.data);
-      setCopiado(false);
-      setShowCardModal(true);
-    } else {
-      setError(result.message);
-    }
+  const handleExportarCard = () => {
+    setCopiado(false);
+    setShowCardModal(true);
   };
 
   const abrirCriarKR = (objetivoId) => {
     setKrObjetivoId(objetivoId);
     setShowKRModal(true);
+  };
+
+  const escaparHtml = (texto) => (texto || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+  const exportarHtml = () => {
+    try {
+      const EMOJI = { Verde: '🟢', Amarelo: '🟡', Vermelho: '🔴' };
+      const nomeCiclo = ciclos.find(c => c.id === cicloId)?.nome ?? cicloId;
+      const nomeProjeto = projetos.find(p => p.id === projetoId)?.nome ?? projetoId;
+
+      const objetivosHtml = objetivos.map(obj => {
+        const objConcluido = obj.status === 'Concluido' || obj.status === 'Concluído';
+        const objBg = objConcluido ? '#d4f8e8' : obj.farol === 'Vermelho' ? '#fde2e1' : obj.farol === 'Amarelo' ? '#fff7d6' : '#f0f4ff';
+
+        const krsRows = (obj.keyResults ?? []).map(kr => {
+          const krConcluido = kr.status === 'Concluido' || kr.status === 'Concluído';
+          const krBg = krConcluido ? '#d4f8e8' : kr.farol === 'Vermelho' ? '#fde2e1' : kr.farol === 'Amarelo' ? '#fff7d6' : 'transparent';
+          return `<tr style="background-color:${krBg}">
+            <td class="td-kr">${escaparHtml(kr.titulo)}</td>
+            <td class="td-center">${Number(kr.progresso ?? 0).toFixed(0)}%</td>
+            <td class="td-center">${EMOJI[kr.farol] ?? ''} ${escaparHtml(kr.farol)}</td>
+          </tr>`;
+        }).join('');
+
+        const krsSection = obj.keyResults && obj.keyResults.length > 0 ? `
+          <div class="section">
+            <span class="section-title">Key Results</span>
+            <table>
+              <thead><tr>
+                <th>KR</th>
+                <th class="th-center" style="width:100px">Progresso</th>
+                <th class="th-center" style="width:120px">Farol</th>
+              </tr></thead>
+              <tbody>${krsRows}</tbody>
+            </table>
+          </div>` : '';
+
+        const fatosSection = obj.fatosRelevantes && obj.fatosRelevantes.length > 0 ? `
+          <div class="section">
+            <span class="section-title">📝 Fatos Relevantes</span>
+            <ul>${obj.fatosRelevantes.map(f => `<li>${escaparHtml(f.texto)}</li>`).join('')}</ul>
+          </div>` : '';
+
+        const riscosSection = obj.riscos && obj.riscos.length > 0 ? `
+          <div class="section">
+            <span class="section-title">⚠️ Riscos</span>
+            <ul>${obj.riscos.map(r => `<li>${escaparHtml(r.descricao)}${r.impacto ? ` <em>(Impacto: ${escaparHtml(r.impacto)})</em>` : ''}</li>`).join('')}</ul>
+          </div>` : '';
+
+        return `
+          <div class="objetivo">
+            <div class="objetivo-header" style="background-color:${objBg}">
+              <h2>🎯 ${escaparHtml(obj.titulo)}</h2>
+              <div class="obj-meta">
+                <span>📊 <strong>${Number(obj.progresso ?? 0).toFixed(0)}%</strong></span>
+                <span>${EMOJI[obj.farol] ?? ''} ${escaparHtml(obj.farol)}</span>
+                <span>Status: ${escaparHtml(obj.status)}</span>
+              </div>
+            </div>
+            <div class="objetivo-body">
+              ${obj.descricao ? `<p><strong>📝 Descrição:</strong> ${escaparHtml(obj.descricao)}</p>` : ''}
+              ${obj.valor ? `<p><strong>💎 Valor:</strong> ${escaparHtml(obj.valor)}</p>` : ''}
+              ${krsSection}${fatosSection}${riscosSection}
+            </div>
+          </div>`;
+      }).join('');
+
+      const dataGeracao = new Date().toLocaleString('pt-BR');
+      const nomeArquivo = `resumo-executivo-${(nomeProjeto + '-' + nomeCiclo).replace(/[^\w-]/g, '-')}.html`;
+
+      const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resumo Executivo \u2014 ${escaparHtml(nomeProjeto)} | ${escaparHtml(nomeCiclo)}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #1f2937; background: #f3f4f6; padding: 32px 16px; }
+    .container { max-width: 960px; margin: 0 auto; }
+    .page-header { margin-bottom: 28px; padding-bottom: 14px; border-bottom: 2px solid #d1d5db; }
+    .page-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .page-header .meta { color: #6b7280; font-size: 12px; }
+    .objetivo { margin-bottom: 24px; border-radius: 8px; border: 1px solid #d1d5db; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .objetivo-header { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; }
+    .objetivo-header h2 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .obj-meta { display: flex; gap: 16px; flex-wrap: wrap; color: #374151; font-size: 12px; }
+    .objetivo-body { padding: 12px 16px; }
+    .objetivo-body p { margin-bottom: 10px; color: #374151; font-size: 13px; line-height: 1.5; }
+    .section { margin-bottom: 12px; }
+    .section-title { font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px; color: #374151; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+    thead tr { background-color: #f3f4f6; }
+    th { padding: 6px 10px; text-align: left; border-bottom: 2px solid #d1d5db; font-weight: 700; white-space: nowrap; color: #374151; }
+    .th-center { text-align: center; }
+    .td-kr { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+    .td-center { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; text-align: center; vertical-align: middle; white-space: nowrap; }
+    ul { margin: 4px 0 0 18px; }
+    li { margin-bottom: 4px; color: #374151; line-height: 1.5; }
+    .footer { margin-top: 40px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; text-align: right; }
+    @media print { body { background: #fff; padding: 0; } .objetivo { box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <h1>&#128202; Resumo Executivo</h1>
+      <div class="meta">
+        <strong>Projeto:</strong> ${escaparHtml(nomeProjeto)} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Ciclo:</strong> ${escaparHtml(nomeCiclo)}
+      </div>
+    </div>
+    ${objetivos.length === 0
+      ? '<p style="color:#9ca3af">Nenhum OKR cadastrado para este ciclo/projeto.</p>'
+      : objetivosHtml}
+    <div class="footer">Gerado em ${dataGeracao}</div>
+  </div>
+</body>
+</html>`;
+
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = nomeArquivo;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 3000);
+    } catch (err) {
+      setError('Não foi possível exportar o relatório HTML.');
+    }
   };
 
   return (
@@ -209,7 +342,7 @@ export default function DashboardPage() {
         })
         .map((obj) => (
         <div key={obj.id}>
-          <ObjetivoCard objetivo={obj} onUpdated={carregarOKRs} onAddKr={abrirCriarKR} />
+          <ObjetivoCard objetivo={obj} ciclos={ciclos} onUpdated={carregarOKRs} onAddKr={abrirCriarKR} />
         </div>
       ))}
 
@@ -435,47 +568,16 @@ export default function DashboardPage() {
          </ModalBody>
        </DSModal>
 
-      {/* Modal: Resumo Executivo */}
-      <DSModal data-testid="ds-modal-resumo" open={showCardModal} onClose={() => { setShowCardModal(false); setCopiado(false); }} size="xl">
-        <ModalHeader title="📊 Resumo Executivo" onClose={() => { setShowCardModal(false); setCopiado(false); }} />
-        <ModalBody>
-          <Form.Control
-            as="textarea"
-            rows={18}
-            value={resumoTexto}
-            readOnly
-            style={{ fontFamily: 'monospace', fontSize: '0.85rem', whiteSpace: 'pre' }}
-          />
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
-            <DSButton
-              data-testid="ds-button-copiar-resumo"
-              variant="primary"
-              onClick={() => {
-                navigator.clipboard.writeText(resumoTexto);
-                setCopiado(true);
-                setTimeout(() => setCopiado(false), 3000);
-              }}
-            >
-              📋 Copiar
-            </DSButton>
-            <DSButton data-testid="ds-button-fechar-resumo" variant="secondary" onClick={() => { setShowCardModal(false); setCopiado(false); }}>
-              Fechar
-            </DSButton>
-          </div>
-        </ModalBody>
-      </DSModal>
-
-      {copiado && (
-        <Snackbar
-          data-testid="ds-snackbar-copiado"
-          type="success"
-          message="✅ Resumo copiado para a área de transferência!"
-          duration={3000}
-          onClose={() => setCopiado(false)}
-          open={copiado}
-          onOpenChange={(open) => { if (!open) setCopiado(false); }}
-        />
-      )}
+      <ResumoExecutivoModal
+        open={showCardModal}
+        objetivos={objetivos}
+        cicloNome={ciclos.find(c => c.id === cicloId)?.nome ?? cicloId}
+        projetoNome={projetos.find(p => p.id === projetoId)?.nome ?? projetoId}
+        copiado={copiado}
+        onClose={() => { setShowCardModal(false); setCopiado(false); }}
+        onExport={exportarHtml}
+        onCopiedClose={() => setCopiado(false)}
+      />
     </Container>
   );
 }

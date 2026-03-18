@@ -35,7 +35,6 @@ namespace OkrTracker.Domain.Entities
 
         /// <summary>
         /// Progresso atual do KR (0 a 100).
-        /// Para tipo Requisito, só aceita 0 ou 100.
         /// </summary>
         public double Progresso { get; set; }
 

@@ -4,7 +4,7 @@ namespace OkrTracker.Application.Interfaces
 {
     /// <summary>
     /// Serviço de aplicação para atualizar o progresso de um Key Result.
-    /// Valida regras especiais: tipo Requisito só aceita 0 ou 100.
+    /// Valida a faixa de progresso entre 0 e 100.
     /// </summary>
     public interface IAtualizarProgressoKRService
     {

@@ -52,7 +52,14 @@ namespace OkrTracker.Infrastructure.Persistence
             var caminho = _pathProvider.ObterCaminho()
                 ?? throw new InvalidOperationException("O caminho da base de dados não foi configurado.");
 
-            return new LiteDatabase(caminho);
+            // Shared mode evita lock exclusivo do arquivo quando existe mais de um processo acessando a base.
+            var connectionString = new ConnectionString
+            {
+                Filename = caminho,
+                Connection = ConnectionType.Shared
+            };
+
+            return new LiteDatabase(connectionString);
         }
     }
 }

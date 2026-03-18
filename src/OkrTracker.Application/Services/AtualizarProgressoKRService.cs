@@ -9,7 +9,7 @@ namespace OkrTracker.Application.Services
 {
     /// <summary>
     /// Serviço responsável por atualizar o progresso de um Key Result.
-    /// Valida regras especiais: tipo Requisito só aceita 0 ou 100.
+    /// Valida apenas a faixa de progresso entre 0 e 100.
     /// </summary>
     public class AtualizarProgressoKRService : IAtualizarProgressoKRService
     {
@@ -38,8 +38,6 @@ namespace OkrTracker.Application.Services
             if (request.Progresso < 0 || request.Progresso > 100)
                 return ResultadoOperacao<KeyResultResponse>.Erro("Valor de progresso inválido.");
 
-            if (kr.Tipo == TipoKR.Requisito && request.Progresso != 0 && request.Progresso != 100)
-                return ResultadoOperacao<KeyResultResponse>.Erro("Para KR do tipo Requisito, o progresso só pode ser 0 ou 100.");
 
             kr.Progresso = request.Progresso;
             kr.UltimaAtualizacao = DateTime.UtcNow;

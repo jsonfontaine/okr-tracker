@@ -57,9 +57,12 @@ namespace OkrTracker.Application.Services
             if (objetivo == null)
                 return ResultadoOperacao<ObjetivoResponse>.Erro("Objetivo não encontrado.");
 
+
             var ciclo = _cicloRepository.ObterPorId(request.CicloId);
             if (ciclo == null)
                 return ResultadoOperacao<ObjetivoResponse>.Erro("Ciclo não encontrado.");
+
+            var cicloAntigo = _cicloRepository.ObterPorId(objetivo.CicloId);
 
             var projeto = _projetoRepository.ObterPorId(request.ProjetoId);
             if (projeto == null)
@@ -84,6 +87,13 @@ namespace OkrTracker.Application.Services
 
             if (objetivo.Prioridade != prioridade)
                 alteracoes.Add($"Prioridade alterada de {objetivo.Prioridade} para {prioridade}");
+
+            if (objetivo.CicloId != request.CicloId)
+            {
+                var nomeAntigo = cicloAntigo?.Nome ?? objetivo.CicloId;
+                var nomeNovo = ciclo?.Nome ?? request.CicloId;
+                alteracoes.Add($"Ciclo alterado de '{nomeAntigo}' para '{nomeNovo}'");
+            }
 
             objetivo.Titulo = request.Titulo;
             objetivo.Descricao = request.Descricao;

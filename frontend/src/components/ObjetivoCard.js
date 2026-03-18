@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Form, ListGroup, Row, Col } from 'react-bootstrap';
 import { Card as DSCard, CardHeader, CardContent, Button as DSButton } from '@genial/design-system';
 import { ProgressoBar, TagBadge } from './Badges';
@@ -6,8 +6,9 @@ import KeyResultCard from './KeyResultCard';
 import { criarComentario, criarFatoRelevante, criarRisco, atualizarObjetivo } from '../services/api';
 import '../custom-button-border.css';
 
-export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
+export default function ObjetivoCard({ objetivo, onUpdated, onAddKr, ciclos = [] }) {
   const [expanded, setExpanded] = useState(false);
+  const comentariosContainerRef = useRef(null);
 
   // Formulários para eventos no nível do objetivo
   const [comentario, setComentario] = useState('');
@@ -59,6 +60,17 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
     if (onUpdated) onUpdated();
   };
 
+  useEffect(() => {
+    if (!expanded) return;
+    const container = comentariosContainerRef.current;
+    if (!container) return;
+
+    // Garante que o scroll seja aplicado após o conteúdo do painel ser montado/renderizado.
+    requestAnimationFrame(() => {
+      container.scrollTop = container.scrollHeight;
+    });
+  }, [expanded, objetivo.comentarios?.length]);
+
    const objetivoConcluido = objetivo.status === 'Concluido' || objetivo.status === 'Concluído';
 
    const cardBackground = objetivoConcluido
@@ -99,9 +111,39 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
           background={cardBackground}
           style={{ backgroundColor: cardBackground }}
         >
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex align-items-center flex-wrap gap-1">
-              <strong>🎯 {objetivo.titulo}</strong>{' '}
+          <div className="d-flex flex-column gap-2">
+            <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div className="d-flex align-items-center flex-wrap gap-1">
+                <strong>🎯 {objetivo.titulo}</strong>
+                <TagBadge label="Intruder" show={objetivo.intruder} />
+                <TagBadge label="Descoberta Tardia" show={objetivo.descobertaTardia} />
+              </div>
+              <div className="d-flex align-items-center gap-2">
+                <ProgressoBar progresso={objetivo.progresso} />
+                {onAddKr && (
+                  <DSButton
+                    data-testid="ds-button-add-kr"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onAddKr(objetivo.id)}
+                    className="okr-btn-border"
+                  >
+                    + Adicionar KR
+                  </DSButton>
+                )}
+                <DSButton
+                  data-testid="ds-button-expand-objetivo"
+                  variant="link-button"
+                  size="sm"
+                  onClick={() => setExpanded(!expanded)}
+                  className="okr-btn-border"
+                >
+                  {expanded ? '▲' : '▼'}
+                </DSButton>
+              </div>
+            </div>
+
+            <div className="d-flex align-items-center flex-wrap gap-2">
               <span className="text-muted small">Prioridade:</span>
               <Form.Select
                 size="sm"
@@ -113,6 +155,7 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                 <option value="Media">🟡 Média</option>
                 <option value="Baixa">⚪ Baixa</option>
               </Form.Select>
+
               <span className="text-muted small">Farol:</span>
               <Form.Select
                 size="sm"
@@ -124,6 +167,7 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                 <option value="Amarelo">⚠️ Amarelo</option>
                 <option value="Vermelho">🔴 Vermelho</option>
               </Form.Select>
+
               <span className="text-muted small">Status:</span>
               <Form.Select
                 size="sm"
@@ -135,31 +179,21 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
                 <option value="EmAndamento">Em Andamento</option>
                 <option value="Concluido">Concluído</option>
               </Form.Select>
-              <TagBadge label="Intruder" show={objetivo.intruder} />
-              <TagBadge label="Descoberta Tardia" show={objetivo.descobertaTardia} />
-            </div>
-            <div className="d-flex align-items-center gap-2">
-              <ProgressoBar progresso={objetivo.progresso} />
-              {onAddKr && (
-                <DSButton
-                  data-testid="ds-button-add-kr"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onAddKr(objetivo.id)}
-                  className="okr-btn-border"
-                >
-                  + Adicionar KR
-                </DSButton>
-              )}
-              <DSButton
-                data-testid="ds-button-expand-objetivo"
-                variant="link-button"
+
+              <span className="text-muted small">Ciclo:</span>
+              <Form.Select
                 size="sm"
-                onClick={() => setExpanded(!expanded)}
-                className="okr-btn-border"
+                value={objetivo.cicloId}
+                onChange={(e) => handleChangeField('cicloId', e.target.value)}
+                style={{ width: 'auto', display: 'inline-block', minWidth: 180 }}
               >
-                {expanded ? '▲' : '▼'}
-              </DSButton>
+                {!ciclos.some((c) => c.id === objetivo.cicloId) && (
+                  <option value={objetivo.cicloId}>{objetivo.cicloId}</option>
+                )}
+                {ciclos.map((c) => (
+                  <option key={c.id} value={c.id}>{c.nome}</option>
+                ))}
+              </Form.Select>
             </div>
           </div>
         </CardHeader>
@@ -266,7 +300,7 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
               <Col md={5}>
                 <div className="d-flex flex-column h-100 border-start ps-3">
                   <h6 className="mb-2">💬 Comentários do Objetivo</h6>
-                  <div className="flex-grow-1 overflow-auto mb-2" style={{ maxHeight: 250 }}>
+                  <div ref={comentariosContainerRef} className="flex-grow-1 overflow-auto mb-2" style={{ maxHeight: 250 }}>
                     {objetivo.comentarios?.length > 0 ? (
                       [...objetivo.comentarios]
                         .sort((a, b) => new Date(a.dataCriacao) - new Date(b.dataCriacao))

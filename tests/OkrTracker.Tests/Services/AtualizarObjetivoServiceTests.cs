@@ -143,6 +143,40 @@ namespace OkrTracker.Tests.Services
         }
 
         [Fact]
+        public void Executar_AlteracaoDeCiclo_DeveCriarComentarioAutomatico()
+        {
+            var objetivo = new Objetivo
+            {
+                Id = "obj-1",
+                Titulo = "T",
+                Descricao = "D",
+                CicloId = "ciclo-1",
+                ProjetoId = "projeto-1",
+                Farol = Farol.Amarelo,
+                Status = Status.NaoIniciado,
+                Prioridade = Prioridade.Alta,
+                Valor = "V"
+            };
+
+            _objetivoRepoMock.Setup(r => r.ObterPorId("obj-1")).Returns(objetivo);
+            _cicloRepoMock.Setup(r => r.ObterPorId("ciclo-2")).Returns(new Ciclo { Id = "ciclo-2" });
+            _projetoRepoMock.Setup(r => r.ObterPorId("projeto-1")).Returns(new Projeto { Id = "projeto-1" });
+
+            var request = CriarRequestValido();
+            request.CicloId = "ciclo-2";
+            request.Farol = "Amarelo";
+            request.Prioridade = "Alta";
+            request.Status = "NaoIniciado";
+
+            var resultado = _service.Executar("obj-1", request);
+
+            resultado.Success.Should().BeTrue();
+            _comentarioRepoMock.Verify(r => r.Inserir(It.Is<Comentario>(c =>
+                c.ObjetivoId == "obj-1" &&
+                c.Texto.Contains("Ciclo alterado"))), Times.Once);
+        }
+
+        [Fact]
         public void Executar_SemAlteracaoDeFarolStatusPrioridade_NaoDeveCriarComentario()
         {
             var objetivo = new Objetivo { Id = "obj-1", Titulo = "T", Descricao = "D", CicloId = "ciclo-1", ProjetoId = "projeto-1", Farol = Farol.Amarelo, Status = Status.NaoIniciado, Prioridade = Prioridade.Alta, Valor = "V" };

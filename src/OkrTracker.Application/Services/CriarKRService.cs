@@ -50,8 +50,6 @@ namespace OkrTracker.Application.Services
             if (request.Progresso < 0 || request.Progresso > 100)
                 return ResultadoOperacao<KeyResultResponse>.Erro("Valor de progresso inválido.");
 
-            if (tipo == TipoKR.Requisito && request.Progresso != 0 && request.Progresso != 100)
-                return ResultadoOperacao<KeyResultResponse>.Erro("Para KR do tipo Requisito, o progresso só pode ser 0 ou 100.");
 
             if (!Enum.TryParse<Farol>(request.Farol, true, out var farol))
                 farol = Farol.Verde;
