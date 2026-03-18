@@ -139,7 +139,7 @@ export default function CiclosPage() {
       </Table>
 
       {/* Modal de Edição */}
-      <DSModal data-testid="ds-modal-edit-ciclo" opened={showEdit} onClose={() => setShowEdit(false)} width="500px">
+      <DSModal data-testid="ds-modal-edit-ciclo" open={showEdit} onClose={() => setShowEdit(false)} size="md">
         <ModalHeader title="Editar Ciclo" onClose={() => setShowEdit(false)} />
         <ModalBody>
           <div style={{ marginBottom: '16px' }}>

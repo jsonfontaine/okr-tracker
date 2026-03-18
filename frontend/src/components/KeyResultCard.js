@@ -16,14 +16,15 @@ export default function KeyResultCard({ kr, onUpdated }) {
   const [riscoDesc, setRiscoDesc] = useState('');
   const [riscoImpacto, setRiscoImpacto] = useState('');
 
-   const krBackground =
-     kr.farol === 'Vermelho'
-       ? '#fde2e1'
-       : kr.farol === 'Amarelo'
-       ? '#fff7d6'
-       : kr.status === 'Concluido'
-       ? '#d4f8e8'
-       : undefined;
+   const krConcluido = kr.status === 'Concluido' || kr.status === 'Concluído';
+
+   const krBackground = krConcluido
+     ? '#d4f8e8'
+     : kr.farol === 'Vermelho'
+     ? '#fde2e1'
+     : kr.farol === 'Amarelo'
+     ? '#fff7d6'
+     : undefined;
 
   const handleChangeField = async (field, value) => {
     const dados = {
@@ -83,9 +84,17 @@ export default function KeyResultCard({ kr, onUpdated }) {
   }
 
   return (
-    <div style={{ marginBottom: '8px', border: '2px solid var(--brand-primary)', borderRadius: '12px' }}>
-      <DSCard data-testid="ds-card-kr" background={krBackground}>
-        <CardContent data-testid="ds-card-kr-content" padding="12px 16px">
+    <div
+      style={{
+        marginBottom: '8px',
+        border: '2px solid var(--brand-primary)',
+        borderRadius: '12px',
+        backgroundColor: krBackground,
+        overflow: 'hidden',
+      }}
+    >
+      <DSCard data-testid="ds-card-kr" background={krBackground} style={{ backgroundColor: krBackground }}>
+        <CardContent data-testid="ds-card-kr-content" padding="12px 16px" style={{ backgroundColor: krBackground }}>
           {/* Header com título, dropdowns e botão expandir */}
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex align-items-center flex-wrap gap-1">

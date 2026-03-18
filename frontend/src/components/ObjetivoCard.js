@@ -59,7 +59,9 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
     if (onUpdated) onUpdated();
   };
 
-   const cardBackground = objetivo.status === 'Concluido'
+   const objetivoConcluido = objetivo.status === 'Concluido' || objetivo.status === 'Concluído';
+
+   const cardBackground = objetivoConcluido
      ? '#d4f8e8'
      : objetivo.farol === 'Vermelho'
      ? '#fde2e1'
@@ -83,10 +85,20 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
         marginBottom: '12px',
         border: '2px solid var(--brand-primary)',
         borderRadius: '12px',
+        backgroundColor: cardBackground,
+        overflow: 'hidden',
       }}
     >
-      <DSCard data-testid="ds-card-objetivo" background={cardBackground}>
-        <CardHeader data-testid="ds-card-objetivo-header" background={cardBackground}>
+      <DSCard
+        data-testid="ds-card-objetivo"
+        background={cardBackground}
+        style={{ backgroundColor: cardBackground }}
+      >
+        <CardHeader
+          data-testid="ds-card-objetivo-header"
+          background={cardBackground}
+          style={{ backgroundColor: cardBackground }}
+        >
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex align-items-center flex-wrap gap-1">
               <strong>🎯 {objetivo.titulo}</strong>{' '}
@@ -153,7 +165,10 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr }) {
         </CardHeader>
 
         {expanded && (
-          <CardContent data-testid="ds-card-objetivo-content">
+          <CardContent
+            data-testid="ds-card-objetivo-content"
+            style={{ backgroundColor: cardBackground }}
+          >
             {/* 1. Descrição */}
             <p className="mb-2">
               <strong>📝 Descrição:</strong> {objetivo.descricao}

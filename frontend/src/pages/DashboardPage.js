@@ -214,7 +214,7 @@ export default function DashboardPage() {
       ))}
 
       {/* Modal: Criar Objetivo */}
-      <DSModal data-testid="ds-modal-criar-objetivo" opened={showObjetivoModal} onClose={() => setShowObjetivoModal(false)} width="700px">
+      <DSModal data-testid="ds-modal-criar-objetivo" open={showObjetivoModal} onClose={() => setShowObjetivoModal(false)} size="lg">
         <ModalHeader title="Novo Objetivo" onClose={() => setShowObjetivoModal(false)} />
         <ModalBody>
           <form onSubmit={handleCriarObjetivo}>
@@ -320,7 +320,7 @@ export default function DashboardPage() {
       </DSModal>
 
       {/* Modal: Criar KR */}
-       <DSModal data-testid="ds-modal-criar-kr" opened={showKRModal} onClose={() => setShowKRModal(false)} width="700px">
+       <DSModal data-testid="ds-modal-criar-kr" open={showKRModal} onClose={() => setShowKRModal(false)} size="lg">
          <ModalHeader title="Novo Key Result" onClose={() => setShowKRModal(false)} />
          <ModalBody>
            {/* Show error inside modal if present and modal is open */}
@@ -436,7 +436,7 @@ export default function DashboardPage() {
        </DSModal>
 
       {/* Modal: Resumo Executivo */}
-      <DSModal data-testid="ds-modal-resumo" opened={showCardModal} onClose={() => { setShowCardModal(false); setCopiado(false); }} width="800px">
+      <DSModal data-testid="ds-modal-resumo" open={showCardModal} onClose={() => { setShowCardModal(false); setCopiado(false); }} size="xl">
         <ModalHeader title="📊 Resumo Executivo" onClose={() => { setShowCardModal(false); setCopiado(false); }} />
         <ModalBody>
           <Form.Control
