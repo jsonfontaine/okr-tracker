@@ -320,108 +320,120 @@ export default function DashboardPage() {
       </DSModal>
 
       {/* Modal: Criar KR */}
-      <DSModal data-testid="ds-modal-criar-kr" opened={showKRModal} onClose={() => setShowKRModal(false)} width="700px">
-        <ModalHeader title="Novo Key Result" onClose={() => setShowKRModal(false)} />
-        <ModalBody>
-          <form onSubmit={handleCriarKR}>
-            <div style={{ marginBottom: '16px' }}>
-              <Input
-                data-testid="ds-input-kr-titulo"
-                label="Título"
-                value={krForm.titulo}
-                onChange={(e) => setKrForm({ ...krForm, titulo: e.target.value })}
-              />
-            </div>
-            <div style={{ marginBottom: '16px' }}>
-              <Input
-                data-testid="ds-input-kr-descricao"
-                label="Descrição"
-                value={krForm.descricao}
-                onChange={(e) => setKrForm({ ...krForm, descricao: e.target.value })}
-              />
-            </div>
-            <Row>
-              <Col md={4}>
-                <div style={{ marginBottom: '16px' }}>
-                  <div className="form-group">
-                    <label htmlFor="ds-select-kr-tipo">Tipo</label>
-                    <select
-                      id="ds-select-kr-tipo"
-                      data-testid="ds-select-kr-tipo"
-                      className="form-control"
-                      value={krForm.tipo}
-                      onChange={e => setKrForm({ ...krForm, tipo: e.target.value })}
-                    >
-                      <option value="Quantitativo">Quantitativo</option>
-                      <option value="Qualitativo">Qualitativo</option>
-                      <option value="Requisito">Requisito</option>
-                    </select>
-                  </div>
-                </div>
-              </Col>
-              <Col md={4}>
-                <div style={{ marginBottom: '16px' }}>
-                  <Input
-                    data-testid="ds-input-kr-progresso"
-                    label="Progresso Inicial (%)"
-                    type="number"
-                    value={String(krForm.progresso)}
-                    onChange={(e) => setKrForm({ ...krForm, progresso: Number(e.target.value) })}
-                  />
-                </div>
-              </Col>
-              <Col md={4}>
-                <div style={{ marginBottom: '16px' }}>
-                  <div className="form-group">
-                    <label htmlFor="ds-select-kr-farol">Farol</label>
-                    <select
-                      id="ds-select-kr-farol"
-                      data-testid="ds-select-kr-farol"
-                      className="form-control"
-                      value={krForm.farol}
-                      onChange={e => setKrForm({ ...krForm, farol: e.target.value })}
-                    >
-                      <option value="Verde">🟢 Verde</option>
-                      <option value="Amarelo">🟡 Amarelo</option>
-                      <option value="Vermelho">🔴 Vermelho</option>
-                    </select>
-                  </div>
-                </div>
-              </Col>
-            </Row>
-             <div className="form-check">
-               <input
-                 type="checkbox"
-                 id="ds-checkbox-kr-intruder"
-                 data-testid="ds-checkbox-kr-intruder"
-                 className="form-check-input"
-                 checked={krForm.intruder}
-                 onChange={e => setKrForm({ ...krForm, intruder: e.target.checked })}
+       <DSModal data-testid="ds-modal-criar-kr" opened={showKRModal} onClose={() => setShowKRModal(false)} width="700px">
+         <ModalHeader title="Novo Key Result" onClose={() => setShowKRModal(false)} />
+         <ModalBody>
+           {/* Show error inside modal if present and modal is open */}
+           {showKRModal && error && (
+             <Snackbar
+               data-testid="ds-snackbar-kr-modal-error"
+               type="error"
+               message={error}
+               duration={5000}
+               onClose={() => setError(null)}
+               open={!!error}
+               onOpenChange={(open) => { if (!open) setError(null); }}
+             />
+           )}
+           <form onSubmit={handleCriarKR}>
+             <div style={{ marginBottom: '16px' }}>
+               <Input
+                 data-testid="ds-input-kr-titulo"
+                 label="Título"
+                 value={krForm.titulo}
+                 onChange={(e) => setKrForm({ ...krForm, titulo: e.target.value })}
                />
-               <label className="form-check-label" htmlFor="ds-checkbox-kr-intruder">Intruder</label>
              </div>
-             <div className="form-check">
-               <input
-                 type="checkbox"
-                 id="ds-checkbox-kr-descoberta"
-                 data-testid="ds-checkbox-kr-descoberta"
-                 className="form-check-input"
-                 checked={krForm.descobertaTardia}
-                 onChange={e => setKrForm({ ...krForm, descobertaTardia: e.target.checked })}
+             <div style={{ marginBottom: '16px' }}>
+               <Input
+                 data-testid="ds-input-kr-descricao"
+                 label="Descrição"
+                 value={krForm.descricao}
+                 onChange={(e) => setKrForm({ ...krForm, descricao: e.target.value })}
                />
-               <label className="form-check-label" htmlFor="ds-checkbox-kr-descoberta">Descoberta Tardia</label>
              </div>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <DSButton data-testid="ds-button-cancel-kr" variant="secondary" onClick={() => setShowKRModal(false)}>
-                Cancelar
-              </DSButton>
-              <DSButton data-testid="ds-button-submit-kr" type="submit" variant="primary">
-                Criar
-              </DSButton>
-            </div>
-          </form>
-        </ModalBody>
-      </DSModal>
+             <Row>
+               <Col md={4}>
+                 <div style={{ marginBottom: '16px' }}>
+                   <div className="form-group">
+                     <label htmlFor="ds-select-kr-tipo">Tipo</label>
+                     <select
+                       id="ds-select-kr-tipo"
+                       data-testid="ds-select-kr-tipo"
+                       className="form-control"
+                       value={krForm.tipo}
+                       onChange={e => setKrForm({ ...krForm, tipo: e.target.value })}
+                     >
+                       <option value="Quantitativo">Quantitativo</option>
+                       <option value="Qualitativo">Qualitativo</option>
+                       <option value="Requisito">Requisito</option>
+                     </select>
+                   </div>
+                 </div>
+               </Col>
+               <Col md={4}>
+                 <div style={{ marginBottom: '16px' }}>
+                   <Input
+                     data-testid="ds-input-kr-progresso"
+                     label="Progresso Inicial (%)"
+                     type="number"
+                     value={String(krForm.progresso)}
+                     onChange={(e) => setKrForm({ ...krForm, progresso: Number(e.target.value) })}
+                   />
+                 </div>
+               </Col>
+               <Col md={4}>
+                 <div style={{ marginBottom: '16px' }}>
+                   <div className="form-group">
+                     <label htmlFor="ds-select-kr-farol">Farol</label>
+                     <select
+                       id="ds-select-kr-farol"
+                       data-testid="ds-select-kr-farol"
+                       className="form-control"
+                       value={krForm.farol}
+                       onChange={e => setKrForm({ ...krForm, farol: e.target.value })}
+                     >
+                       <option value="Verde">🟢 Verde</option>
+                       <option value="Amarelo">🟡 Amarelo</option>
+                       <option value="Vermelho">🔴 Vermelho</option>
+                     </select>
+                   </div>
+                 </div>
+               </Col>
+             </Row>
+              <div className="form-check">
+                <input
+                  type="checkbox"
+                  id="ds-checkbox-kr-intruder"
+                  data-testid="ds-checkbox-kr-intruder"
+                  className="form-check-input"
+                  checked={krForm.intruder}
+                  onChange={e => setKrForm({ ...krForm, intruder: e.target.checked })}
+                />
+                <label className="form-check-label" htmlFor="ds-checkbox-kr-intruder">Intruder</label>
+              </div>
+              <div className="form-check">
+                <input
+                  type="checkbox"
+                  id="ds-checkbox-kr-descoberta"
+                  data-testid="ds-checkbox-kr-descoberta"
+                  className="form-check-input"
+                  checked={krForm.descobertaTardia}
+                  onChange={e => setKrForm({ ...krForm, descobertaTardia: e.target.checked })}
+                />
+                <label className="form-check-label" htmlFor="ds-checkbox-kr-descoberta">Descoberta Tardia</label>
+              </div>
+             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
+               <DSButton data-testid="ds-button-cancel-kr" variant="secondary" onClick={() => setShowKRModal(false)}>
+                 Cancelar
+               </DSButton>
+               <DSButton data-testid="ds-button-submit-kr" type="submit" variant="primary">
+                 Criar
+               </DSButton>
+             </div>
+           </form>
+         </ModalBody>
+       </DSModal>
 
       {/* Modal: Resumo Executivo */}
       <DSModal data-testid="ds-modal-resumo" opened={showCardModal} onClose={() => { setShowCardModal(false); setCopiado(false); }} width="800px">
