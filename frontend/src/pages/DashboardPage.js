@@ -39,9 +39,15 @@ export default function DashboardPage() {
   const [showCardModal, setShowCardModal] = useState(false);
   const [copiado, setCopiado] = useState(false);
 
+  const getSortDate = (ciclo) => ciclo.dataInicio || ciclo.dataCriacao || '';
+
   const carregarFiltros = useCallback(async () => {
     const [ciclosRes, projetosRes] = await Promise.all([listarCiclos(), listarProjetos()]);
-    if (ciclosRes.success) setCiclos(ciclosRes.data || []);
+    if (ciclosRes.success) {
+      const ciclosOrdenados = [...(ciclosRes.data || [])]
+        .sort((a, b) => getSortDate(a).localeCompare(getSortDate(b)));
+      setCiclos(ciclosOrdenados);
+    }
     if (projetosRes.success) setProjetos(projetosRes.data || []);
   }, []);
 

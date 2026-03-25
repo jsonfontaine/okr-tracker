@@ -16,6 +16,16 @@ namespace OkrTracker.Domain.Entities
         public string Nome { get; set; } = string.Empty;
 
         /// <summary>
+        /// Data de início do ciclo (opcional para compatibilidade com ciclos legados).
+        /// </summary>
+        public DateTime? DataInicio { get; set; }
+
+        /// <summary>
+        /// Data de término do ciclo (opcional para compatibilidade com ciclos legados).
+        /// </summary>
+        public DateTime? DataFim { get; set; }
+
+        /// <summary>
         /// Data de criação do registro.
         /// </summary>
         public DateTime DataCriacao { get; set; }

@@ -180,40 +180,6 @@ export default function KeyResultCard({ kr, onUpdated }) {
                     <strong> Descrição:</strong> {kr.descricao}
                   </p>
 
-                  {/* Fatos Relevantes */}
-                  <h6>📝 Fatos Relevantes</h6>
-                  {kr.fatosRelevantes?.length > 0 ? (
-                    <ListGroup variant="flush" className="mb-2">
-                      {kr.fatosRelevantes.map((f) => (
-                        <ListGroup.Item key={f.id} className="py-1 small">
-                          {renderWithBreaks(f.texto)}{' '}
-                          <span className="text-muted">
-                            ({new Date(f.dataCriacao).toLocaleDateString('pt-BR')})
-                          </span>
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
-                  ) : (
-                    <p className="text-muted small">Nenhum fato.</p>
-                  )}
-                  <Form onSubmit={handleAddFato} className="d-flex gap-1 mb-3">
-                    <Form.Control
-                      as="textarea"
-                      rows={2}
-                      size="sm"
-                      placeholder="Novo fato relevante..."
-                      value={fato}
-                      onChange={(e) => setFato(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleAddFato(e);
-                        }
-                      }}
-                    />
-                    <DSButton data-testid="ds-button-add-fato-kr" type="submit" variant="outline-secondary" size="sm" className="okr-btn-border">+</DSButton>
-                  </Form>
-
                   {/* Riscos */}
                   <h6>⚠️ Riscos</h6>
                   {kr.riscos?.length > 0 ? (
@@ -228,7 +194,7 @@ export default function KeyResultCard({ kr, onUpdated }) {
                   ) : (
                     <p className="text-muted small">Nenhum risco.</p>
                   )}
-                  <Form onSubmit={handleAddRisco} className="d-flex gap-1">
+                  <Form onSubmit={handleAddRisco} className="d-flex gap-1 mb-3">
                     <Form.Control
                       as="textarea"
                       rows={2}
@@ -251,6 +217,40 @@ export default function KeyResultCard({ kr, onUpdated }) {
                       style={{ width: 120 }}
                     />
                     <DSButton data-testid="ds-button-add-risco-kr" type="submit" variant="outline-secondary" size="sm" className="okr-btn-border">+</DSButton>
+                  </Form>
+
+                  {/* Fatos Relevantes */}
+                  <h6>📝 Fatos Relevantes</h6>
+                  {kr.fatosRelevantes?.length > 0 ? (
+                    <ListGroup variant="flush" className="mb-2">
+                      {kr.fatosRelevantes.map((f) => (
+                        <ListGroup.Item key={f.id} className="py-1 small">
+                          {renderWithBreaks(f.texto)}{' '}
+                          <span className="text-muted">
+                            ({new Date(f.dataCriacao).toLocaleDateString('pt-BR')})
+                          </span>
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  ) : (
+                    <p className="text-muted small">Nenhum fato.</p>
+                  )}
+                  <Form onSubmit={handleAddFato} className="d-flex gap-1">
+                    <Form.Control
+                      as="textarea"
+                      rows={2}
+                      size="sm"
+                      placeholder="Novo fato relevante..."
+                      value={fato}
+                      onChange={(e) => setFato(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleAddFato(e);
+                        }
+                      }}
+                    />
+                    <DSButton data-testid="ds-button-add-fato-kr" type="submit" variant="outline-secondary" size="sm" className="okr-btn-border">+</DSButton>
                   </Form>
                 </Col>
 

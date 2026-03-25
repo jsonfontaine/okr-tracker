@@ -24,10 +24,16 @@ export const desconectarDatabase = () =>
 
 // --- Ciclos ---
 export const listarCiclos = () => request('/ciclos');
-export const criarCiclo = (nome) =>
-  request('/ciclos', { method: 'POST', body: { nome } });
-export const atualizarCiclo = (id, nome) =>
-  request(`/ciclos/${id}`, { method: 'PUT', body: { nome } });
+export const criarCiclo = (payload) => {
+  // Se for string (compatibilidade), converter para objeto
+  const body = typeof payload === 'string' ? { nome: payload } : payload;
+  return request('/ciclos', { method: 'POST', body });
+};
+export const atualizarCiclo = (id, payload) => {
+  // Se for string (compatibilidade), converter para objeto
+  const body = typeof payload === 'string' ? { nome: payload } : payload;
+  return request(`/ciclos/${id}`, { method: 'PUT', body });
+};
 export const excluirCiclo = (id) =>
   request(`/ciclos/${id}`, { method: 'DELETE' });
 

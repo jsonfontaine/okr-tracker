@@ -55,5 +55,27 @@ namespace OkrTracker.Tests.Services
             resultado.Success.Should().BeTrue();
             resultado.Data.Should().BeEmpty();
         }
+
+        [Fact]
+        public void Executar_ComDatas_DeveOrdenarCiclosEmOrdemCrescente()
+        {
+            // Arrange
+            var ciclos = new List<Ciclo>
+            {
+                new() { Id = "3", Nome = "SemDataInicio", DataInicio = null, DataCriacao = new DateTime(2026, 01, 15, 0, 0, 0, DateTimeKind.Utc) },
+                new() { Id = "1", Nome = "2026-Q2", DataInicio = new DateTime(2026, 04, 01, 0, 0, 0, DateTimeKind.Utc), DataCriacao = new DateTime(2026, 03, 01, 0, 0, 0, DateTimeKind.Utc) },
+                new() { Id = "2", Nome = "2026-Q1", DataInicio = new DateTime(2026, 01, 01, 0, 0, 0, DateTimeKind.Utc), DataCriacao = new DateTime(2025, 12, 01, 0, 0, 0, DateTimeKind.Utc) }
+            };
+
+            _cicloRepoMock.Setup(r => r.ObterTodos()).Returns(ciclos);
+
+            // Act
+            var resultado = _service.Executar();
+
+            // Assert
+            resultado.Success.Should().BeTrue();
+            resultado.Data.Should().NotBeNull();
+            resultado.Data!.Select(c => c.Id).Should().ContainInOrder("2", "3", "1");
+        }
     }
 }

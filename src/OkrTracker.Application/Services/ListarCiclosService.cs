@@ -24,10 +24,19 @@ namespace OkrTracker.Application.Services
             _logger.LogInformation("Listando todos os ciclos.");
 
             var ciclos = _cicloRepository.ObterTodos();
-            var response = ciclos.Select(c => new CicloResponse
+            
+            // Ordenar por DataInicio crescente (ciclos mais antigos primeiro),
+            // fallback para DataCriacao para ciclos sem datas
+            var ciclosOrdenados = ciclos
+                .OrderBy(c => c.DataInicio ?? c.DataCriacao)
+                .ToList();
+
+            var response = ciclosOrdenados.Select(c => new CicloResponse
             {
                 Id = c.Id,
                 Nome = c.Nome,
+                DataInicio = c.DataInicio,
+                DataFim = c.DataFim,
                 DataCriacao = c.DataCriacao,
                 UltimaAtualizacao = c.UltimaAtualizacao
             });

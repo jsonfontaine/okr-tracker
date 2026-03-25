@@ -65,6 +65,13 @@ using (var db = new LiteDatabase(dbPath))
         : "Banco criado com sucesso!");
 
     Console.WriteLine($"Coleções: {string.Join(", ", db.GetCollectionNames())}");
+
+    // Executar migração de datas dos ciclos se o banco já existia
+    if (jaExistia)
+    {
+        Console.WriteLine();
+        LiteDbMigrationCicloDates.Executar(ciclos);
+    }
 }
 
 Console.WriteLine();

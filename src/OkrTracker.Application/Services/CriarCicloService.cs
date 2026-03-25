@@ -28,6 +28,13 @@ namespace OkrTracker.Application.Services
             if (string.IsNullOrWhiteSpace(request.Nome))
                 return ResultadoOperacao<CicloResponse>.Erro("O nome do ciclo é obrigatório.");
 
+            // Validar consistência de datas se informadas
+            if (request.DataInicio.HasValue && request.DataFim.HasValue)
+            {
+                if (request.DataInicio.Value > request.DataFim.Value)
+                    return ResultadoOperacao<CicloResponse>.Erro("A data de início não pode ser posterior à data de término.");
+            }
+
             var existente = _cicloRepository.ObterPorNome(request.Nome);
             if (existente != null)
                 return ResultadoOperacao<CicloResponse>.Erro("Já existe um ciclo com este nome.");
@@ -37,6 +44,8 @@ namespace OkrTracker.Application.Services
             {
                 Id = Guid.NewGuid().ToString(),
                 Nome = request.Nome,
+                DataInicio = request.DataInicio,
+                DataFim = request.DataFim,
                 DataCriacao = agora,
                 UltimaAtualizacao = agora
             };
@@ -48,6 +57,8 @@ namespace OkrTracker.Application.Services
             {
                 Id = ciclo.Id,
                 Nome = ciclo.Nome,
+                DataInicio = ciclo.DataInicio,
+                DataFim = ciclo.DataFim,
                 DataCriacao = ciclo.DataCriacao,
                 UltimaAtualizacao = ciclo.UltimaAtualizacao
             });
