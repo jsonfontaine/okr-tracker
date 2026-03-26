@@ -5,10 +5,10 @@ services:
       dockerfile: Dockerfile
     container_name: okr-tracker
     ports:
-      - "8080:80"
+      - "80:80"
     volumes:
       - type: bind
-        source: C:/Users/jason.fontaine/Tools/OKRTracker
+        source: C:/Tools/OKRTracker
         target: /data
     environment:
       - DOTNET_ROLL_FORWARD=LatestPatch

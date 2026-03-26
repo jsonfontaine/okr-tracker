@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using OkrTracker.Application.DTOs;
 using OkrTracker.Application.Interfaces;
 using OkrTracker.Application.Ports;
+using System.Runtime.InteropServices;
 
 namespace OkrTracker.Application.Services
 {
@@ -40,15 +41,23 @@ namespace OkrTracker.Application.Services
 
             try
             {
-                var valido = _validator.Validar(databasePath);
+                var caminhoNormalizado = NormalizarCaminho(databasePath.Trim());
+
+                if (!File.Exists(caminhoNormalizado))
+                {
+                    _logger.LogWarning("Arquivo .db não encontrado no caminho: {Caminho}", caminhoNormalizado);
+                    return ResultadoOperacao.Erro("Arquivo .db não encontrado. No container, use caminhos como /data/arquivo.db.");
+                }
+
+                var valido = _validator.Validar(caminhoNormalizado);
                 if (!valido)
                 {
-                    _logger.LogWarning("Não foi possível abrir a base de dados no caminho: {Caminho}", databasePath);
+                    _logger.LogWarning("Não foi possível abrir a base de dados no caminho: {Caminho}", caminhoNormalizado);
                     return ResultadoOperacao.Erro("Não foi possível abrir a base de dados.");
                 }
 
-                _pathProvider.DefinirCaminho(databasePath);
-                _logger.LogInformation("Base de dados configurada com sucesso no caminho: {Caminho}", databasePath);
+                _pathProvider.DefinirCaminho(caminhoNormalizado);
+                _logger.LogInformation("Base de dados configurada com sucesso no caminho: {Caminho}", caminhoNormalizado);
                 return ResultadoOperacao.Sucesso();
             }
             catch (Exception ex)
@@ -56,6 +65,31 @@ namespace OkrTracker.Application.Services
                 _logger.LogError(ex, "Erro ao configurar base de dados no caminho: {Caminho}", databasePath);
                 return ResultadoOperacao.Erro("Não foi possível abrir a base de dados.");
             }
+        }
+
+        private string NormalizarCaminho(string databasePath)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return databasePath;
+            }
+
+            // Em Linux (container), tenta mapear caminho Windows para o volume /data pelo nome do arquivo.
+            if (databasePath.Contains("\\") && databasePath.Contains(":"))
+            {
+                var fileName = Path.GetFileName(databasePath.Replace('\\', '/'));
+                if (!string.IsNullOrWhiteSpace(fileName))
+                {
+                    var mountedPath = Path.Combine("/data", fileName);
+                    if (File.Exists(mountedPath))
+                    {
+                        _logger.LogInformation("Caminho Windows detectado em ambiente Linux. Usando caminho mapeado: {Caminho}", mountedPath);
+                        return mountedPath;
+                    }
+                }
+            }
+
+            return databasePath;
         }
     }
 }

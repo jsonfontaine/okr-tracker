@@ -7,15 +7,21 @@ export default function AppNavbar({ dbConfigurado, dbCaminho, onDisconnect }) {
   const seqHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
   const seqUrl = process.env.REACT_APP_SEQ_URL || `http://${seqHost}:5341`;
 
-  const openSeqLogs = () => {
+  const openSeqLogs = (event) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     if (typeof window === 'undefined') {
       return;
     }
 
     const newWindow = window.open(seqUrl, '_blank', 'noopener,noreferrer');
     if (!newWindow) {
-      // Fallback in case popup blockers prevent opening a new tab.
-      window.location.href = seqUrl;
+      // If popup is blocked, keep the current tab unchanged.
+      // This avoids opening Seq in both tabs.
+      return;
     }
   };
 

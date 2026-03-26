@@ -45,10 +45,10 @@ export default function ConfigPage({ onConfigured }) {
               <Input
                 data-testid="ds-input-db-path"
                 label="Caminho do arquivo .db"
-                placeholder="Ex: C:\\Users\\...\\database\\jason-okr-tracker.db"
+                placeholder="Ex: C:\\Users\\...\\jason-okr-tracker.db ou /data/jason-okr-tracker.db"
                 value={path}
                 onChange={(e) => setPath(e.target.value)}
-                helperText="Informe o caminho absoluto do arquivo LiteDB."
+                helperText="Em container Linux, use /data/arquivo.db. Em execução local no Windows, use C:\\...\\arquivo.db."
               />
             </div>
             <DSButton
