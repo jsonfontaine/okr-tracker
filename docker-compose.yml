@@ -5,26 +5,25 @@ services:
       dockerfile: Dockerfile
     container_name: okr-tracker
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
-      - ./database:/data
+      - type: bind
+        source: C:/Users/jason.fontaine/Tools/OKRTracker
+        target: /data
     environment:
       - DOTNET_ROLL_FORWARD=LatestPatch
       - Seq__ServerUrl=http://seq:80
-    depends_on:
-      - seq
     restart: unless-stopped
 
   seq:
-    image: datalust/seq:latest
+    image: datalust/seq:2024.3
+    platform: linux/amd64
     container_name: okr-tracker-seq
+    profiles: ["observability"]
     ports:
       - "5341:80"
     environment:
       - ACCEPT_EULA=Y
-    volumes:
-      - seq-data:/data
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
     restart: unless-stopped
 
-volumes:
-  seq-data:
