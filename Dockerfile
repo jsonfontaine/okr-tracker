@@ -1,15 +1,9 @@
 # ============================================
-# Stage 1: Build do Frontend React
+# Stage 1: Frontend já compilado (build local)
 # ============================================
-FROM node:20-alpine AS frontend-build
+FROM scratch AS frontend-build
 
-WORKDIR /app/frontend
-
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
-
-COPY frontend/ ./
-RUN npm run build
+COPY frontend/build /build
 
 # ============================================
 # Stage 2: Build do Backend .NET
@@ -40,7 +34,7 @@ WORKDIR /app
 COPY --from=backend-build /app/publish .
 
 # Copiar frontend build para wwwroot
-COPY --from=frontend-build /app/frontend/build ./wwwroot
+COPY --from=frontend-build /build ./wwwroot
 
 # Criar diretório para o banco de dados (montado via volume)
 RUN mkdir -p /data

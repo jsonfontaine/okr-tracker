@@ -5,10 +5,11 @@ services:
       dockerfile: Dockerfile
     container_name: okr-tracker
     ports:
-      - "8080:80"
+      - "80:80"
     volumes:
       - ./database:/data
     environment:
+      - DOTNET_ROLL_FORWARD=LatestPatch
       - Seq__ServerUrl=http://seq:80
     depends_on:
       - seq

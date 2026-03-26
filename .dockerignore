@@ -2,6 +2,8 @@
 **/obj/
 **/node_modules/
 **/build/
+!frontend/build/
+!frontend/build/**
 **/.vs/
 **/.git/
 **/database/
