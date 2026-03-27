@@ -7,23 +7,6 @@ export default function AppNavbar({ dbConfigurado, dbCaminho, onDisconnect }) {
   const seqHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
   const seqUrl = process.env.REACT_APP_SEQ_URL || `http://${seqHost}:5341`;
 
-  const openSeqLogs = (event) => {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const newWindow = window.open(seqUrl, '_blank', 'noopener,noreferrer');
-    if (!newWindow) {
-      // If popup is blocked, keep the current tab unchanged.
-      // This avoids opening Seq in both tabs.
-      return;
-    }
-  };
 
   const navLinks = [
     { to: '/', label: 'Dashboard', requiresDb: true },
@@ -76,28 +59,27 @@ export default function AppNavbar({ dbConfigurado, dbCaminho, onDisconnect }) {
                 </Link>
               );
             })}
-            <button
-              type="button"
-              onClick={openSeqLogs}
-              style={{
-                border: 'none',
-                background: 'transparent',
-                textDecoration: 'none',
-                color: 'inherit',
-                fontSize: '0.9rem',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                opacity: 0.75,
-                cursor: 'pointer',
-              }}
-            >
-              Logs
-            </button>
           </nav>
         ),
       }}
       trailing={
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <a
+            href={seqUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              textDecoration: 'none',
+              color: 'inherit',
+              fontSize: '0.9rem',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              opacity: 0.75,
+              cursor: 'pointer',
+            }}
+          >
+            📋 Logs
+          </a>
           {dbConfigurado ? (
             <>
               <Tag
