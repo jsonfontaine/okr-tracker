@@ -173,6 +173,16 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr, ciclos = []
                   </DSButton>
                 )}
                 <DSButton
+                  data-testid="ds-button-editar-objetivo"
+                  variant="outline"
+                  size="sm"
+                  onClick={iniciarEdicao}
+                  className="okr-btn-border"
+                  title="Editar descrição e valor"
+                >
+                  ✏️
+                </DSButton>
+                <DSButton
                   data-testid="ds-button-excluir-objetivo"
                   variant="outline"
                   size="sm"
@@ -260,21 +270,6 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr, ciclos = []
               {!editando ? (
                 <>
                   <p className="mb-1">
-                    <button
-                      data-testid="ds-button-editar-objetivo"
-                      onClick={iniciarEdicao}
-                      title="Editar descrição e valor"
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: '0 4px 0 0',
-                        fontSize: '0.9rem',
-                        verticalAlign: 'middle',
-                      }}
-                    >
-                      ✏️
-                    </button>
                     <strong>📝 Descrição:</strong> {objetivo.descricao}
                   </p>
                   {objetivo.valor && (
