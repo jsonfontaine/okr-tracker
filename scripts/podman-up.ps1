@@ -5,7 +5,7 @@ param(
 
 <#
   .SYNOPSIS
-    Sobe o OKR Tracker no Podman (sem dependencia de docker-compose ou podman-compose).
+    Sobe o OKR Tracker no Podman usando o compose.yml.
 
   .PARAMETER WithSeq
     Inicia tambem o container do Seq (observabilidade de logs).
@@ -23,25 +23,44 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
 
-# ─── Ler configuracoes do .env (se existir) ───────────────────────────────────
-function Read-EnvFile {
-  param([string]$Path)
-  $vars = @{}
-  if (Test-Path $Path) {
-    Get-Content $Path | Where-Object { $_ -match "^\s*[^#]\w*=" } | ForEach-Object {
-      $parts = $_ -split "=", 2
-      $vars[$parts[0].Trim()] = $parts[1].Trim().Trim('"').Trim("'")
+# ─── Resolver provider de compose ─────────────────────────────────────────────
+function Invoke-Compose {
+  param([string[]]$Args)
+
+  # 1. podman compose (built-in, delega para docker-compose ou podman-compose)
+  podman compose version 2>&1 | Out-Null
+  if ($LASTEXITCODE -eq 0) {
+    podman compose @Args; return $LASTEXITCODE
+  }
+
+  # 2. docker compose v2 (Docker Desktop CLI plugin)
+  if (Get-Command "docker" -ErrorAction SilentlyContinue) {
+    docker compose version 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+      docker compose @Args; return $LASTEXITCODE
     }
   }
-  return $vars
-}
 
-$envVars   = Read-EnvFile (Join-Path $repoRoot ".env")
-$dbPath    = $envVars["OKR_DB_HOST_PATH"] ?? "C:/PersonalTools/Appdata/OKRTracker"
-$appPort   = $envVars["OKR_APP_PORT"]     ?? "5430"
-$seqPort   = $envVars["OKR_SEQ_PORT"]    ?? "5341"
-$imageName = "localhost/okr-tracker:latest"
-$networkName = "okr-net"
+  # 3. podman-compose standalone (pip)
+  if (Get-Command "podman-compose" -ErrorAction SilentlyContinue) {
+    podman-compose @Args; return $LASTEXITCODE
+  }
+
+  # 4. Tentar instalar podman-compose via pip
+  Write-Host "  Nenhum compose provider encontrado. Instalando podman-compose via pip..." -ForegroundColor Yellow
+  $pipCmd = @("pip", "pip3", "python -m pip") | Where-Object {
+    Get-Command ($_ -split " ")[0] -ErrorAction SilentlyContinue
+  } | Select-Object -First 1
+
+  if ($pipCmd) {
+    & ($pipCmd -split " ")[0] @(($pipCmd -split " ")[1..99] + @("install", "podman-compose", "-q"))
+    if ($LASTEXITCODE -eq 0 -and (Get-Command "podman-compose" -ErrorAction SilentlyContinue)) {
+      podman-compose @Args; return $LASTEXITCODE
+    }
+  }
+
+  throw "Compose nao disponivel. Execute: pip install podman-compose"
+}
 
 # ─── Build ────────────────────────────────────────────────────────────────────
 if (-not $NoBuild) {
@@ -59,80 +78,36 @@ if (-not $NoBuild) {
 
   Write-Host ""
   Write-Host "=== [2/2] Build da imagem ===" -ForegroundColor Cyan
-  podman build -t $imageName -f Containerfile .
+  podman build -t localhost/okr-tracker:latest -f Containerfile .
   if ($LASTEXITCODE -ne 0) { throw "Build da imagem falhou." }
 } else {
   Write-Host "  -NoBuild: pulando build do frontend e da imagem." -ForegroundColor Yellow
 }
 
-# ─── Rede ─────────────────────────────────────────────────────────────────────
+# ─── Subir containers via compose.yml ─────────────────────────────────────────
 Write-Host ""
-Write-Host "=== Preparando rede '$networkName' ===" -ForegroundColor Cyan
-podman network exists $networkName 2>$null
-if ($LASTEXITCODE -ne 0) {
-  podman network create $networkName | Out-Null
-  Write-Host "  Rede '$networkName' criada." -ForegroundColor Green
-} else {
-  Write-Host "  Rede '$networkName' ja existe." -ForegroundColor DarkGray
+Write-Host "=== Subindo containers ===" -ForegroundColor Cyan
+
+$upArgs = @()
+if ($WithSeq) {
+  $upArgs += @("--profile", "observability")
+  Write-Host "  Seq habilitado."
 }
+$upArgs += @("up", "-d")
 
-# ─── Subir OKR Tracker ────────────────────────────────────────────────────────
-Write-Host ""
-Write-Host "=== Subindo okr-tracker ===" -ForegroundColor Cyan
+$exitCode = Invoke-Compose $upArgs
+if ($exitCode -ne 0) { throw "Falha ao subir containers." }
 
-# Remover container antigo se existir
-podman rm -f okr-tracker 2>$null | Out-Null
-
-# Garantir que o diretorio do banco existe no host
-if (-not (Test-Path $dbPath)) {
-  New-Item -ItemType Directory -Path $dbPath -Force | Out-Null
-  Write-Host "  Diretorio do banco criado: $dbPath" -ForegroundColor Yellow
-}
-
-podman run -d `
-  --name okr-tracker `
-  --network $networkName `
-  -p "${appPort}:80" `
-  -v "${dbPath}:/data:z" `
-  -e DOTNET_ROLL_FORWARD=LatestPatch `
-  -e ASPNETCORE_URLS="http://+:80" `
-  -e ASPNETCORE_ENVIRONMENT=Production `
-  -e "Seq__ServerUrl=http://okr-tracker-seq:80" `
-  --restart unless-stopped `
-  $imageName
-
-if ($LASTEXITCODE -ne 0) { throw "Falha ao iniciar okr-tracker." }
-Write-Host "  okr-tracker iniciado." -ForegroundColor Green
-
-# ─── Subir Seq (opcional) ─────────────────────────────────────────────────────
+# ─── Configurar retencao de 24h no Seq ───────────────────────────────────────
 if ($WithSeq) {
   Write-Host ""
-  Write-Host "=== Subindo Seq ===" -ForegroundColor Cyan
-
-  podman rm -f okr-tracker-seq 2>$null | Out-Null
-
-  # Garantir volume para dados do Seq
-  podman volume exists seq-data 2>$null
-  if ($LASTEXITCODE -ne 0) {
-    podman volume create seq-data | Out-Null
-  }
-
-  podman run -d `
-    --name okr-tracker-seq `
-    --network $networkName `
-    -p "${seqPort}:80" `
-    -v "seq-data:/data" `
-    -e ACCEPT_EULA=Y `
-    -e SEQ_FIRSTRUN_NOAUTHENTICATION=true `
-    --restart unless-stopped `
-    datalust/seq:2024.3
-
-  if ($LASTEXITCODE -ne 0) { throw "Falha ao iniciar Seq." }
-  Write-Host "  Seq iniciado." -ForegroundColor Green
-
-  # Configurar retencao de 24h
-  Write-Host ""
   Write-Host "=== Configurando retencao de logs do Seq (24h) ===" -ForegroundColor Cyan
+  $envFile = Join-Path $repoRoot ".env"
+  $seqPort = "5341"
+  if (Test-Path $envFile) {
+    $line = Get-Content $envFile | Where-Object { $_ -match "^OKR_SEQ_PORT=" }
+    if ($line) { $seqPort = $line -replace "^OKR_SEQ_PORT=", "" }
+  }
   $seqUrl = "http://localhost:$seqPort"
   $maxWait = 60; $waited = 0
   Write-Host "  Aguardando Seq ($seqUrl)..." -NoNewline
@@ -165,6 +140,13 @@ if ($WithSeq) {
 }
 
 # ─── Resultado ────────────────────────────────────────────────────────────────
+$envFile = Join-Path $repoRoot ".env"
+$appPort = "5430"
+if (Test-Path $envFile) {
+  $line = Get-Content $envFile | Where-Object { $_ -match "^OKR_APP_PORT=" }
+  if ($line) { $appPort = $line -replace "^OKR_APP_PORT=", "" }
+}
+
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Green
 Write-Host " OKR Tracker disponivel em: http://localhost:$appPort" -ForegroundColor Green
