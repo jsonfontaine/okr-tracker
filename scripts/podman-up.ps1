@@ -36,6 +36,12 @@ function Read-EnvFile {
   return $vars
 }
 
+function Get-EnvValue {
+  param([hashtable]$Env, [string]$Key, [string]$Default)
+  if ($Env.ContainsKey($Key) -and $Env[$Key]) { return $Env[$Key] }
+  return $Default
+}
+
 # ─── Detectar provider de compose ─────────────────────────────────────────────
 $composeProvider = $null
 if (Test-NativeCommand "podman" @("compose", "version"))        { $composeProvider = "podman" }
@@ -63,9 +69,9 @@ function Invoke-Compose {
 function Start-ContainersDirect {
   param([bool]$IncludeSeq)
   $env = Read-EnvFile
-  $dbPath  = $env["OKR_DB_HOST_PATH"] ?? "C:/PersonalTools/Appdata/OKRTracker"
-  $appPort = $env["OKR_APP_PORT"]     ?? "5430"
-  $seqPort = $env["OKR_SEQ_PORT"]    ?? "5341"
+  $dbPath  = Get-EnvValue $env "OKR_DB_HOST_PATH" "C:/PersonalTools/Appdata/OKRTracker"
+  $appPort = Get-EnvValue $env "OKR_APP_PORT"     "5430"
+  $seqPort = Get-EnvValue $env "OKR_SEQ_PORT"     "5341"
   $network = "okr-net"
 
   # Garantir rede
@@ -165,7 +171,7 @@ if ($WithSeq) {
   Write-Host ""
   Write-Host "=== Configurando retencao Seq (24h) ===" -ForegroundColor Cyan
   $env = Read-EnvFile
-  $seqPort = $env["OKR_SEQ_PORT"] ?? "5341"
+  $seqPort = Get-EnvValue $env "OKR_SEQ_PORT" "5341"
   $seqUrl  = "http://localhost:$seqPort"
   $maxWait = 60; $waited = 0
   Write-Host "  Aguardando Seq..." -NoNewline
@@ -191,9 +197,9 @@ if ($WithSeq) {
 
 # ─── Resultado ────────────────────────────────────────────────────────────────
 $env = Read-EnvFile
-$appPort = $env["OKR_APP_PORT"] ?? "5430"
+$appPort = Get-EnvValue $env "OKR_APP_PORT" "5430"
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Green
 Write-Host " OKR Tracker disponivel em: http://localhost:$appPort" -ForegroundColor Green
-if ($WithSeq) { Write-Host " Seq disponivel em: http://localhost:$($env['OKR_SEQ_PORT'] ?? '5341')" -ForegroundColor Green }
+if ($WithSeq) { Write-Host " Seq disponivel em: http://localhost:$(Get-EnvValue $env 'OKR_SEQ_PORT' '5341')" -ForegroundColor Green }
 Write-Host "============================================" -ForegroundColor Green
