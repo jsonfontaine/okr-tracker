@@ -6,68 +6,122 @@ param(
 <#
   .SYNOPSIS
     Sobe o OKR Tracker no Podman usando o compose.yml.
-
-  .PARAMETER WithSeq
-    Inicia tambem o container do Seq (observabilidade de logs).
-
-  .PARAMETER NoBuild
-    Pula o build do frontend e da imagem. Usa a imagem ja existente.
-
-  .EXAMPLE
-    .\scripts\podman-up.ps1
-    .\scripts\podman-up.ps1 -WithSeq
-    .\scripts\podman-up.ps1 -NoBuild
+    Fallback automatico para podman run caso nenhum compose provider esteja disponivel.
 #>
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
 
-# ─── Resolver provider de compose ─────────────────────────────────────────────
-function Test-Command {
-  param([string]$Cmd, [string[]]$TestArgs = @("version"))
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+function Test-NativeCommand {
+  param([string]$Cmd, [string[]]$CmdArgs)
   try {
-    $prev = $ErrorActionPreference
-    $ErrorActionPreference = "SilentlyContinue"
-    & $Cmd @TestArgs 2>&1 | Out-Null
+    $prev = $ErrorActionPreference; $ErrorActionPreference = "SilentlyContinue"
+    & $Cmd @CmdArgs 2>&1 | Out-Null
     $ok = $LASTEXITCODE -eq 0
-    $ErrorActionPreference = $prev
-    return $ok
-  } catch {
-    $ErrorActionPreference = $prev
-    return $false
+    $ErrorActionPreference = $prev; return $ok
+  } catch { $ErrorActionPreference = $prev; return $false }
+}
+
+function Read-EnvFile {
+  $vars = @{}
+  $envFile = Join-Path $repoRoot ".env"
+  if (Test-Path $envFile) {
+    Get-Content $envFile | Where-Object { $_ -match "^\s*[^#]\w*=" } | ForEach-Object {
+      $parts = $_ -split "=", 2
+      $vars[$parts[0].Trim()] = $parts[1].Trim().Trim('"').Trim("'")
+    }
   }
+  return $vars
+}
+
+# ─── Detectar provider de compose ─────────────────────────────────────────────
+$composeProvider = $null
+if (Test-NativeCommand "podman" @("compose", "version"))        { $composeProvider = "podman" }
+elseif ((Get-Command "docker" -ErrorAction SilentlyContinue) -and
+        (Test-NativeCommand "docker" @("compose", "version")))  { $composeProvider = "docker" }
+elseif (Get-Command "podman-compose" -ErrorAction SilentlyContinue) { $composeProvider = "podman-compose" }
+
+if ($composeProvider) {
+  Write-Host "  Compose provider: $composeProvider" -ForegroundColor DarkGray
+} else {
+  Write-Host "  Compose provider nao encontrado. Usando podman run direto." -ForegroundColor Yellow
 }
 
 function Invoke-Compose {
-  param([string[]]$Args)
+  param([string[]]$ComposeArgs)
+  switch ($composeProvider) {
+    "podman"         { podman compose @ComposeArgs; return $LASTEXITCODE }
+    "docker"         { docker compose @ComposeArgs; return $LASTEXITCODE }
+    "podman-compose" { podman-compose @ComposeArgs; return $LASTEXITCODE }
+  }
+  return 1  # sinaliza "sem provider"
+}
 
-  # 1. podman compose (built-in)
-  if (Test-Command "podman" @("compose", "version")) {
-    podman compose @Args; return $LASTEXITCODE
+# ─── Fallback: podman run direto (replica compose.yml) ────────────────────────
+function Start-ContainersDirect {
+  param([bool]$IncludeSeq)
+  $env = Read-EnvFile
+  $dbPath  = $env["OKR_DB_HOST_PATH"] ?? "C:/PersonalTools/Appdata/OKRTracker"
+  $appPort = $env["OKR_APP_PORT"]     ?? "5430"
+  $seqPort = $env["OKR_SEQ_PORT"]    ?? "5341"
+  $network = "okr-net"
+
+  # Garantir rede
+  Test-NativeCommand "podman" @("network", "exists", $network) | Out-Null
+  if (-not (Test-NativeCommand "podman" @("network", "exists", $network))) {
+    podman network create $network | Out-Null
+    Write-Host "  Rede '$network' criada." -ForegroundColor DarkGray
   }
 
-  # 2. docker compose v2 (Docker Desktop CLI plugin)
-  if ((Get-Command "docker" -ErrorAction SilentlyContinue) -and (Test-Command "docker" @("compose", "version"))) {
-    docker compose @Args; return $LASTEXITCODE
+  # Garantir diretorio do banco
+  if (-not (Test-Path $dbPath)) {
+    New-Item -ItemType Directory -Path $dbPath -Force | Out-Null
+    Write-Host "  Diretorio criado: $dbPath" -ForegroundColor Yellow
   }
 
-  # 3. podman-compose standalone (pip)
-  if (Get-Command "podman-compose" -ErrorAction SilentlyContinue) {
-    podman-compose @Args; return $LASTEXITCODE
-  }
+  # Parar container existente
+  $prev = $ErrorActionPreference; $ErrorActionPreference = "SilentlyContinue"
+  podman rm -f okr-tracker 2>&1 | Out-Null
+  $ErrorActionPreference = $prev
 
-  # 4. Tentar instalar podman-compose via pip
-  Write-Host "  Nenhum compose provider encontrado. Instalando podman-compose via pip..." -ForegroundColor Yellow
-  $pipCmd = @("pip", "pip3") | Where-Object { Get-Command $_ -ErrorAction SilentlyContinue } | Select-Object -First 1
-  if ($pipCmd) {
-    & $pipCmd install podman-compose -q
-    if ($LASTEXITCODE -eq 0 -and (Get-Command "podman-compose" -ErrorAction SilentlyContinue)) {
-      podman-compose @Args; return $LASTEXITCODE
+  Write-Host "  Iniciando okr-tracker..."
+  podman run -d `
+    --name okr-tracker `
+    --network $network `
+    -p "${appPort}:80" `
+    -v "${dbPath}:/data:z" `
+    -e DOTNET_ROLL_FORWARD=LatestPatch `
+    -e ASPNETCORE_URLS="http://+:80" `
+    -e ASPNETCORE_ENVIRONMENT=Production `
+    -e "Seq__ServerUrl=http://okr-tracker-seq:80" `
+    --restart unless-stopped `
+    localhost/okr-tracker:latest
+  if ($LASTEXITCODE -ne 0) { throw "Falha ao iniciar okr-tracker." }
+
+  if ($IncludeSeq) {
+    $prev = $ErrorActionPreference; $ErrorActionPreference = "SilentlyContinue"
+    podman rm -f okr-tracker-seq 2>&1 | Out-Null
+    $ErrorActionPreference = $prev
+
+    Test-NativeCommand "podman" @("volume", "exists", "seq-data") | Out-Null
+    if (-not (Test-NativeCommand "podman" @("volume", "exists", "seq-data"))) {
+      podman volume create seq-data | Out-Null
     }
-  }
 
-  throw "Compose nao disponivel. Execute: pip install podman-compose"
+    Write-Host "  Iniciando okr-tracker-seq..."
+    podman run -d `
+      --name okr-tracker-seq `
+      --network $network `
+      -p "${seqPort}:80" `
+      -v "seq-data:/data" `
+      -e ACCEPT_EULA=Y `
+      -e SEQ_FIRSTRUN_NOAUTHENTICATION=true `
+      --restart unless-stopped `
+      datalust/seq:2024.3
+    if ($LASTEXITCODE -ne 0) { throw "Falha ao iniciar Seq." }
+  }
 }
 
 # ─── Build ────────────────────────────────────────────────────────────────────
@@ -89,76 +143,57 @@ if (-not $NoBuild) {
   podman build -t localhost/okr-tracker:latest -f Containerfile .
   if ($LASTEXITCODE -ne 0) { throw "Build da imagem falhou." }
 } else {
-  Write-Host "  -NoBuild: pulando build do frontend e da imagem." -ForegroundColor Yellow
+  Write-Host "  -NoBuild: pulando build." -ForegroundColor Yellow
 }
 
-# ─── Subir containers via compose.yml ─────────────────────────────────────────
+# ─── Subir containers ─────────────────────────────────────────────────────────
 Write-Host ""
 Write-Host "=== Subindo containers ===" -ForegroundColor Cyan
 
-$upArgs = @()
-if ($WithSeq) {
-  $upArgs += @("--profile", "observability")
-  Write-Host "  Seq habilitado."
+if ($composeProvider) {
+  $upArgs = @()
+  if ($WithSeq) { $upArgs += @("--profile", "observability"); Write-Host "  Seq habilitado." }
+  $upArgs += @("up", "-d")
+  $exitCode = Invoke-Compose $upArgs
+  if ($exitCode -ne 0) { throw "Falha ao subir containers." }
+} else {
+  Start-ContainersDirect -IncludeSeq:$WithSeq
 }
-$upArgs += @("up", "-d")
-
-$exitCode = Invoke-Compose $upArgs
-if ($exitCode -ne 0) { throw "Falha ao subir containers." }
 
 # ─── Configurar retencao de 24h no Seq ───────────────────────────────────────
 if ($WithSeq) {
   Write-Host ""
-  Write-Host "=== Configurando retencao de logs do Seq (24h) ===" -ForegroundColor Cyan
-  $envFile = Join-Path $repoRoot ".env"
-  $seqPort = "5341"
-  if (Test-Path $envFile) {
-    $line = Get-Content $envFile | Where-Object { $_ -match "^OKR_SEQ_PORT=" }
-    if ($line) { $seqPort = $line -replace "^OKR_SEQ_PORT=", "" }
-  }
-  $seqUrl = "http://localhost:$seqPort"
+  Write-Host "=== Configurando retencao Seq (24h) ===" -ForegroundColor Cyan
+  $env = Read-EnvFile
+  $seqPort = $env["OKR_SEQ_PORT"] ?? "5341"
+  $seqUrl  = "http://localhost:$seqPort"
   $maxWait = 60; $waited = 0
-  Write-Host "  Aguardando Seq ($seqUrl)..." -NoNewline
+  Write-Host "  Aguardando Seq..." -NoNewline
   while ($waited -lt $maxWait) {
-    try {
-      $r = Invoke-WebRequest -Uri "$seqUrl/api/" -UseBasicParsing -TimeoutSec 3 -ErrorAction Stop
-      if ($r.StatusCode -lt 400) { break }
-    } catch { }
-    Start-Sleep -Seconds 2; $waited += 2; Write-Host "." -NoNewline
+    try { $r = Invoke-WebRequest -Uri "$seqUrl/api/" -UseBasicParsing -TimeoutSec 3 -ErrorAction Stop; if ($r.StatusCode -lt 400) { break } } catch { }
+    Start-Sleep 2; $waited += 2; Write-Host "." -NoNewline
   }
   Write-Host ""
-  if ($waited -ge $maxWait) {
-    Write-Warning "  Seq nao respondeu em ${maxWait}s. Retencao nao configurada."
-  } else {
+  if ($waited -lt $maxWait) {
     try {
       $existing = Invoke-RestMethod -Uri "$seqUrl/api/retentionpolicies" -Method Get -UseBasicParsing -ErrorAction Stop
       if ($existing -and $existing.Count -gt 0) {
-        $policyId = $existing[0].Id
-        $body = @{ Id = $policyId; RetentionTime = "1.00:00:00" } | ConvertTo-Json
-        Invoke-RestMethod -Uri "$seqUrl/api/retentionpolicies/$policyId" -Method Put -Body $body -ContentType "application/json" -UseBasicParsing | Out-Null
+        $body = @{ Id = $existing[0].Id; RetentionTime = "1.00:00:00" } | ConvertTo-Json
+        Invoke-RestMethod -Uri "$seqUrl/api/retentionpolicies/$($existing[0].Id)" -Method Put -Body $body -ContentType "application/json" -UseBasicParsing | Out-Null
       } else {
         $body = @{ RetentionTime = "1.00:00:00" } | ConvertTo-Json
         Invoke-RestMethod -Uri "$seqUrl/api/retentionpolicies" -Method Post -Body $body -ContentType "application/json" -UseBasicParsing | Out-Null
       }
-      Write-Host "  Retencao configurada: logs mantidos por 24h." -ForegroundColor Green
-    } catch {
-      Write-Warning "  Falha ao configurar retencao: $_"
-    }
-  }
+      Write-Host "  Retencao configurada: 24h." -ForegroundColor Green
+    } catch { Write-Warning "  Falha ao configurar retencao: $_" }
+  } else { Write-Warning "  Seq nao respondeu em ${maxWait}s." }
 }
 
 # ─── Resultado ────────────────────────────────────────────────────────────────
-$envFile = Join-Path $repoRoot ".env"
-$appPort = "5430"
-if (Test-Path $envFile) {
-  $line = Get-Content $envFile | Where-Object { $_ -match "^OKR_APP_PORT=" }
-  if ($line) { $appPort = $line -replace "^OKR_APP_PORT=", "" }
-}
-
+$env = Read-EnvFile
+$appPort = $env["OKR_APP_PORT"] ?? "5430"
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Green
 Write-Host " OKR Tracker disponivel em: http://localhost:$appPort" -ForegroundColor Green
-if ($WithSeq) {
-  Write-Host " Seq disponivel em:         http://localhost:$seqPort" -ForegroundColor Green
-}
+if ($WithSeq) { Write-Host " Seq disponivel em: http://localhost:$($env['OKR_SEQ_PORT'] ?? '5341')" -ForegroundColor Green }
 Write-Host "============================================" -ForegroundColor Green
