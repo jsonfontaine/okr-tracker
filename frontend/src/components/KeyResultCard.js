@@ -174,36 +174,38 @@ export default function KeyResultCard({ kr, onUpdated }) {
               <TagBadge label="Intruder" show={kr.intruder} />
               <TagBadge label="Descoberta Tardia" show={kr.descobertaTardia} />
             </div>
-            <DSButton
-              data-testid="ds-button-editar-kr"
-              variant="outline"
-              size="sm"
-              onClick={iniciarEdicao}
-              className="okr-btn-border"
-              title="Editar descrição"
-            >
-              ✏️
-            </DSButton>
-            <DSButton
-              data-testid="ds-button-excluir-kr"
-              variant="outline"
-              size="sm"
-              onClick={handleExcluir}
-              className="okr-btn-border"
-              title="Excluir KR"
-              style={{ color: '#dc3545', borderColor: '#dc3545' }}
-            >
-              🗑️
-            </DSButton>
-            <DSButton
-              data-testid="ds-button-expand-kr"
-              variant="link-button"
-              size="sm"
-              onClick={() => setShowDetails(!showDetails)}
-              className="okr-btn-border"
-            >
-              {showDetails ? '▲' : '▼'}
-            </DSButton>
+            <div className="d-flex align-items-center gap-2">
+              <DSButton
+                data-testid="ds-button-editar-kr"
+                variant="outline"
+                size="sm"
+                onClick={iniciarEdicao}
+                className="okr-btn-border"
+                title="Editar descrição"
+              >
+                ✏️
+              </DSButton>
+              <DSButton
+                data-testid="ds-button-excluir-kr"
+                variant="outline"
+                size="sm"
+                onClick={handleExcluir}
+                className="okr-btn-border"
+                title="Excluir KR"
+                style={{ color: '#dc3545', borderColor: '#dc3545' }}
+              >
+                🗑️
+              </DSButton>
+              <DSButton
+                data-testid="ds-button-expand-kr"
+                variant="link-button"
+                size="sm"
+                onClick={() => setShowDetails(!showDetails)}
+                className="okr-btn-border"
+              >
+                {showDetails ? '▲' : '▼'}
+              </DSButton>
+            </div>
           </div>
 
           {/* Barra de progresso e input */}
