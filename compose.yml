@@ -1,0 +1,45 @@
+services:
+  okr-tracker:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: localhost/okr-tracker:latest
+    container_name: okr-tracker
+    ports:
+      - "${OKR_APP_PORT:-5430}:80"
+    volumes:
+      - type: bind
+        source: ${OKR_DB_HOST_PATH:-C:/PersonalTools/Appdata/OKRTracker}
+        target: /data
+    environment:
+      - DOTNET_ROLL_FORWARD=LatestPatch
+      - Seq__ServerUrl=http://seq:80
+      - ASPNETCORE_URLS=http://+:80
+    networks:
+      - okr-net
+    restart: unless-stopped
+    stop_grace_period: 5s
+
+  seq:
+    image: datalust/seq:2024.3
+    platform: linux/amd64
+    container_name: okr-tracker-seq
+    profiles: ["observability"]
+    ports:
+      - "${OKR_SEQ_PORT:-5341}:80"
+    volumes:
+      - seq-data:/data
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
+    networks:
+      - okr-net
+    restart: unless-stopped
+    stop_grace_period: 5s
+
+networks:
+  okr-net:
+    driver: bridge
+
+volumes:
+  seq-data:
