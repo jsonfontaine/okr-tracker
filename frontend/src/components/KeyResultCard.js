@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Form, ListGroup, Row, Col } from 'react-bootstrap';
 import { Card as DSCard, CardContent, Button as DSButton } from '@genial/design-system';
 import { ProgressoBar, TagBadge } from './Badges';
-import { atualizarProgressoKR, atualizarKR, criarComentario, criarFatoRelevante, criarRisco } from '../services/api';
+import { atualizarProgressoKR, atualizarKR, criarComentario, criarFatoRelevante, criarRisco, excluirKR } from '../services/api';
 import '../custom-button-border.css';
 
 export default function KeyResultCard({ kr, onUpdated }) {
@@ -16,6 +16,43 @@ export default function KeyResultCard({ kr, onUpdated }) {
   const [fato, setFato] = useState('');
   const [riscoDesc, setRiscoDesc] = useState('');
   const [riscoImpacto, setRiscoImpacto] = useState('');
+
+  // Estado de edição inline de descrição
+  const [editando, setEditando] = useState(false);
+  const [editDescricao, setEditDescricao] = useState('');
+  const [salvando, setSalvando] = useState(false);
+
+  const iniciarEdicao = () => {
+    setEditDescricao(kr.descricao || '');
+    setEditando(true);
+  };
+
+  const cancelarEdicao = () => {
+    setEditando(false);
+  };
+
+  const salvarEdicao = async () => {
+    setSalvando(true);
+    const dados = {
+      titulo: kr.titulo,
+      descricao: editDescricao,
+      tipo: kr.tipo,
+      farol: kr.farol,
+      status: kr.status,
+      intruder: kr.intruder,
+      descobertaTardia: kr.descobertaTardia,
+    };
+    await atualizarKR(kr.id, dados);
+    setSalvando(false);
+    setEditando(false);
+    if (onUpdated) onUpdated();
+  };
+
+  const handleExcluir = async () => {
+    if (!window.confirm(`Tem certeza que deseja excluir o KR "${kr.titulo}"?\n\nEssa ação é irreversível.`)) return;
+    await excluirKR(kr.id);
+    if (onUpdated) onUpdated();
+  };
 
    const krConcluido = kr.status === 'Concluido' || kr.status === 'Concluído';
 
@@ -138,6 +175,27 @@ export default function KeyResultCard({ kr, onUpdated }) {
               <TagBadge label="Descoberta Tardia" show={kr.descobertaTardia} />
             </div>
             <DSButton
+              data-testid="ds-button-editar-kr"
+              variant="outline"
+              size="sm"
+              onClick={iniciarEdicao}
+              className="okr-btn-border"
+              title="Editar descrição"
+            >
+              ✏️
+            </DSButton>
+            <DSButton
+              data-testid="ds-button-excluir-kr"
+              variant="outline"
+              size="sm"
+              onClick={handleExcluir}
+              className="okr-btn-border"
+              title="Excluir KR"
+              style={{ color: '#dc3545', borderColor: '#dc3545' }}
+            >
+              🗑️
+            </DSButton>
+            <DSButton
               data-testid="ds-button-expand-kr"
               variant="link-button"
               size="sm"
@@ -176,9 +234,45 @@ export default function KeyResultCard({ kr, onUpdated }) {
               <Row>
                 {/* Coluna esquerda (60%) — Descrição, Fatos Relevantes, Riscos */}
                 <Col md={7}>
-                  <p className="text-muted small mb-2">
-                    <strong> Descrição:</strong> {kr.descricao}
-                  </p>
+                  {/* Descrição — somente leitura com edição inline */}
+                  {!editando ? (
+                    <p className="text-muted small mb-2">
+                      <strong>📝 Descrição:</strong> {kr.descricao}
+                    </p>
+                  ) : (
+                    <div className="border rounded p-3 mb-2" style={{ backgroundColor: 'rgba(255,255,255,0.6)' }}>
+                      <div className="mb-2">
+                        <label className="form-label small fw-bold">📝 Descrição</label>
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
+                          size="sm"
+                          value={editDescricao}
+                          onChange={(e) => setEditDescricao(e.target.value)}
+                        />
+                      </div>
+                      <div className="d-flex gap-2">
+                        <DSButton
+                          data-testid="ds-button-salvar-edicao-kr"
+                          variant="primary"
+                          size="sm"
+                          onClick={salvarEdicao}
+                          disabled={salvando}
+                        >
+                          {salvando ? '...' : 'Salvar'}
+                        </DSButton>
+                        <DSButton
+                          data-testid="ds-button-cancelar-edicao-kr"
+                          variant="outline"
+                          size="sm"
+                          onClick={cancelarEdicao}
+                          disabled={salvando}
+                        >
+                          Cancelar
+                        </DSButton>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Riscos */}
                   <h6>⚠️ Riscos</h6>

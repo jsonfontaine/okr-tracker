@@ -65,6 +65,8 @@ export const atualizarKR = (id, dados) =>
   request(`/krs/${id}`, { method: 'PUT', body: dados });
 export const atualizarProgressoKR = (id, progresso) =>
   request(`/krs/${id}/progresso`, { method: 'PUT', body: { progresso } });
+export const excluirKR = (id) =>
+  request(`/krs/${id}`, { method: 'DELETE' });
 
 // --- Comentários ---
 export const criarComentario = (dados) =>
