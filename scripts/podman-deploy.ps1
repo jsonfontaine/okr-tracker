@@ -42,21 +42,27 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
 
 # ─── Resolver provider de compose ─────────────────────────────────────────────
+function Test-Command {
+  param([string]$Cmd, [string[]]$TestArgs = @("version"))
+  try {
+    $prev = $ErrorActionPreference; $ErrorActionPreference = "SilentlyContinue"
+    & $Cmd @TestArgs 2>&1 | Out-Null
+    $ok = $LASTEXITCODE -eq 0
+    $ErrorActionPreference = $prev; return $ok
+  } catch { $ErrorActionPreference = $prev; return $false }
+}
+
 function Invoke-Compose {
   param([string[]]$ComposeArgs)
 
   # 1. podman compose (built-in)
-  podman compose version 2>&1 | Out-Null
-  if ($LASTEXITCODE -eq 0) {
+  if (Test-Command "podman" @("compose", "version")) {
     podman compose @ComposeArgs; return $LASTEXITCODE
   }
 
   # 2. docker compose v2 (Docker Desktop)
-  if (Get-Command "docker" -ErrorAction SilentlyContinue) {
-    docker compose version 2>&1 | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-      docker compose @ComposeArgs; return $LASTEXITCODE
-    }
+  if ((Get-Command "docker" -ErrorAction SilentlyContinue) -and (Test-Command "docker" @("compose", "version"))) {
+    docker compose @ComposeArgs; return $LASTEXITCODE
   }
 
   # 3. podman-compose standalone

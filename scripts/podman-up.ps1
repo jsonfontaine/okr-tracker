@@ -24,21 +24,32 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
 
 # ─── Resolver provider de compose ─────────────────────────────────────────────
+function Test-Command {
+  param([string]$Cmd, [string[]]$TestArgs = @("version"))
+  try {
+    $prev = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    & $Cmd @TestArgs 2>&1 | Out-Null
+    $ok = $LASTEXITCODE -eq 0
+    $ErrorActionPreference = $prev
+    return $ok
+  } catch {
+    $ErrorActionPreference = $prev
+    return $false
+  }
+}
+
 function Invoke-Compose {
   param([string[]]$Args)
 
-  # 1. podman compose (built-in, delega para docker-compose ou podman-compose)
-  podman compose version 2>&1 | Out-Null
-  if ($LASTEXITCODE -eq 0) {
+  # 1. podman compose (built-in)
+  if (Test-Command "podman" @("compose", "version")) {
     podman compose @Args; return $LASTEXITCODE
   }
 
   # 2. docker compose v2 (Docker Desktop CLI plugin)
-  if (Get-Command "docker" -ErrorAction SilentlyContinue) {
-    docker compose version 2>&1 | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-      docker compose @Args; return $LASTEXITCODE
-    }
+  if ((Get-Command "docker" -ErrorAction SilentlyContinue) -and (Test-Command "docker" @("compose", "version"))) {
+    docker compose @Args; return $LASTEXITCODE
   }
 
   # 3. podman-compose standalone (pip)
@@ -48,12 +59,9 @@ function Invoke-Compose {
 
   # 4. Tentar instalar podman-compose via pip
   Write-Host "  Nenhum compose provider encontrado. Instalando podman-compose via pip..." -ForegroundColor Yellow
-  $pipCmd = @("pip", "pip3", "python -m pip") | Where-Object {
-    Get-Command ($_ -split " ")[0] -ErrorAction SilentlyContinue
-  } | Select-Object -First 1
-
+  $pipCmd = @("pip", "pip3") | Where-Object { Get-Command $_ -ErrorAction SilentlyContinue } | Select-Object -First 1
   if ($pipCmd) {
-    & ($pipCmd -split " ")[0] @(($pipCmd -split " ")[1..99] + @("install", "podman-compose", "-q"))
+    & $pipCmd install podman-compose -q
     if ($LASTEXITCODE -eq 0 -and (Get-Command "podman-compose" -ErrorAction SilentlyContinue)) {
       podman-compose @Args; return $LASTEXITCODE
     }
