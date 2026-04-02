@@ -36,5 +36,10 @@ namespace OkrTracker.Domain.Repositories
         /// Remove um KR pelo seu identificador.
         /// </summary>
         void Excluir(string id);
+
+        /// <summary>
+        /// Remove todos os KRs de um objetivo.
+        /// </summary>
+        void ExcluirPorObjetivoId(string objetivoId);
     }
 }

@@ -143,4 +143,37 @@ O sistema OKR Tracker evoluiu para atender a um gestor operacional multifrentes,
 
 ---
 
+## Anexo A — Feature: Edição e Exclusão de Objetivo
+
+**Data:** 02/04/2026  
+**Status:** Implementado
+
+### A.1. Contexto
+
+Durante a fase de planejamento de OKRs (ex.: Q2 2026), identificou-se a necessidade de editar e excluir objetivos diretamente na interface, sem precisar recriar ou usar fluxos alternativos.
+
+### A.2. Funcionalidades
+
+#### Excluir Objetivo
+- O usuário pode excluir um objetivo clicando no botão 🗑️ localizado no cabeçalho do card.
+- Uma confirmação via diálogo nativo é exibida antes de prosseguir.
+- A exclusão é permanente e em cascata: remove o objetivo, todos os seus KRs, e todos os eventos associados (comentários, fatos relevantes e riscos — tanto do objetivo quanto dos KRs).
+
+#### Editar Descrição e Valor do Objetivo
+- A descrição e o valor para o negócio são exibidos em modo **somente leitura** por padrão.
+- Um ícone de lápis ✏️ exibido antes do ícone "📝 Descrição" ativa o modo de edição ao ser clicado.
+- Em modo de edição, ambos os campos (descrição e valor) se tornam editáveis via textarea.
+- Botões **Salvar** e **Cancelar** permitem confirmar ou descartar as alterações.
+
+### A.3. Regras de Negócio
+- A exclusão exige confirmação explícita do usuário.
+- A edição respeita as validações existentes do backend (descrição e valor obrigatórios).
+- Não é possível excluir um objetivo inexistente (retorna erro 400).
+
+### A.4. Fora do Escopo deste Anexo
+- Edição/exclusão de KRs (tratado em anexo futuro).
+- Histórico de edições de descrição/valor.
+
+---
+
 _Fim do PRD — OKR Tracker (Versão Revisada)._

@@ -13,15 +13,18 @@ namespace OkrTracker.Api.Controllers
     {
         private readonly ICriarObjetivoService _criarService;
         private readonly IAtualizarObjetivoService _atualizarService;
+        private readonly IExcluirObjetivoService _excluirService;
         private readonly IListarOKRsPorTimeECicloService _listarOkrsService;
 
         public ObjetivosController(
             ICriarObjetivoService criarService,
             IAtualizarObjetivoService atualizarService,
+            IExcluirObjetivoService excluirService,
             IListarOKRsPorTimeECicloService listarOkrsService)
         {
             _criarService = criarService;
             _atualizarService = atualizarService;
+            _excluirService = excluirService;
             _listarOkrsService = listarOkrsService;
         }
 
@@ -61,6 +64,20 @@ namespace OkrTracker.Api.Controllers
         public IActionResult Atualizar(string id, [FromBody] AtualizarObjetivoRequest request)
         {
             var resultado = _atualizarService.Executar(id, request);
+
+            if (!resultado.Success)
+                return BadRequest(resultado);
+
+            return Ok(resultado);
+        }
+
+        /// <summary>
+        /// Exclui um objetivo e todos os seus dados associados (KRs, comentários, fatos relevantes e riscos).
+        /// </summary>
+        [HttpDelete("objetivos/{id}")]
+        public IActionResult Excluir(string id)
+        {
+            var resultado = _excluirService.Executar(id);
 
             if (!resultado.Success)
                 return BadRequest(resultado);

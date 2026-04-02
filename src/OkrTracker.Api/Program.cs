@@ -59,6 +59,7 @@ builder.Services.AddScoped<IAtualizarProjetoService, AtualizarProjetoService>();
 builder.Services.AddScoped<IExcluirProjetoService, ExcluirProjetoService>();
 builder.Services.AddScoped<ICriarObjetivoService, CriarObjetivoService>();
 builder.Services.AddScoped<IAtualizarObjetivoService, AtualizarObjetivoService>();
+builder.Services.AddScoped<IExcluirObjetivoService, ExcluirObjetivoService>();
 builder.Services.AddScoped<IListarOKRsPorTimeECicloService, ListarOKRsPorTimeECicloService>();
 builder.Services.AddScoped<ICriarKRService, CriarKRService>();
 builder.Services.AddScoped<IAtualizarKRService, AtualizarKRService>();

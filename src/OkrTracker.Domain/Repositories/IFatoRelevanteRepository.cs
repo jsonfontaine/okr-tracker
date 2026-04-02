@@ -21,5 +21,15 @@ namespace OkrTracker.Domain.Repositories
         /// Insere um novo fato relevante.
         /// </summary>
         void Inserir(FatoRelevante fatoRelevante);
+
+        /// <summary>
+        /// Remove todos os fatos relevantes de um objetivo.
+        /// </summary>
+        void ExcluirPorObjetivoId(string objetivoId);
+
+        /// <summary>
+        /// Remove todos os fatos relevantes de um KR.
+        /// </summary>
+        void ExcluirPorKrId(string krId);
     }
 }

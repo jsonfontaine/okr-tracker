@@ -36,5 +36,10 @@ namespace OkrTracker.Domain.Repositories
         /// Atualiza um objetivo existente.
         /// </summary>
         void Atualizar(Objetivo objetivo);
+
+        /// <summary>
+        /// Remove um objetivo pelo seu identificador.
+        /// </summary>
+        void Excluir(string id);
     }
 }

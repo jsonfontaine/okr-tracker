@@ -21,5 +21,15 @@ namespace OkrTracker.Domain.Repositories
         /// Insere um novo comentário.
         /// </summary>
         void Inserir(Comentario comentario);
+
+        /// <summary>
+        /// Remove todos os comentários de um objetivo.
+        /// </summary>
+        void ExcluirPorObjetivoId(string objetivoId);
+
+        /// <summary>
+        /// Remove todos os comentários de um KR.
+        /// </summary>
+        void ExcluirPorKrId(string krId);
     }
 }

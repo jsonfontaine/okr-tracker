@@ -3,7 +3,7 @@ import { Form, ListGroup, Row, Col } from 'react-bootstrap';
 import { Card as DSCard, CardHeader, CardContent, Button as DSButton } from '@genial/design-system';
 import { ProgressoBar, TagBadge } from './Badges';
 import KeyResultCard from './KeyResultCard';
-import { criarComentario, criarFatoRelevante, criarRisco, atualizarObjetivo } from '../services/api';
+import { criarComentario, criarFatoRelevante, criarRisco, atualizarObjetivo, excluirObjetivo } from '../services/api';
 import '../custom-button-border.css';
 
 export default function ObjetivoCard({ objetivo, onUpdated, onAddKr, ciclos = [] }) {
@@ -16,11 +16,52 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr, ciclos = []
   const [riscoDesc, setRiscoDesc] = useState('');
   const [riscoImpacto, setRiscoImpacto] = useState('');
 
+  // Estado de edição inline de descrição e valor
+  const [editando, setEditando] = useState(false);
+  const [editDescricao, setEditDescricao] = useState('');
+  const [editValor, setEditValor] = useState('');
+  const [salvando, setSalvando] = useState(false);
+
+  const iniciarEdicao = () => {
+    setEditDescricao(objetivo.descricao || '');
+    setEditValor(objetivo.valor || '');
+    setEditando(true);
+  };
+
+  const cancelarEdicao = () => {
+    setEditando(false);
+  };
+
+  const salvarEdicao = async () => {
+    setSalvando(true);
+    const dados = {
+      titulo: objetivo.titulo,
+      descricao: editDescricao,
+      cicloId: objetivo.cicloId,
+      projetoId: objetivo.projetoId,
+      prioridade: objetivo.prioridade,
+      farol: objetivo.farol,
+      status: objetivo.status,
+      intruder: objetivo.intruder,
+      descobertaTardia: objetivo.descobertaTardia,
+      valor: editValor,
+    };
+    await atualizarObjetivo(objetivo.id, dados);
+    setSalvando(false);
+    setEditando(false);
+    if (onUpdated) onUpdated();
+  };
+
+  const handleExcluir = async () => {
+    if (!window.confirm(`Tem certeza que deseja excluir o objetivo "${objetivo.titulo}"?\n\nEssa ação é irreversível e também excluirá todos os KRs e dados associados.`)) return;
+    await excluirObjetivo(objetivo.id);
+    if (onUpdated) onUpdated();
+  };
+
   const handleChangeField = async (field, value) => {
     const dados = {
       titulo: objetivo.titulo,
       descricao: objetivo.descricao,
-      // Substituir timeId por projetoId
       cicloId: objetivo.cicloId,
       projetoId: objetivo.projetoId,
       prioridade: objetivo.prioridade,
@@ -132,6 +173,17 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr, ciclos = []
                   </DSButton>
                 )}
                 <DSButton
+                  data-testid="ds-button-excluir-objetivo"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExcluir}
+                  className="okr-btn-border"
+                  title="Excluir objetivo"
+                  style={{ color: '#dc3545', borderColor: '#dc3545' }}
+                >
+                  🗑️
+                </DSButton>
+                <DSButton
                   data-testid="ds-button-expand-objetivo"
                   variant="link-button"
                   size="sm"
@@ -203,17 +255,79 @@ export default function ObjetivoCard({ objetivo, onUpdated, onAddKr, ciclos = []
             data-testid="ds-card-objetivo-content"
             style={{ backgroundColor: cardBackground }}
           >
-            {/* 1. Descrição */}
-            <p className="mb-2">
-              <strong>📝 Descrição:</strong> {objetivo.descricao}
-            </p>
-
-            {/* 2. Valor para o negócio */}
-            {objetivo.valor && (
-              <p className="mb-2">
-                <strong>💎 Valor para o negócio:</strong> {objetivo.valor}
-              </p>
-            )}
+            {/* 1. Descrição e Valor — somente leitura com botão de edição */}
+            <div className="mb-2">
+              {!editando ? (
+                <>
+                  <p className="mb-1">
+                    <button
+                      data-testid="ds-button-editar-objetivo"
+                      onClick={iniciarEdicao}
+                      title="Editar descrição e valor"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '0 4px 0 0',
+                        fontSize: '0.9rem',
+                        verticalAlign: 'middle',
+                      }}
+                    >
+                      ✏️
+                    </button>
+                    <strong>📝 Descrição:</strong> {objetivo.descricao}
+                  </p>
+                  {objetivo.valor && (
+                    <p className="mb-2">
+                      <strong>💎 Valor para o negócio:</strong> {objetivo.valor}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <div className="border rounded p-3 mb-2" style={{ backgroundColor: 'rgba(255,255,255,0.6)' }}>
+                  <div className="mb-2">
+                    <label className="form-label small fw-bold">📝 Descrição</label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      size="sm"
+                      value={editDescricao}
+                      onChange={(e) => setEditDescricao(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="form-label small fw-bold">💎 Valor para o negócio</label>
+                    <Form.Control
+                      as="textarea"
+                      rows={2}
+                      size="sm"
+                      value={editValor}
+                      onChange={(e) => setEditValor(e.target.value)}
+                    />
+                  </div>
+                  <div className="d-flex gap-2">
+                    <DSButton
+                      data-testid="ds-button-salvar-edicao-objetivo"
+                      variant="primary"
+                      size="sm"
+                      onClick={salvarEdicao}
+                      disabled={salvando}
+                    >
+                      {salvando ? '...' : 'Salvar'}
+                    </DSButton>
+                    <DSButton
+                      data-testid="ds-button-cancelar-edicao-objetivo"
+                      variant="outline"
+                      size="sm"
+                      onClick={cancelarEdicao}
+                      disabled={salvando}
+                    >
+                      Cancelar
+                    </DSButton>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <br />
             <hr />

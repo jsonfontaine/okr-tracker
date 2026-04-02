@@ -58,5 +58,13 @@ namespace OkrTracker.Infrastructure.Repositories
             using var db = _connectionFactory.CriarConexao();
             db.GetCollection<KeyResult>(CollectionName).Delete(id);
         }
+
+        public void ExcluirPorObjetivoId(string objetivoId)
+        {
+            using var db = _connectionFactory.CriarConexao();
+            var col = db.GetCollection<KeyResult>(CollectionName);
+            col.EnsureIndex(k => k.ObjetivoId);
+            col.DeleteMany(k => k.ObjetivoId == objetivoId);
+        }
     }
 }

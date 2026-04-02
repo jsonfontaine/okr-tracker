@@ -55,6 +55,8 @@ export const criarObjetivo = (dados) =>
   request('/objetivos', { method: 'POST', body: dados });
 export const atualizarObjetivo = (id, dados) =>
   request(`/objetivos/${id}`, { method: 'PUT', body: dados });
+export const excluirObjetivo = (id) =>
+  request(`/objetivos/${id}`, { method: 'DELETE' });
 
 // --- Key Results ---
 export const criarKR = (dados) =>

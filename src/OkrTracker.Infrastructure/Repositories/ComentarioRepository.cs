@@ -45,5 +45,21 @@ namespace OkrTracker.Infrastructure.Repositories
             col.EnsureIndex(c => c.KrId);
             col.Insert(comentario);
         }
+
+        public void ExcluirPorObjetivoId(string objetivoId)
+        {
+            using var db = _connectionFactory.CriarConexao();
+            var col = db.GetCollection<Comentario>(CollectionName);
+            col.EnsureIndex(c => c.ObjetivoId);
+            col.DeleteMany(c => c.ObjetivoId == objetivoId);
+        }
+
+        public void ExcluirPorKrId(string krId)
+        {
+            using var db = _connectionFactory.CriarConexao();
+            var col = db.GetCollection<Comentario>(CollectionName);
+            col.EnsureIndex(c => c.KrId);
+            col.DeleteMany(c => c.KrId == krId);
+        }
     }
 }

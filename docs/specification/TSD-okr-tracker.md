@@ -1,4 +1,4 @@
-TED — Technical Specification Document (TED)
+TSD — Technical Specification Document (TSD)
 OKR Tracker — Sistema Pessoal de Gestão de OKRs
 
 1. Título
@@ -14,7 +14,7 @@ Calcular automaticamente o progresso e o status dos Objetivos;
 Registrar Comentários, Fatos Relevantes e Riscos associados a Objetivos e KRs;
 Manter histórico por vários anos;
 Exportar OKRs em formato compatível com Adaptive Cards (Outlook);
-Utilizar um banco de dados LiteDB em arquivo .db, cujo caminho completo será informado pelo usuário ao iniciar o sistema;
+Utilizar um banco de dados LiTSDB em arquivo .db, cujo caminho completo será informado pelo usuário ao iniciar o sistema;
 Rodar como um monólito leve (frontend + backend) em um único container Docker.
 
 Características principais:
@@ -23,7 +23,7 @@ Uso single-user (apenas o próprio autor);
 Sem autenticação;
 Frontend em React;
 Backend em C# / ASP.NET Core;
-Banco LiteDB (arquivo .db externo ao container, versionável em git);
+Banco LiTSDB (arquivo .db externo ao container, versionável em git);
 Sistema acessado localmente (localhost).
 
 
@@ -34,7 +34,7 @@ Esta seção lista os serviços de aplicação (casos de uso) que orquestram o d
 
 ConfigurarBaseDeDadosService
 
-Objetivo: Receber o caminho completo do arquivo .db, validar se o LiteDB consegue abrir e registrar esse caminho como base ativa.
+Objetivo: Receber o caminho completo do arquivo .db, validar se o LiTSDB consegue abrir e registrar esse caminho como base ativa.
 
 
 
@@ -176,7 +176,7 @@ Fluxo:
 
 Usuário informa o caminho completo;
 Frontend chama POST /api/config/database com { databasePath };
-Backend tenta abrir o LiteDB com esse caminho:
+Backend tenta abrir o LiTSDB com esse caminho:
 
 Em caso de sucesso:
 
@@ -321,7 +321,7 @@ DataCriacao (datetime)
 
 
 
-5.2. Modelo lógico no LiteDB
+5.2. Modelo lógico no LiTSDB
 Coleções:
 
 ciclos
@@ -517,7 +517,7 @@ No frontend React, não usar dangerouslySetInnerHTML.
 8.2. Performance
 
 Volume pequeno de dados (uso pessoal);
-Índices em LiteDB para:
+Índices em LiTSDB para:
 
 ciclos.nome
 times.nome
@@ -545,7 +545,7 @@ Logar:
 
 Tentativas de configuração de base;
 Erros de validação;
-Exceções ao acessar LiteDB.
+Exceções ao acessar LiTSDB.
 
 
 
